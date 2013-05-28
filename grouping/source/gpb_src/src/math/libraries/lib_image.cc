@@ -6152,6 +6152,8 @@ void lib_image::contour_set::subdivide_global() {
       }
    };
    static const edge_compare e_compare;
+   //edge_compare e_compare;
+   
    /* subdivide edges which share both vertices */
    {
       /* sort edges by vertex ids */

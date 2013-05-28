@@ -54,12 +54,12 @@ MATLAB_PATH := /usr/sww/pkg/matlab-r2008a
 #MEX_EXTN := mexglx
 
 # matlab mex file compilation settings - matlab architecture (64-bit machines)
-MATLAB_ARCH := glnxa64
-MEX_EXTN := mexa64
+# MATLAB_ARCH := glnxa64
+# MEX_EXTN := mexa64
 
 # osx file compilation settings
-#MATLAB_ARCH := maci64
-#MEX_EXTN := mexmaci64
+MATLAB_ARCH := maci64
+MEX_EXTN := mexmaci64
 
 # matlab mex file compilation settings - include path for mex header files
 MEX_INCLUDE_PATH := $(MATLAB_PATH)/extern/include
@@ -77,17 +77,17 @@ MEX_BUILD := $(CXX_BUILD) -DMATLAB_MEX_FILE -D_GNU_SOURCE -DNDEBUG
 MEX_FLAGS := $(MEX_WARN) $(MEX_BUILD)
 
 # matlab mex file compilation settings - linker flags
-MEX_LDFLAGS := \
-   $(MEX_FLAGS) -shared \
-   -Wl,--version-script,"$(MATLAB_PATH)/extern/lib/$(MATLAB_ARCH)/mexFunction.map" \
-   -Wl,--rpath-link,"$(MATLAB_PATH)/bin/$(MATLAB_ARCH)" \
-   -L"$(MATLAB_PATH)/bin/$(MATLAB_ARCH)" $(MEX_LINK)
+#MEX_LDFLAGS := \
+#   $(MEX_FLAGS) -shared \
+#   -Wl,--version-script,"$(MATLAB_PATH)/extern/lib/$(MATLAB_ARCH)/mexFunction.map" \
+#   -Wl,--rpath-link,"$(MATLAB_PATH)/bin/$(MATLAB_ARCH)" \
+#   -L"$(MATLAB_PATH)/bin/$(MATLAB_ARCH)" $(MEX_LINK)
 
 # osx matlab mex file compilation settings - linker flags
-#MEX_LDFLAGS := \
-#   $(MEX_FLAGS) -bundle \
-#   -Wl,-exported_symbols_list,"$(MATLAB_PATH)/extern/lib/$(MATLAB_ARCH)/mexFunction.map" \
-#   -L"$(MATLAB_PATH)/bin/$(MATLAB_ARCH)" $(MEX_LINK)
+MEX_LDFLAGS := \
+   $(MEX_FLAGS) -bundle \
+   -Wl,-exported_symbols_list,"$(MATLAB_PATH)/extern/lib/$(MATLAB_ARCH)/mexFunction.map" \
+   -L"$(MATLAB_PATH)/bin/$(MATLAB_ARCH)" $(MEX_LINK)
 
 
 #############################################################################

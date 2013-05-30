@@ -1,0 +1,16 @@
+28/05/13
+Support for MAC OS X 10.8 (Mountain Lion)
+- CMake compiler must be set to GNU G++ rather than the Xcode default LLVM-G++ 
+  " cmake .. -DCMAKE_CXX_COMPILER=/usr/bin/g++ "
+
+- For Xcode 4.6
+  Patch: http://www.mathworks.com.au/support/solutions/en/data/1-FR6LXJ/
+  Download corresponding "optsPatch_MACOSX(x).patch" and follow the instructions
+
+- Change the line "MACOSX_DEPLOYMENT_TARGET = 10.5" to "10.6" in "/Applications/MATLAB2011b.app/bin/mexopts.sh".
+
+30/05/13
+- Commit the very first "gPb" code (the original one).
+- Its example can properly execute with a small image. 
+- RAM issue occures, when it is running with a large image.
+- Some compiling errors occured, when I ran "build.sh".

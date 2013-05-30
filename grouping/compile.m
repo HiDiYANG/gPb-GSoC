@@ -50,57 +50,59 @@ cd('source/gpb_src/');
 
 %mkoctfile --mex ./matlab/segmentation/mex_contour.cc  -I./include
 %mkoctfile --mex ./matlab/segmentation/mex_contour_sides.cc  -I./include
-mex ./matlab/segmentation/mex_contour_sides.cc  -I./include
+mex ./matlab/segmentation/mex_contour_sides.cc  -I./include -L../../lib -lopencv_gpb
 
 %mkoctfile --mex ./matlab/segmentation/mex_line_inds.cc  -I./include
-mkoctfile --mex ./matlab/segmentation/mex_nonmax_oriented.cc  -I./include
+%mkoctfile --mex ./matlab/segmentation/mex_nonmax_oriented.cc  -I./include
+mex ./matlab/segmentation/mex_nonmax_oriented.cc  -I./include -L../../lib -lopencv_gpb
+
 %mkoctfile --mex ./matlab/segmentation/mex_oe.cc  -I./include
 %mkoctfile --mex ./matlab/segmentation/mex_pb.cc  -I./include
-mkoctfile --mex ./matlab/segmentation/mex_pb_parts_final_selected.cc -I./include -L../../lib -lopencv_gpb
+%mkoctfile --mex ./matlab/segmentation/mex_pb_parts_final_selected.cc -I./include -L../../lib -lopencv_gpb
+mex ./matlab/segmentation/mex_pb_parts_final_selected.cc -I./include -L../../lib -lopencv_gpb
+
 %mkoctfile --mex ./matlab/segmentation/mex_pb_parts_lg.cc  -I./include
 %mkoctfile --mex ./matlab/segmentation/mex_pb_parts_sm.cc  -I./include
 %mkoctfile --mex ./matlab/segmentation/mex_textons.cc  -I./include
 
-system('mv *mex ../../lib')
+system('mv *.mex* ../../lib');
 cd(savepwd);
 
 % process savgol
 cd('source/savgol/');
 
-mkoctfile --mex ./savgol_border.cpp
+%mkoctfile --mex ./savgol_border.cpp
+mex ./savgol_border.cpp
 
-system('mv *mex ../../lib')
+system('mv *.mex* ../../lib');
 cd(savepwd);
 
 % process buildW
 cd('source/buildW/');
 
-mkoctfile --mex ./buildW.cpp -I./util -L../../lib -lopencv_gpb
+%mkoctfile --mex ./buildW.cpp -I./util -L../../lib -lopencv_gpb
+mex ./buildW.cpp -I./util -I/usr/local/include -L../../lib -lopencv_gpb -L/usr/local/lib -lopencv_core
 
-system('mv *mex ../../lib')
+system('mv *mex* ../../lib');
 cd(savepwd);
-
 
 % process custom mex files
 cd('source/opencv_gpb/');
 
-mkoctfile --mex ./mex/watershed.cpp ./mex/MxArray.cpp -I./src -I../buildW/util/ -I../buildW -I/opt/ros/fuerte/include -L../../lib -L/opt/ros/fuerte/lib -lopencv_gpb -lopencv_core -lopencv_imgproc -L../build -lbuildW -lopencv_gpb
+%mkoctfile --mex ./mex/watershed.cpp ./mex/MxArray.cpp -I./src -I../buildW/util/ -I../buildW -I/opt/ros/fuerte/include -L../../lib -L/opt/ros/fuerte/lib -lopencv_gpb -lopencv_core -lopencv_imgproc -L../build -lbuildW -lopencv_gpb
+mex ./mex/watershed.cpp ./mex/MxArray.cpp -I./src -I../buildW/util/ -I../buildW -I/usr/local/include -L../../lib -L/usr/local/lib -lopencv_gpb -lopencv_core -lopencv_imgproc -L../build -lbuildW -lopencv_gpb
 
-system('mv *.mex ../../lib')
+system('mv *.mex* ../../lib');
 cd(savepwd);
-
 
 % process ucm
 cd('source/ucm/');
 
-mkoctfile --mex ./ucm_mean_pb.cpp -L../../lib -lopencv_gpb
+%mkoctfile --mex ./ucm_mean_pb.cpp -L../../lib -lopencv_gpb
+mex ./ucm_mean_pb.cpp -L../../lib -lopencv_gpb
 
-system('mv *mex ../../lib')
+system('mv *mex* ../../lib');
 cd(savepwd);
-
-
-
-
 
 disp('..................................Done Compiling');
 

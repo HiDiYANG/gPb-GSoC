@@ -56,8 +56,8 @@ end
 function [seg8] = to_8(seg4)
 
 seg8 = seg4;
-for i = 1 : rows(seg4)-1,
-	for j = 1 : columns(seg4)-1,
+for i = 1 : size(seg4,1)-1,
+	for j = 1 : size(seg4,2)-1,
 		if (seg8(i,j) > 0 && seg8(i+1, j+1) > 0 && seg8(i,j+1) == 0 && seg8(i+1,j) == 0),
 			seg8(i,j+1) = ( seg8(i,j) + seg8(i+1,j+1) )/2;	
 		end

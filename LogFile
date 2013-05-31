@@ -1,7 +1,7 @@
 28/05/13
 Support for MAC OS X 10.8 (Mountain Lion)
 - CMake compiler must be set to GNU G++ rather than the Xcode default LLVM-G++ 
-  " cmake .. -DCMAKE_CXX_COMPILER=/usr/bin/g++ "
+  "cmake .. -DCMAKE_CXX_COMPILER=/usr/bin/g++"
 
 - For Xcode 4.6
   Patch: http://www.mathworks.com.au/support/solutions/en/data/1-FR6LXJ/
@@ -10,7 +10,22 @@ Support for MAC OS X 10.8 (Mountain Lion)
 - Change the line "MACOSX_DEPLOYMENT_TARGET = 10.5" to "10.6" in "/Applications/MATLAB2011b.app/bin/mexopts.sh".
 
 30/05/13
-- Commit the very first "gPb" code (the original one).
-- Its example can properly execute with a small image. 
-- RAM issue occures, when it is running with a large image.
-- Some compiling errors occured, when I ran "build.sh".
+Linux:
+Very first Commit:
+
+- Its example can properly execute on a small-size image with precompiled packages. 
+
+- RAM issue will occur, when it is running on a large-size image.
+
+- Some compiling errors occurred, when I tried to build packages with "build.sh".
+
+MAC OS X:
+Least Commit
+- link "/Applications/MATLAB2011b.app/bin/matlab" to "/usr/bin/matlab" by
+	ln -s /Applications/MATLAB2011b.app/bin/matlab /usr/bin/
+
+- export DYLD_LIBRARY_PATH=$<path to gPb>/grouping/lib:/usr/lib
+
+- Run MATLAB using terminal command, otherwise MATLAB will lose the path of dylib library
+
+- Then, examples will run correctly on both small-size and large-size images. 

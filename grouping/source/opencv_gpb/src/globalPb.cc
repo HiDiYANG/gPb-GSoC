@@ -77,8 +77,6 @@ namespace cv
     double sigma_tg_filt_sm = 2.0;            // sigma for small tg filters
     double sigma_tg_filt_lg = sqrt(2.0)*2.0;  // sigma for large tg filters
     double tmp_sigma;
-    float ab_min = -73.0, ab_max = 95.0;
-    FILE* pFile_L, *pFile_a, *pFile_b;
     
     int tmp_len;
     int n_bg = 3;
@@ -88,11 +86,12 @@ namespace cv
     int r_cg[3] = { 5, 10, 20 };
     int r_tg[3] = { 5, 10, 20 };
     
-    cv::Mat color, grey;
+    cv::Mat color, grey, ones;
     
     cv::merge(layers, color);
     cv::copyMakeBorder(color, color, border, border, border, border, BORDER_REFLECT);
-    cv::cvtColor(color, grey, CV_RGB2GRAY);
+    cv::cvtColor(color, grey, CV_BGR2GRAY);
+    ones = cv::Mat::ones(color.rows, color.cols, CV_32FC1);
     
     tmp_sigma = double(num_bins)*bg_smooth_sigma;
     tmp_len = 2*int(3.0*tmp_sigma+0.5)+1;    
@@ -102,44 +101,36 @@ namespace cv
     cv::Mat cga_smooth_kernel = cv::getGaussianKernel(tmp_len, tmp_sigma, CV_64FC1);
     cv::Mat cgb_smooth_kernel = cv::getGaussianKernel(tmp_len, tmp_sigma, CV_64FC1);
     
+    // Normalize color channels
     color.convertTo(color, CV_32FC3);
-    //TODO: normalize color first
-    //ps. It is BGR not RGB
-    cv::pow(color, 2.5, color);
-    cv::cvtColor(color, color, CV_BGR2Lab);
-    pFile_L = fopen("L.txt", "w+");
-    pFile_a = fopen("a.txt", "w+");
-    pFile_b = fopen("b.txt", "w+");
     cv::split(color, layers);
-    for(size_t c=0; c<3; c++){
-      //cv::minMaxLoc(layers[c], &min_elem, &max_elem);
+    for(size_t c=0; c<3; c++)
+      cv::multiply(layers[c], ones, layers[c], 1.0/255.0);
+    cv::merge(layers, color);
+    
+    // Color convert, including gamma correction
+    cv::cvtColor(color, color, CV_BGR2Lab);
+
+    // Normalize Lab channels
+    cv::split(color, layers);
+    for(size_t c=0; c<3; c++)
       for(size_t i=0; i<layers[c].rows; i++){
 	for(size_t j=0; j<layers[c].cols; j++){
 	  if(c==0)
-	    fprintf(pFile_L, "%0.2f ", layers[c].at<float>(i,j) );
-	  if(c==1)
-	    fprintf(pFile_a, "%0.2f ", layers[c].at<float>(i,j) );
-	  if(c==2)
-	    fprintf(pFile_b, "%0.2f ", layers[c].at<float>(i,j) );
+	    layers[c].at<float>(i,j) = layers[c].at<float>(i,j)/100.0;
+      	  else
+	    layers[c].at<float>(i,j) = (layers[c].at<float>(i,j)+73.0)/168.0;
+	  if(layers[c].at<float>(i,j) < 0.0)
+	    layers[c].at<float>(i,j) = 0.0;
+	  else if(layers[c].at<float>(i,j) > 1.0)
+	    layers[c].at<float>(i,j) = 1.0;
+	  float bin = floor(layers[c].at<float>(i,j)*float(num_bins));
+	  if(bin == float(num_bins)) bin--;
+	  layers[c].at<float>(i,j)=bin;
 	}
-	if(c==0)
-	    fprintf(pFile_L, "\n" );
-	  if(c==1)
-	    fprintf(pFile_a, "\n" );
-	  if(c==2)
-	    fprintf(pFile_b, "\n" );
       }
-    }
-    fclose(pFile_L);
-    fclose(pFile_a);
-    fclose(pFile_b);
-    
     cv::merge(layers, color);
-    color.convertTo(color, CV_8UC3);
-    
-    cv::imshow("border", color);
-    cv::imshow("layers", layers[0]);
-
+    cv::imshow("quantized", color);
   }
   
   void 

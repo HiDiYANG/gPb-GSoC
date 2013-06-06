@@ -1,9 +1,11 @@
 //
-//    cv_globalPb.cc
 //    globalPb
 //
-//    Created by Di Yang on 31/05/13.
-//    Copyright (c) 2013 The Australian National University. All rights reserved.
+//    Created by Di Yang, Vicent Rabaud, and Gary Bradski on 31/05/13.
+//    Copyright (c) 2013 The Australian National University. 
+//    and Willow Garage inc.
+//    All rights reserved.
+//    
 //
 
 #include "cv_lib_filters.hh"

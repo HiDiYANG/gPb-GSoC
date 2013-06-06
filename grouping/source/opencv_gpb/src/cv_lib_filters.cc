@@ -1,3 +1,18 @@
+//
+//    cv_lib_filters:
+//       An extended library of opencv gaussian-based filters.
+//       contains:
+//       1D anistropic gaussian filters
+//       2D anistropic gaussian filters
+//       2D central-surrouding gaussian filters
+//
+//    Created by Di Yang, Vicent Rabaud, and Gary Bradski on 31/05/13.
+//    Copyright (c) 2013 The Australian National University. 
+//    and Willow Garage inc.
+//    All rights reserved.
+//    
+//
+
 #include "cv_lib_filters.hh"
 
 #define X_ORI 1

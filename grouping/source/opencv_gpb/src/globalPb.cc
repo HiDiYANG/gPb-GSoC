@@ -7,6 +7,9 @@
 //
 
 #include "globalPb.hh"
+#define X_ORI 1
+#define Y_ORI 0
+#define PI 3.141592653
 
 using namespace std;
 
@@ -47,6 +50,158 @@ namespace
       weights[9] = 0.0208; weights[10]= 0.0210; weights[11]= 0.0229;
     }
     return weights;
+  }
+
+  void
+  normalizeDistr(const cv::Mat & input,
+		 cv::Mat & output)
+  {
+    input.copyTo(output);
+    output.convertTo(output, CV_32FC1);
+    cv::Mat ones = cv::Mat::ones(output.rows, output.cols, output.type());
+    double sumAbs = 0.0;
+    for(size_t i=0; i<output.rows; i++)
+      for(size_t j=0; j< output.cols; j++)
+	sumAbs += fabs(output.at<float>(i,j));
+    cv::divide(output, ones, output, 1.0/sumAbs);
+  }
+
+  /********************************************************************************
+   * Matrix Rotation
+   ********************************************************************************/
+  void rotate_2D_crop(const cv::Mat & input,
+		      cv::Mat & output,
+		      double ori,
+		      int len_x,
+		      int len_y)
+  {
+    cv::Mat rotate_M = cv::Mat::zeros(2, 3, CV_32FC1);
+    cv::Point center = cv::Point((input.cols-1)/2, (input.rows-1)/2);
+    cv::Size size(len_x, len_y);
+    double angle = ori/PI*180.0;
+    rotate_M = cv::getRotationMatrix2D(center, angle, 1.0);
+    /* Apply rotation transformation to a matrix */
+    cv::warpAffine(input, output, rotate_M, size);
+    
+    /* Cropping */
+    
+
+  }
+
+  void rotate_2D(const cv::Mat & input,
+		      cv::Mat & output,
+		      double ori)
+  {
+    rotate_2D_crop(input, output, ori, input.cols, input.rows);
+  }
+
+  /********************************************************************************
+   * Filters Generation
+   ********************************************************************************/
+  
+  int
+  support_rotated(int x,
+		  int y,
+		  double ori,
+		  bool label)
+  {
+    double sin_ori, cos_ori, mag0, mag1;
+    bool flag = label ? X_ORI : Y_ORI;
+    if(flag){
+      cos_ori = double(x)*cos(ori);
+      sin_ori = double(y)*sin(ori);
+    }
+    else{
+      cos_ori = double(y)*cos(ori);
+      sin_ori = double(x)*sin(ori);
+    }
+    mag0 = fabs(cos_ori - sin_ori);
+    mag1 = fabs(cos_ori + sin_ori);
+    return int(((mag0 > mag1)? mag0 : mag1)+1.0);
+  }
+
+  void 
+  _gaussianFilter1D(int half_len,
+		    double sigma,
+		    int deriv,
+		    bool hlbrt,
+		    cv::Mat & gaussian)
+  {
+    int len = 2*half_len+1;
+    cv::Mat ones = cv::Mat::ones(len, 1, CV_32F);
+    double sum_abs;
+    gaussian  = cv::getGaussianKernel(len, sigma, CV_32F);
+    if(deriv == 1){
+      for(int i=0; i<len; i++){
+	gaussian.at<float>(i) = gaussian.at<float>(i)*double(half_len-i);
+      }
+    }
+    else if(deriv == 2){
+      for(int i=0; i<len; i++){
+	double x = double(i-half_len);
+	gaussian.at<float>(i) = gaussian.at<float>(i)*(x*x/sigma-1.0); 
+      }
+    }
+    if(hlbrt){}
+    normalizeDistr(gaussian, gaussian);
+  }
+
+  void 
+  gaussianFilter1D(double sigma,
+		   int deriv,
+		   bool hlbrt,
+		   cv::Mat & gaussian)
+  {
+    int half_len = int(sigma*3.0);
+    _gaussianFilter1D(half_len, sigma, deriv, hlbrt, gaussian);
+  }
+
+  void 
+  _gaussianFilter2D(double ori,
+		    double sigma_x,
+		    double sigma_y,
+		    int deriv,
+		    bool hlbrt,
+		    cv::Mat & gaussian)
+  {
+    int half_len_x = int(sigma_x*3.0);
+    int half_len_y = int(sigma_y*3.0);
+    int half_len = (half_len_x>half_len_y)? half_len_x : half_len_y;
+    int len = 2*half_len+1;
+    
+    int half_len_rotate_x = support_rotated(half_len, half_len, ori, X_ORI);
+    int half_len_rotate_y = support_rotated(half_len, half_len, ori, Y_ORI);
+    int half_rotate_len = (half_len_rotate_x > half_len_rotate_y)? half_len_rotate_x : half_len_rotate_y;
+    int len_rotate= 2*half_rotate_len+1;
+    cv::Mat gaussian_x, gaussian_y;
+    
+    /*   Conduct Compution */    
+    _gaussianFilter1D(half_rotate_len, sigma_x, 0,     false, gaussian_x);
+    _gaussianFilter1D(half_rotate_len, sigma_y, deriv, false, gaussian_y);
+    
+    /* debuging patch */
+    /*FILE* pFile1, *pFile2;
+    pFile1 = fopen("p1.txt","w+");
+    pFile2 = fopen("p2.txt","w+");
+    for(size_t i =0; i<gaussian_x.rows; i++){
+      fprintf(pFile1, "%f\n", gaussian_x.at<float>(i,0));
+      fprintf(pFile2, "%f\n", gaussian_y.at<float>(i,0));
+    }
+    fclose(pFile1);
+    fclose(pFile2);*/
+
+    cv::transpose(gaussian_y, gaussian_y);
+    gaussian = gaussian_x*gaussian_y;
+    rotate_2D_crop(gaussian, gaussian, ori, len, len);
+    
+    /*  Normalize  */
+    normalizeDistr(gaussian, gaussian);
+  }
+  
+  void _texton_Filters(int n_ori,
+		       double sigma)
+  {
+    
   }
 }
 
@@ -95,12 +250,12 @@ namespace cv
     
     tmp_sigma = double(num_bins)*bg_smooth_sigma;
     tmp_len = 2*int(3.0*tmp_sigma+0.5)+1;    
-    cv::Mat bg_smooth_kernel  = cv::getGaussianKernel(tmp_len, tmp_sigma, CV_64FC1);
+    cv::Mat bg_smooth_kernel  = cv::getGaussianKernel(tmp_len, tmp_sigma, CV_32FC1);
     tmp_sigma = double(num_bins)*cg_smooth_sigma;
     tmp_len = 2*int(3.0*tmp_sigma+0.5)+1;
-    cv::Mat cga_smooth_kernel = cv::getGaussianKernel(tmp_len, tmp_sigma, CV_64FC1);
-    cv::Mat cgb_smooth_kernel = cv::getGaussianKernel(tmp_len, tmp_sigma, CV_64FC1);
-    
+    cv::Mat cga_smooth_kernel = cv::getGaussianKernel(tmp_len, tmp_sigma, CV_32FC1);
+    cv::Mat cgb_smooth_kernel = cv::getGaussianKernel(tmp_len, tmp_sigma, CV_32FC1);
+
     // Normalize color channels
     color.convertTo(color, CV_32FC3);
     cv::split(color, layers);
@@ -126,11 +281,22 @@ namespace cv
 	    layers[c].at<float>(i,j) = 1.0;
 	  float bin = floor(layers[c].at<float>(i,j)*float(num_bins));
 	  if(bin == float(num_bins)) bin--;
-	  layers[c].at<float>(i,j)=bin;
+	  layers[c].at<float>(i,j)=bin/24.0;
 	}
       }
     cv::merge(layers, color);
     cv::imshow("quantized", color);
+
+    cv::Mat g;
+    _gaussianFilter2D(1.5708, 2.5, 1.0, 2, false, g);    
+    FILE* pFile;
+    pFile = fopen("gaussian_k.txt","w+");
+    for(size_t i=0; i<g.rows; i++){
+      for(size_t j=0; j<g.cols; j++)
+	fprintf(pFile,"%f ", g.at<float>(i,j));
+      fprintf(pFile, "\n");
+    }
+    fclose(pFile);    
   }
   
   void 

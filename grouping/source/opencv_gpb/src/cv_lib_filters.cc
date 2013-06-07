@@ -15,18 +15,26 @@
 
 #include "cv_lib_filters.hh"
 
-#define X_ORI 1
-#define Y_ORI 0
-#define ZERO 0
-#define NON_ZERO 1
-#define HILBRT_ON 1
-#define HILBRT_OFF 0
-#define PI 3.141592653
-
 using namespace std;
 
 namespace libFilters
 { 
+  /********************************************************************************
+   * Hilbert Transform
+   ********************************************************************************/
+  void
+  hilbertTransform(cv::Mat & input,
+		   cv::Mat & output,
+		   double d)
+  {
+    cv::Mat padder;
+    int m = cv::getOptimalDFTSize(input.rows);
+    int n = cv::getOptimalDFTSize(input.cols);
+    cv::copyMakeBorder(input, padder, m-input.rows, m-input.rows, n-input.cols, n-input.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+  }
+  
+
+
   /********************************************************************************
    * Distribution Normalize and Mean value shifting
    ********************************************************************************/
@@ -69,7 +77,7 @@ namespace libFilters
     cv::Mat rotate_M = cv::Mat::zeros(2, 3, CV_32FC1);
     cv::Mat tmp;
     cv::Point center = cv::Point((input.cols-1)/2, (input.rows-1)/2);
-    double angle = ori/PI*180.0;
+    double angle = ori/M_PI*180.0;
     rotate_M = cv::getRotationMatrix2D(center, angle, 1.0);
     /* Apply rotation transformation to a matrix */
     cv::warpAffine(input, tmp, rotate_M, input.size());
@@ -93,7 +101,7 @@ namespace libFilters
    ********************************************************************************/
   
   int
-  support_rotated(int x,
+  supportRotated(int x,
 		  int y,
 		  double ori,
 		  bool label)
@@ -164,8 +172,8 @@ namespace libFilters
   {
     /* rotate support ROI */
     int len = 2*half_len+1;
-    int half_len_rotate_x = support_rotated(half_len, half_len, ori, X_ORI);
-    int half_len_rotate_y = support_rotated(half_len, half_len, ori, Y_ORI);
+    int half_len_rotate_x = supportRotated(half_len, half_len, ori, X_ORI);
+    int half_len_rotate_y = supportRotated(half_len, half_len, ori, Y_ORI);
     int half_rotate_len = (half_len_rotate_x > half_len_rotate_y)? half_len_rotate_x : half_len_rotate_y;
     int len_rotate= 2*half_rotate_len+1;    
     cv::Mat output_x, output_y;

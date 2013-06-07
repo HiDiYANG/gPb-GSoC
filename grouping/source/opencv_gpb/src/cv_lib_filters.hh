@@ -11,7 +11,6 @@
 #define NON_ZERO 1
 #define HILBRT_ON 1
 #define HILBRT_OFF 0
-#define PI 3.141592653
 
 namespace libFilters
 {

@@ -31,6 +31,7 @@ namespace libFilters
     int m = cv::getOptimalDFTSize(input.rows);
     int n = cv::getOptimalDFTSize(input.cols);
     cv::copyMakeBorder(input, padder, m-input.rows, m-input.rows, n-input.cols, n-input.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    
   }
   
 

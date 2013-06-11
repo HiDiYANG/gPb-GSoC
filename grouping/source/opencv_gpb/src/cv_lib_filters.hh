@@ -105,4 +105,11 @@ namespace libFilters
   textonFilters(int n_ori,
 		double sigma,
 		std::vector<cv::Mat> & filters);
+
+  void
+  texton(const cv::Mat & input,
+	 std::vector<cv::Mat> & filtered,
+	 int n_ori,
+	 double sigma_sm,
+	 double sigma_lg); 
 }

@@ -14,6 +14,8 @@
 //
 
 #include "cv_lib_filters.hh"
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -342,4 +344,77 @@ namespace libFilters
     }
     f_cs.copyTo(filters[2*n_ori]);
   }
+
+  void
+  texton(const cv::Mat & input,
+	 vector<cv::Mat> & filtered,
+	 int n_ori,
+	 double sigma_sm,
+	 double sigma_lg)
+  {
+    vector<cv::Mat> filters_small, filters_large, filters;
+    cv::Mat blur;
+    filters.resize(4*n_ori+2);
+
+    textonFilters(n_ori, sigma_sm, filters_small);
+    textonFilters(n_ori, sigma_lg, filters_large);
+    
+    for(size_t i=0; i<2*n_ori+1; i++){
+      filters_small[i].copyTo(filters[i]);
+      filters_large[i].copyTo(filters[2*n_ori+1+i]);
+    }
+    
+    cv::Mat k_samples(input.rows*input.cols, 4*n_ori+2, CV_32FC1);
+    
+    FILE* pFile, *pFile2;
+    string ext = ".txt";
+    pFile2 = fopen("samples.txt","w+");
+
+    for(size_t idx=0; idx< 4*n_ori+2; idx++){
+      ostringstream tmp;
+      tmp<<idx;
+      string index = tmp.str();
+      string filename = "filtered_";
+      filename.insert(filename.length(), index);
+      filename.insert(filename.length(), ext);
+      pFile = fopen(filename.c_str(), "w+");
+      cv::filter2D(input, blur, CV_32F, filters[idx], cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      
+      cout<<"writing to "<<filename<<endl;
+      for(size_t ii=0; ii<blur.cols; ii++){
+	for(size_t jj=0; jj<blur.rows; jj++){
+	  k_samples.at<float>((ii+1)*jj, 0) = input.at<float>(jj, ii);
+	  fprintf(pFile2, "%f ", k_samples.at<float>((ii+1)*jj, idx));
+	  fprintf(pFile, "%f ", blur.at<float>(jj, ii));
+	}
+	fprintf(pFile,"\n");
+      }
+      fprintf(pFile2, "\n");
+      fclose(pFile);
+    }
+    fclose(pFile2);
+      
+    cv::Mat labels;
+    cv::kmeans(k_samples, 6, labels, 
+	       cv::TermCriteria(cv::TermCriteria::EPS, 10, 0.0001), 
+	       3, cv::KMEANS_PP_CENTERS);
+    
+    pFile2 = fopen("labels.txt", "w+");
+    for(size_t i=0; i<labels.rows; i++)
+      fprintf(pFile2, "%d\n", labels.at<int>(i, 0));
+    fclose(pFile2);
+      
+
+    cv::Mat cluster(blur.rows, blur.cols, CV_32FC1);
+    
+    for(size_t i=0; i<blur.cols; i++)
+      for(size_t j=0; j<blur.rows; j++){
+	cluster.at<float>(j, i) = double(labels.at<int>((i+1)*j,0));
+      }
+    cluster.convertTo(cluster, CV_8UC1);
+    imshow("cluster", cluster*51);
+  }
+
+
 }
+

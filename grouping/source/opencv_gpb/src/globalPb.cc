@@ -76,7 +76,7 @@ namespace cv
 			  vector<cv::Mat> & tg_r20*/)
   {
     int n_ori      = 8;                       // number of orientations
-    int num_bins = 25;                        // bins for L, b, a
+    int num_bins   = 25;                        // bins for L, b, a
     int border     = 30;                      // border pixels
     double bg_smooth_sigma = 0.1;             // bg histogram smoothing sigma
     double cg_smooth_sigma = 0.05;            // cg histogram smoothing sigma
@@ -91,9 +91,9 @@ namespace cv
     int r_tg[3] = { 5, 10, 20 };
     
     cv::Mat color, grey, ones, bg_smooth_kernel, cga_smooth_kernel, cgb_smooth_kernel;
-    vector<cv::Mat> filters_small, filters_large, filters;
+    vector<cv::Mat> filters_small, filters_large, filtered;
     cv::merge(layers, color);
-    //cv::copyMakeBorder(color, color, border, border, border, border, BORDER_REFLECT);
+    cv::copyMakeBorder(color, color, border, border, border, border, BORDER_REFLECT);
     cv::cvtColor(color, grey, CV_BGR2GRAY);
     ones = cv::Mat::ones(color.rows, color.cols, CV_32FC1);
     grey.convertTo(grey, CV_32FC1);
@@ -138,14 +138,7 @@ namespace cv
     cv::merge(layers, color);
     cv::imshow("quantized", color);
 
-    textonFilters(n_ori, sigma_tg_filt_sm, filters_small);
-    textonFilters(n_ori, sigma_tg_filt_sm, filters_large);
-
-    filters.resize(4*n_ori+2);
-    for(size_t i=0; i<2*n_ori+1; i++){
-      filters_small[i].copyTo(filters[i]);
-      filters_small[i].copyTo(filters[2*n_ori+1+i]);
-    }
+    texton(grey, filtered, n_ori, sigma_tg_filt_sm, sigma_tg_filt_lg);
     
     /********* END OF FILTERS INTIALIZATION ***************/
 
@@ -171,31 +164,6 @@ namespace cv
     for(size_t i=0; i<test.rows; i++)
       fprintf(pFile, "%f\n", test.at<float>(i,0));
       fclose(pFile);*/
-
-
-    cv::Point anchor(-1, -1); 
-    FILE* pFile;
-    string ext = ".txt";
-    for(size_t idx=0; idx< 34; idx++){
-      ostringstream tmp;
-      tmp<<idx;
-      string index = tmp.str();
-      string filename = "filtered_";
-      filename.insert(filename.length(), index);
-      filename.insert(filename.length(), ext);
-      pFile = fopen(filename.c_str(), "w+");
-      
-      cv::Mat filtered;
-      cv::filter2D(grey, filtered, -1, filters[idx], anchor, 0.0, BORDER_REFLECT);
-
-      cout<<"writing to "<<filename<<endl;
-      for(size_t i=0; i<filtered.rows; i++){
-	for(size_t j=0; j<filtered.cols; j++)
-	  fprintf(pFile, "%f ", filtered.at<float>(i, j));
-	fprintf(pFile,"\n");
-      }
-      fclose(pFile);
-    }
 
   }
   

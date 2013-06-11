@@ -23,18 +23,71 @@ namespace libFilters
    * Hilbert Transform
    ********************************************************************************/
   void
-  hilbertTransform(cv::Mat & input,
-		   cv::Mat & output,
-		   double d)
+  convolveDFT(const cv::Mat & inputA,
+	      const cv::Mat & inputB,
+	      cv::Mat & output)
   {
-    cv::Mat padder;
-    int m = cv::getOptimalDFTSize(input.rows);
-    int n = cv::getOptimalDFTSize(input.cols);
-    cv::copyMakeBorder(input, padder, m-input.rows, m-input.rows, n-input.cols, n-input.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-    
+    cv::Mat TempA, TempB;
+    inputA.copyTo(TempA);
+    inputB.copyTo(TempB);
+    int width = cv::getOptimalDFTSize(inputA.cols+inputB.cols-1);
+    cv::copyMakeBorder(TempA, TempA, 0, 0, 0, width-inputA.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::copyMakeBorder(TempB, TempB, 0, 0, 0, width-inputB.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::dft(TempA, TempA, cv::DFT_ROWS, inputA.rows);
+    cv::dft(TempB, TempB, cv::DFT_ROWS, inputB.rows);
+    cv::mulSpectrums(TempA, TempB, TempA, cv::DFT_ROWS, false);
+    cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, output.rows);
+    TempA.copyTo(output);
   }
-  
 
+  void
+  hilbertTransform1D(const cv::Mat & input,
+		     cv::Mat & output,
+		     bool label)
+  {
+    bool flag = label? SAME_SIZE : EXPAND_SIZE; 
+    cv::Mat temp;
+    input.copyTo(temp);
+    if(temp.cols != 1 && temp.rows != 1){
+      cout<<"Input must be a 1D matrix"<<endl;
+    }
+    if(input.cols == 1)
+      cv::transpose(temp, temp);
+    cv::Mat hilbert(temp.rows, temp.cols, CV_32FC1);
+    int n, m;
+    int half_len = (temp.cols-1)/2;
+    
+    for(int i = 0; i < hilbert.cols; i++){
+	m = i-half_len;
+	if( m % 2 == 0)
+	  hilbert.at<float>(0, i) = 0.0;
+	else
+	  hilbert.at<float>(0, i) = 1.0/(M_PI*double(m));
+    }
+    convolveDFT(temp, hilbert, temp);
+    if(input.cols == 1)
+      cv::transpose(temp, temp);
+    if(flag){
+      int W_o = ((temp.cols-1)-(input.cols-1))/2;
+      int H_o = ((temp.rows-1)-(input.rows-1))/2;
+      temp(cv::Rect(W_o, H_o, input.cols, input.rows)).copyTo(output);
+    }
+    else
+      temp.copyTo(output);
+  }
+
+  /********************************************************************************
+   * Standard orientation generation
+   ********************************************************************************/
+  double* 
+  standard_filter_orientations(int n_ori){
+    double* oris = new double[n_ori];
+    double ori = 0;
+    double ori_step = (n_ori>0) ? (M_PI/double(n_ori)) : 0;
+    for(size_t i=0; i<n_ori; i++, ori += ori_step)
+      oris[i] = ori;
+    return oris;
+  }
 
   /********************************************************************************
    * Distribution Normalize and Mean value shifting
@@ -75,13 +128,14 @@ namespace libFilters
 		      int len_cols,
 		      int len_rows)
   {
-    cv::Mat rotate_M = cv::Mat::zeros(2, 3, CV_32FC1);
     cv::Mat tmp;
+    cv::Mat rotate_M = cv::Mat::zeros(2, 3, CV_32FC1);
     cv::Point center = cv::Point((input.cols-1)/2, (input.rows-1)/2);
     double angle = ori/M_PI*180.0;
     rotate_M = cv::getRotationMatrix2D(center, angle, 1.0);
+    
     /* Apply rotation transformation to a matrix */
-    cv::warpAffine(input, tmp, rotate_M, input.size());
+    cv::warpAffine(input, tmp, rotate_M, input.size(), cv::INTER_LINEAR);
     
     /* Cropping */
     int border_rows = (input.rows - len_rows)/2;
@@ -126,10 +180,10 @@ namespace libFilters
   _gaussianFilter1D(int half_len,
 		    double sigma,
 		    int deriv,
-		    bool hlbrt,
+		    bool label,
 		    cv::Mat & output)
   {
-    bool flag = hlbrt? HILBRT_ON : HILBRT_OFF; 
+    bool hlbrt = label? HILBRT_ON : HILBRT_OFF; 
     int len = 2*half_len+1;
     cv::Mat ones = cv::Mat::ones(len, 1, CV_32F);
     double sum_abs;
@@ -145,7 +199,9 @@ namespace libFilters
 	output.at<float>(i) = output.at<float>(i)*(x*x/sigma-1.0); 
       }
     }
-    if(flag){}
+    if(hlbrt)
+      hilbertTransform1D(output, output, SAME_SIZE);
+
     if(deriv > 0)
       normalizeDistr(output, output, ZERO);
     else
@@ -181,7 +237,7 @@ namespace libFilters
 
     /*   Conduct Compution */    
     _gaussianFilter1D(half_rotate_len, sigma_x, 0,     HILBRT_OFF, output_x);
-    _gaussianFilter1D(half_rotate_len, sigma_y, deriv, HILBRT_OFF, output_y);
+    _gaussianFilter1D(half_rotate_len, sigma_y, deriv, hlbrt, output_y);
     output = output_x*output_y.t();
     rotate_2D_crop(output, output, ori, len, len);
     
@@ -211,7 +267,6 @@ namespace libFilters
 
   void
   _gaussianFilter2D_cs(int half_len,
-		       double ori,
 		       double sigma_x,
 		       double sigma_y,
 		       double scale_factor,
@@ -220,15 +275,14 @@ namespace libFilters
     double sigma_x_c = sigma_x/scale_factor;
     double sigma_y_c = sigma_y/scale_factor;
     cv::Mat output_cen, output_sur;
-    _gaussianFilter2D(half_len, ori, sigma_x_c, sigma_y_c, 0, HILBRT_OFF, output_cen);
-    _gaussianFilter2D(half_len, ori, sigma_x,   sigma_y,   0, HILBRT_OFF, output_sur);
+    _gaussianFilter2D(half_len, 0.0, sigma_x_c, sigma_y_c, 0, HILBRT_OFF, output_cen);
+    _gaussianFilter2D(half_len, 0.0, sigma_x,   sigma_y,   0, HILBRT_OFF, output_sur);
     cv::addWeighted(output_sur, 1.0, output_cen, -1.0, 0.0, output);
     normalizeDistr(output, output, ZERO);
   }
 
   void
-  gaussianFilter2D_cs(double ori,
-		      double sigma_x,
+  gaussianFilter2D_cs(double sigma_x,
 		      double sigma_y,
 		      double scale_factor,
 		      cv::Mat & output)
@@ -236,12 +290,56 @@ namespace libFilters
     int half_len_x = int(sigma_x*3.0);
     int half_len_y = int(sigma_y*3.0);
     int half_len = (half_len_x>half_len_y)? half_len_x : half_len_y;    
-    _gaussianFilter2D_cs(half_len, ori, sigma_x, sigma_y, scale_factor, output);
+    _gaussianFilter2D_cs(half_len, sigma_x, sigma_y, scale_factor, output);
   }
-  
-  void _texton_Filters(int n_ori,
-		       double sigma)
+ 
+  void
+  gaussianFilters(int n_ori,
+		  double sigma,
+		  int deriv,
+		  bool hlbrt,
+		  double enlongation,
+		  vector<cv::Mat> & filters)
   {
+    double sigma_x = sigma;
+    double sigma_y = sigma/enlongation;
+    double* oris;
+    filters.resize(n_ori);
+    oris = standard_filter_orientations(n_ori);
+    for(size_t i=0; i<n_ori; i++)
+      gaussianFilter2D(oris[i], sigma_x, sigma_y, deriv, hlbrt, filters[i]);
+  }
+
+  void
+  oeFilters(int n_ori,
+	     double sigma,
+	     vector<cv::Mat> & filters,
+	     bool label)
+  {
+    bool flag = label ? OE_EVEN : OE_ODD;
+    if(flag)
+      gaussianFilters(n_ori, sigma, 2, HILBRT_OFF, 3.0, filters);
+    else
+      gaussianFilters(n_ori, sigma, 2, HILBRT_ON, 3.0, filters);
+  }
+
+  void 
+  textonFilters(int n_ori,
+		double sigma,
+		vector<cv::Mat> & filters)
+  {
+    vector<cv::Mat> even_filters;
+    vector<cv::Mat> odd_filters;
+    cv::Mat f_cs;
+    filters.resize(2*n_ori+1);
+    oeFilters(n_ori, sigma, even_filters, OE_EVEN);
+    oeFilters(n_ori, sigma, odd_filters,  OE_ODD );
+    gaussianFilter2D_cs(sigma, sigma, M_SQRT2, f_cs);
     
+    for(size_t i=0; i<n_ori; i++){
+      even_filters[i].copyTo(filters[i]);
+      odd_filters[i].copyTo(filters[n_ori+i]);
+    }
+    f_cs.copyTo(filters[2*n_ori]);
   }
 }

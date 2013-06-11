@@ -11,33 +11,41 @@
 #define NON_ZERO 1
 #define HILBRT_ON 1
 #define HILBRT_OFF 0
+#define SAME_SIZE 1
+#define EXPAND_SIZE 0
+#define OE_EVEN 1
+#define OE_ODD 0
 
 namespace libFilters
 {
+  /********************************************************************************
+   * Hilbert Transform
+   ********************************************************************************/
   void
-  normalizeDistr(const cv::Mat & input,
-		 cv::Mat & output,
-		 bool label);
+  convolveDFT(const cv::Mat & inputA,
+	      const cv::Mat & inputB,
+	      cv::Mat & output);
+
+  void
+  hilbertTransform1D(const cv::Mat & input,
+		     cv::Mat & output,
+		     bool label);
 
   /********************************************************************************
    * Matrix Rotation
    ********************************************************************************/
   
-  void rotate_2D_crop(const cv::Mat & input,
-		      cv::Mat & output,
-		      double ori,
-		      int len_cols,
-		      int len_rows);
-
-  void rotate_2D(const cv::Mat & input,
+  void 
+  rotate_2D_crop(const cv::Mat & input,
 		 cv::Mat & output,
-		 double ori);
-  
-  int
-  support_rotated(int x,
-		  int y,
-		  double ori,
-		  bool label);
+		 double ori,
+		 int len_cols,
+		 int len_rows);
+
+  void 
+  rotate_2D(const cv::Mat & input,
+	    cv::Mat & output,
+	    double ori);
  
   /********************************************************************************
    * Filters Generation
@@ -76,19 +84,25 @@ namespace libFilters
 
   void
   _gaussianFilter2D_cs(int half_len,
-		       double ori,
 		       double sigma_x,
 		       double sigma_y,
 		       double scale_factor,
 		       cv::Mat & output);
   
   void
-  gaussianFilter2D_cs(double ori,
-		      double sigma_x,
+  gaussianFilter2D_cs(double sigma_x,
 		      double sigma_y,
 		      double scale_factor,
 		      cv::Mat & output);
   
-  void _texton_Filters(int n_ori,
-		       double sigma);
+  void
+  oeFilters(int n_ori,
+	    double sigma,
+	    std::vector<cv::Mat> & filters,
+	    bool label);
+  
+  void 
+  textonFilters(int n_ori,
+		double sigma,
+		std::vector<cv::Mat> & filters);
 }

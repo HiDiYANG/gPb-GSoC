@@ -10,6 +10,8 @@
 
 #include "cv_lib_filters.hh"
 #include "globalPb.hh"
+#include <string>
+#include <sstream>
 
 using namespace std;
 using namespace libFilters;
@@ -89,10 +91,13 @@ namespace cv
     int r_tg[3] = { 5, 10, 20 };
     
     cv::Mat color, grey, ones, bg_smooth_kernel, cga_smooth_kernel, cgb_smooth_kernel;
+    vector<cv::Mat> filters_small, filters_large, filters;
     cv::merge(layers, color);
-    cv::copyMakeBorder(color, color, border, border, border, border, BORDER_REFLECT);
+    //cv::copyMakeBorder(color, color, border, border, border, border, BORDER_REFLECT);
     cv::cvtColor(color, grey, CV_BGR2GRAY);
     ones = cv::Mat::ones(color.rows, color.cols, CV_32FC1);
+    grey.convertTo(grey, CV_32FC1);
+    cv::multiply(grey, ones, grey, 1.0/255.0);
     
     // Histogram filter generation
     gaussianFilter1D(double(num_bins)*bg_smooth_sigma, 0, false, bg_smooth_kernel);
@@ -122,6 +127,9 @@ namespace cv
 	    layers[c].at<float>(i,j) = 0.0;
 	  else if(layers[c].at<float>(i,j) > 1.0)
 	    layers[c].at<float>(i,j) = 1.0;
+
+	  //quantize color channels
+	  
 	  float bin = floor(layers[c].at<float>(i,j)*float(num_bins));
 	  if(bin == float(num_bins)) bin--;
 	  layers[c].at<float>(i,j)=bin/24.0;
@@ -129,12 +137,23 @@ namespace cv
       }
     cv::merge(layers, color);
     cv::imshow("quantized", color);
+
+    textonFilters(n_ori, sigma_tg_filt_sm, filters_small);
+    textonFilters(n_ori, sigma_tg_filt_sm, filters_large);
+
+    filters.resize(4*n_ori+2);
+    for(size_t i=0; i<2*n_ori+1; i++){
+      filters_small[i].copyTo(filters[i]);
+      filters_small[i].copyTo(filters[2*n_ori+1+i]);
+    }
     
+    /********* END OF FILTERS INTIALIZATION ***************/
+
     /* Test rotated gaussian filter */
-    cv::Mat g;
+    //cv::Mat g;
     //gaussianFilter2D(1.1781, 2.0, 2.0, 2, HLBRT_OFF, g);
 
-    gaussianFilter2D_cs(0, 2.0, 2.0, M_SQRT2, g);
+    /*gaussianFilter2D(0, 2.0, 1.0, 0, HILBRT_ON, g);
     FILE* pFile;
     pFile = fopen("gaussian_k.txt","w+");
     cout<<"writing into gaussian_k.txt ..."<<endl;
@@ -143,7 +162,41 @@ namespace cv
 	fprintf(pFile,"%f ", g.at<float>(i,j));
       fprintf(pFile, "\n");
     }
-    fclose(pFile);    
+    fclose(pFile);*/
+
+    // Hilbert Transform    
+    /*cv::Mat test;
+    hilbertTransform1D(bg_smooth_kernel, test, EXPAND_SIZE);
+    pFile = fopen("test.txt", "w+");
+    for(size_t i=0; i<test.rows; i++)
+      fprintf(pFile, "%f\n", test.at<float>(i,0));
+      fclose(pFile);*/
+
+
+    cv::Point anchor(-1, -1); 
+    FILE* pFile;
+    string ext = ".txt";
+    for(size_t idx=0; idx< 34; idx++){
+      ostringstream tmp;
+      tmp<<idx;
+      string index = tmp.str();
+      string filename = "filtered_";
+      filename.insert(filename.length(), index);
+      filename.insert(filename.length(), ext);
+      pFile = fopen(filename.c_str(), "w+");
+      
+      cv::Mat filtered;
+      cv::filter2D(grey, filtered, -1, filters[idx], anchor, 0.0, BORDER_REFLECT);
+
+      cout<<"writing to "<<filename<<endl;
+      for(size_t i=0; i<filtered.rows; i++){
+	for(size_t j=0; j<filtered.cols; j++)
+	  fprintf(pFile, "%f ", filtered.at<float>(i, j));
+	fprintf(pFile,"\n");
+      }
+      fclose(pFile);
+    }
+
   }
   
   void 

@@ -5,7 +5,6 @@
 #include <opencv/highgui.h>
 #include <opencv2/core/core.hpp>
 
-
 namespace cv
 {
   void 
@@ -19,7 +18,7 @@ namespace cv
   
   void
   multiscalePb(const cv::Mat & image,
-	       vector<cv::Mat> & layers);
+	       std::vector<cv::Mat> & layers);
   
   void
   pb_parts_final_selected(vector<cv::Mat> & layers

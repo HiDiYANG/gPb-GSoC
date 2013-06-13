@@ -1,10 +1,12 @@
 //
 //    cv_lib_filters:
 //       An extended library of opencv gaussian-based filters.
-//       contains:
-//       1D anistropic gaussian filters
-//       2D anistropic gaussian filters
+//       contents:
+//       1D multi-order gaussian filters (Option: Hilbert Transform)
+//       2D multi-order anistropic gaussian filters (Option: Hilbert Transform)
 //       2D central-surrouding gaussian filters
+//       2D texton filters
+//       texton executation
 //
 //    Created by Di Yang, Vicent Rabaud, and Gary Bradski on 31/05/13.
 //    Copyright (c) 2013 The Australian National University. 
@@ -14,9 +16,6 @@
 //
 
 #include "cv_lib_filters.hh"
-#include <string>
-#include <sstream>
-
 using namespace std;
 
 namespace libFilters
@@ -124,11 +123,34 @@ namespace libFilters
   /********************************************************************************
    * Matrix Rotation
    ********************************************************************************/
-  void rotate_2D_crop(const cv::Mat & input,
-		      cv::Mat & output,
-		      double ori,
-		      int len_cols,
-		      int len_rows)
+  
+  int
+  supportRotated(int x,
+		  int y,
+		  double ori,
+		  bool label)
+  {
+    double sin_ori, cos_ori, mag0, mag1;
+    bool flag = label ? X_ORI : Y_ORI;
+    if(flag){
+      cos_ori = double(x)*cos(ori);
+      sin_ori = double(y)*sin(ori);
+    }
+    else{
+      cos_ori = double(y)*cos(ori);
+      sin_ori = double(x)*sin(ori);
+    }
+    mag0 = fabs(cos_ori - sin_ori);
+    mag1 = fabs(cos_ori + sin_ori);
+    return int(((mag0 > mag1)? mag0 : mag1)+1.0);
+  }
+  
+  void 
+  rotate_2D_crop(const cv::Mat & input,
+		 cv::Mat & output,
+		 double ori,
+		 int len_cols,
+		 int len_rows)
   {
     cv::Mat tmp;
     cv::Mat rotate_M = cv::Mat::zeros(2, 3, CV_32FC1);
@@ -153,31 +175,11 @@ namespace libFilters
     rotate_2D_crop(input, output, ori, input.cols, input.rows);
   }
 
-  /********************************************************************************
+ /********************************************************************************
    * Filters Generation
    ********************************************************************************/
   
-  int
-  supportRotated(int x,
-		  int y,
-		  double ori,
-		  bool label)
-  {
-    double sin_ori, cos_ori, mag0, mag1;
-    bool flag = label ? X_ORI : Y_ORI;
-    if(flag){
-      cos_ori = double(x)*cos(ori);
-      sin_ori = double(y)*sin(ori);
-    }
-    else{
-      cos_ori = double(y)*cos(ori);
-      sin_ori = double(x)*sin(ori);
-    }
-    mag0 = fabs(cos_ori - sin_ori);
-    mag1 = fabs(cos_ori + sin_ori);
-    return int(((mag0 > mag1)? mag0 : mag1)+1.0);
-  }
-
+  /* 1D multi-order gaussian filter generation */
   void 
   _gaussianFilter1D(int half_len,
 		    double sigma,
@@ -220,6 +222,7 @@ namespace libFilters
     _gaussianFilter1D(half_len, sigma, deriv, hlbrt, output);
   }
 
+  /* multi-order anistropic gaussian filter generation */
   void
   _gaussianFilter2D(int half_len,
 		    double ori,
@@ -267,6 +270,7 @@ namespace libFilters
     _gaussianFilter2D(half_len, ori, sigma_x, sigma_y, deriv, hlbrt, output);
   }
 
+  /* Central-surrounding gaussian filter */
   void
   _gaussianFilter2D_cs(int half_len,
 		       double sigma_x,
@@ -295,6 +299,7 @@ namespace libFilters
     _gaussianFilter2D_cs(half_len, sigma_x, sigma_y, scale_factor, output);
   }
  
+  /* A set of multi-order anistropic gaussian filters generation */
   void
   gaussianFilters(int n_ori,
 		  double sigma,
@@ -312,6 +317,7 @@ namespace libFilters
       gaussianFilter2D(oris[i], sigma_x, sigma_y, deriv, hlbrt, filters[i]);
   }
 
+  /* Even or odd gaussian multi-order gaussian filters generation */
   void
   oeFilters(int n_ori,
 	     double sigma,
@@ -325,6 +331,7 @@ namespace libFilters
       gaussianFilters(n_ori, sigma, 2, HILBRT_ON, 3.0, filters);
   }
 
+  /* Texton Filters Generation */
   void 
   textonFilters(int n_ori,
 		double sigma,
@@ -345,17 +352,21 @@ namespace libFilters
     f_cs.copyTo(filters[2*n_ori]);
   }
 
+  /********************************************************************************
+   * Texton Filters Executation
+   ********************************************************************************/
+
   void
-  texton(const cv::Mat & input,
-	 vector<cv::Mat> & filtered,
-	 int n_ori,
-	 double sigma_sm,
-	 double sigma_lg)
+  textonRun(const cv::Mat & input,
+	    cv::Mat & output,
+	    int n_ori,
+	    double sigma_sm,
+	    double sigma_lg)
   {
     vector<cv::Mat> filters_small, filters_large, filters;
-    cv::Mat blur;
+    cv::Mat blur, labels, k_samples;
+    
     filters.resize(4*n_ori+2);
-
     textonFilters(n_ori, sigma_sm, filters_small);
     textonFilters(n_ori, sigma_lg, filters_large);
     
@@ -364,56 +375,69 @@ namespace libFilters
       filters_large[i].copyTo(filters[2*n_ori+1+i]);
     }
     
-    cv::Mat k_samples(input.rows*input.cols, 4*n_ori+2, CV_32FC1);
+    k_samples = cv::Mat::zeros(input.rows*input.cols, 4*n_ori+2, CV_32FC1);
     
-    FILE* pFile, *pFile2;
-    string ext = ".txt";
-    pFile2 = fopen("samples.txt","w+");
-
     for(size_t idx=0; idx< 4*n_ori+2; idx++){
-      ostringstream tmp;
-      tmp<<idx;
-      string index = tmp.str();
-      string filename = "filtered_";
-      filename.insert(filename.length(), index);
-      filename.insert(filename.length(), ext);
-      pFile = fopen(filename.c_str(), "w+");
       cv::filter2D(input, blur, CV_32F, filters[idx], cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      
-      cout<<"writing to "<<filename<<endl;
-      for(size_t ii=0; ii<blur.cols; ii++){
-	for(size_t jj=0; jj<blur.rows; jj++){
-	  k_samples.at<float>((ii+1)*jj, 0) = input.at<float>(jj, ii);
-	  fprintf(pFile2, "%f ", k_samples.at<float>((ii+1)*jj, idx));
-	  fprintf(pFile, "%f ", blur.at<float>(jj, ii));
-	}
-	fprintf(pFile,"\n");
-      }
-      fprintf(pFile2, "\n");
-      fclose(pFile);
+      for(size_t i = 0; i<k_samples.rows; i++)
+	k_samples.at<float>(i, idx) = blur.at<float>(i%blur.rows, i/blur.rows);
     }
-    fclose(pFile2);
-      
-    cv::Mat labels;
-    cv::kmeans(k_samples, 6, labels, 
+    
+    cout<<"Texton computing ... "<<endl;
+    cv::kmeans(k_samples, 64, labels, 
 	       cv::TermCriteria(cv::TermCriteria::EPS, 10, 0.0001), 
 	       3, cv::KMEANS_PP_CENTERS);
-    
-    pFile2 = fopen("labels.txt", "w+");
-    for(size_t i=0; i<labels.rows; i++)
-      fprintf(pFile2, "%d\n", labels.at<int>(i, 0));
-    fclose(pFile2);
       
-
-    cv::Mat cluster(blur.rows, blur.cols, CV_32FC1);
-    
-    for(size_t i=0; i<blur.cols; i++)
-      for(size_t j=0; j<blur.rows; j++){
-	cluster.at<float>(j, i) = double(labels.at<int>((i+1)*j,0));
-      }
-    cluster.convertTo(cluster, CV_8UC1);
-    imshow("cluster", cluster*51);
+    output = cv::Mat::zeros(blur.rows, blur.cols, CV_32SC1);
+    for(size_t i=0; i<labels.rows; i++)
+      output.at<int>(i%output.rows, i/output.rows)=labels.at<int>(i, 0);
+    output.convertTo(output, CV_8UC1);
   }
+
+  cv::Mat 
+  weight_matrix_disc(int r) 
+  {
+    int size = 2*r + 1;
+    int r_sq = r*r;
+    cv::Mat weights = cv::Mat::zeros(size, size, CV_32SC1);
+    for (int i = 0; i< weights.rows; i++)
+      for (int j = 0; j< weights.cols; j++) {
+	int x_sq = (i-r)*(i-r);
+	int y_sq = (j-r)*(j-r);
+        if ((x_sq + y_sq) <= r_sq)
+	  weights.at<int>(i, j) = 1;
+      }
+    return weights;
+  }
+
+/*
+ * Construct orientation slice lookup map.
+ */
+  cv::Mat 
+  orientation_slice_map(int size_x, 
+			int size_y, 
+			int n_ori)
+  {
+  /* initialize map */
+    cv::Mat slice_map = cv::Mat::zeros(size_y, size_x, CV_32SC1);
+    int ind = 0;
+    FILE* pFile;
+    pFile = fopen("slice_map.txt", "w+");
+    
+    for (int i = 0, y = size_y/2; i < size_y; i++, y--){
+      for (int j = 0, x = -size_x/2; j < size_x; j++, x++) {
+	double ori = atan2(double(y), double(x));
+	int idx = int(ori / M_PI * double(n_ori));
+	if (idx >= (2*n_ori))
+	  idx = 2*n_ori - 1;
+	slice_map.at<int>(i, j) = idx;
+	fprintf(pFile, "%f ", ori/M_PI*180.0);
+      }
+      fprintf(pFile, "\n");
+    }
+    return slice_map;
+  }
+
 
 
 }

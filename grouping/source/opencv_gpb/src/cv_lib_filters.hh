@@ -107,9 +107,14 @@ namespace libFilters
 		std::vector<cv::Mat> & filters);
 
   void
-  texton(const cv::Mat & input,
-	 std::vector<cv::Mat> & filtered,
-	 int n_ori,
-	 double sigma_sm,
-	 double sigma_lg); 
+  textonRun(const cv::Mat & input,
+	    cv::Mat & filtered,
+	    int n_ori,
+	    double sigma_sm,
+	    double sigma_lg); 
+
+  cv::Mat 
+  orientation_slice_map(int size_x, 
+			int size_y, 
+			int n_ori);
 }

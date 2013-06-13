@@ -21,10 +21,9 @@ namespace cv
 	       std::vector<cv::Mat> & layers);
   
   void
-  pb_parts_final_selected(vector<cv::Mat> & layers
-			  /*
-			  cv::Mat & textons,
-			  vector<cv::Mat> & bg_r3,
+  pb_parts_final_selected(vector<cv::Mat> & layers,
+			  cv::Mat & texton
+			  /*vector<cv::Mat> & bg_r3,
 			  vector<cv::Mat> & bg_r5,
 			  vector<cv::Mat> & bg_r10,
 			  vector<cv::Mat> & cga_r5,

@@ -59,10 +59,9 @@ namespace
 namespace cv
 {
   void
-  pb_parts_final_selected(vector<cv::Mat> & layers
-			  /*
-			  cv::Mat & textons,
-			  vector<cv::Mat> & bg_r3,
+  pb_parts_final_selected(vector<cv::Mat> & layers,
+			  cv::Mat & texton
+			  /*vector<cv::Mat> & bg_r3,
 			  vector<cv::Mat> & bg_r5,
 			  vector<cv::Mat> & bg_r10,
 			  vector<cv::Mat> & cga_r5,
@@ -90,14 +89,14 @@ namespace cv
     int r_cg[3] = { 5, 10, 20 };
     int r_tg[3] = { 5, 10, 20 };
     
-    cv::Mat color, grey, ones, bg_smooth_kernel, cga_smooth_kernel, cgb_smooth_kernel;
-    vector<cv::Mat> filters_small, filters_large, filtered;
+    cv::Mat color, grey, ones;
+    cv::Mat bg_smooth_kernel, cga_smooth_kernel, cgb_smooth_kernel;
     cv::merge(layers, color);
     cv::copyMakeBorder(color, color, border, border, border, border, BORDER_REFLECT);
     cv::cvtColor(color, grey, CV_BGR2GRAY);
     ones = cv::Mat::ones(color.rows, color.cols, CV_32FC1);
-    grey.convertTo(grey, CV_32FC1);
-    cv::multiply(grey, ones, grey, 1.0/255.0);
+    //grey.convertTo(grey, CV_32FC1);
+    //cv::multiply(grey, ones, grey, 1.0/255.0);
     
     // Histogram filter generation
     gaussianFilter1D(double(num_bins)*bg_smooth_sigma, 0, false, bg_smooth_kernel);
@@ -138,33 +137,11 @@ namespace cv
     cv::merge(layers, color);
     cv::imshow("quantized", color);
 
-    texton(grey, filtered, n_ori, sigma_tg_filt_sm, sigma_tg_filt_lg);
-    
     /********* END OF FILTERS INTIALIZATION ***************/
 
-    /* Test rotated gaussian filter */
-    //cv::Mat g;
-    //gaussianFilter2D(1.1781, 2.0, 2.0, 2, HLBRT_OFF, g);
-
-    /*gaussianFilter2D(0, 2.0, 1.0, 0, HILBRT_ON, g);
-    FILE* pFile;
-    pFile = fopen("gaussian_k.txt","w+");
-    cout<<"writing into gaussian_k.txt ..."<<endl;
-    for(size_t i=0; i<g.rows; i++){
-      for(size_t j=0; j<g.cols; j++)
-	fprintf(pFile,"%f ", g.at<float>(i,j));
-      fprintf(pFile, "\n");
-    }
-    fclose(pFile);*/
-
-    // Hilbert Transform    
-    /*cv::Mat test;
-    hilbertTransform1D(bg_smooth_kernel, test, EXPAND_SIZE);
-    pFile = fopen("test.txt", "w+");
-    for(size_t i=0; i<test.rows; i++)
-      fprintf(pFile, "%f\n", test.at<float>(i,0));
-      fclose(pFile);*/
-
+    textonRun(grey, texton, n_ori, sigma_tg_filt_sm, sigma_tg_filt_lg);
+    orientation_slice_map(7, 7, 8);
+    
   }
   
   void 

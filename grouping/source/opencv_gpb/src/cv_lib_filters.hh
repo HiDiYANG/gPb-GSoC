@@ -15,6 +15,8 @@
 #define EXPAND_SIZE 0
 #define OE_EVEN 1
 #define OE_ODD 0
+#define RAD 1
+#define DEG 0
 
 namespace libFilters
 {
@@ -24,7 +26,8 @@ namespace libFilters
   void
   convolveDFT(const cv::Mat & inputA,
 	      const cv::Mat & inputB,
-	      cv::Mat & output);
+	      cv::Mat & output,
+	      bool label);
 
   void
   hilbertTransform1D(const cv::Mat & input,
@@ -40,12 +43,14 @@ namespace libFilters
 		 cv::Mat & output,
 		 double ori,
 		 int len_cols,
-		 int len_rows);
+		 int len_rows,
+		 bool label);
 
   void 
   rotate_2D(const cv::Mat & input,
 	    cv::Mat & output,
-	    double ori);
+	    double ori,
+	    bool label);
  
   /********************************************************************************
    * Filters Generation
@@ -114,7 +119,17 @@ namespace libFilters
 	    double sigma_lg); 
 
   cv::Mat 
-  orientation_slice_map(int size_x, 
-			int size_y, 
+  weight_matrix_disc(int r);
+  
+  cv::Mat 
+  orientation_slice_map(int r, 
 			int n_ori);
+
+  void
+  gradient_hist_2D(const cv::Mat & label,
+		   int r,
+		   int n_ori,
+		   int num_bins,
+		   cv::Mat & gaussian_kernel,
+		   std::vector<cv::Mat> & gradients);
 }

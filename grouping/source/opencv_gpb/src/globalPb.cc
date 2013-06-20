@@ -60,8 +60,8 @@ namespace cv
 {
   void
   pb_parts_final_selected(vector<cv::Mat> & layers,
-			  cv::Mat & texton
-			  /*vector<cv::Mat> & bg_r3,
+			  cv::Mat & texton,
+			  vector<cv::Mat> & bg_r3,
 			  vector<cv::Mat> & bg_r5,
 			  vector<cv::Mat> & bg_r10,
 			  vector<cv::Mat> & cga_r5,
@@ -69,8 +69,8 @@ namespace cv
 			  vector<cv::Mat> & cga_r20,
 			  vector<cv::Mat> & cgb_r5,
 			  vector<cv::Mat> & cgb_r10,
-			  vector<cv::Mat> & cgb_r20,
-			  vector<cv::Mat> & tg_r5,
+			  vector<cv::Mat> & cgb_r20
+			  /*vector<cv::Mat> & tg_r5,
 			  vector<cv::Mat> & tg_r10,
 			  vector<cv::Mat> & tg_r20*/)
   {
@@ -90,18 +90,14 @@ namespace cv
     int r_tg[3] = { 5, 10, 20 };
     
     cv::Mat color, grey, ones;
-    cv::Mat bg_smooth_kernel, cga_smooth_kernel, cgb_smooth_kernel;
+    cv::Mat bg_smooth_kernel, cg_smooth_kernel;
     cv::merge(layers, color);
-    cv::copyMakeBorder(color, color, border, border, border, border, BORDER_REFLECT);
     cv::cvtColor(color, grey, CV_BGR2GRAY);
     ones = cv::Mat::ones(color.rows, color.cols, CV_32FC1);
-    //grey.convertTo(grey, CV_32FC1);
-    //cv::multiply(grey, ones, grey, 1.0/255.0);
     
     // Histogram filter generation
     gaussianFilter1D(double(num_bins)*bg_smooth_sigma, 0, false, bg_smooth_kernel);
-    gaussianFilter1D(double(num_bins)*cg_smooth_sigma, 0, false, cga_smooth_kernel);
-    gaussianFilter1D(double(num_bins)*cg_smooth_sigma, 0, false, cgb_smooth_kernel);
+    gaussianFilter1D(double(num_bins)*cg_smooth_sigma, 0, false, cg_smooth_kernel);
     
     // Normalize color channels
     color.convertTo(color, CV_32FC3);
@@ -131,17 +127,32 @@ namespace cv
 	  
 	  float bin = floor(layers[c].at<float>(i,j)*float(num_bins));
 	  if(bin == float(num_bins)) bin--;
-	  layers[c].at<float>(i,j)=bin/24.0;
+	  layers[c].at<float>(i,j)=bin;
 	}
       }
-    cv::merge(layers, color);
-    cv::imshow("quantized", color);
 
     /********* END OF FILTERS INTIALIZATION ***************/
 
+    cout<<"computing texton ... "<<endl;
     textonRun(grey, texton, n_ori, sigma_tg_filt_sm, sigma_tg_filt_lg);
-    orientation_slice_map(7, 7, 8);
-    
+
+    // L Channel
+    cout<<"computing bg's ... "<<endl;
+    gradient_hist_2D(layers[0], r_bg[0], n_ori, num_bins, bg_smooth_kernel, bg_r3);
+    gradient_hist_2D(layers[0], r_bg[1], n_ori, num_bins, bg_smooth_kernel, bg_r5);
+    gradient_hist_2D(layers[0], r_bg[2], n_ori, num_bins, bg_smooth_kernel, bg_r10);
+
+    // a Channel
+    cout<<"computing cga's ... "<<endl;
+    gradient_hist_2D(layers[1], r_cg[0], n_ori, num_bins, cg_smooth_kernel, cga_r5);
+    gradient_hist_2D(layers[1], r_cg[1], n_ori, num_bins, cg_smooth_kernel, cga_r10);
+    gradient_hist_2D(layers[1], r_cg[2], n_ori, num_bins, cg_smooth_kernel, cga_r20);
+
+    // b Channel
+    cout<<"computing cgb's ... "<<endl;
+    gradient_hist_2D(layers[2], r_cg[0], n_ori, num_bins, cg_smooth_kernel, cgb_r5);
+    gradient_hist_2D(layers[2], r_cg[1], n_ori, num_bins, cg_smooth_kernel, cgb_r10);
+    gradient_hist_2D(layers[2], r_cg[2], n_ori, num_bins, cg_smooth_kernel, cgb_r20);
   }
   
   void 

@@ -26,19 +26,29 @@ namespace libFilters
   void
   convolveDFT(const cv::Mat & inputA,
 	      const cv::Mat & inputB,
-	      cv::Mat & output)
+	      cv::Mat & output,
+	      bool label)
   {
+    bool flag = label? SAME_SIZE : EXPAND_SIZE;
     cv::Mat TempA, TempB;
+    int r=inputA.rows, c=inputA.cols;
     inputA.copyTo(TempA);
     inputB.copyTo(TempB);
+
     int width = cv::getOptimalDFTSize(inputA.cols+inputB.cols-1);
-    cv::copyMakeBorder(TempA, TempA, 0, 0, 0, width-inputA.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-    cv::copyMakeBorder(TempB, TempB, 0, 0, 0, width-inputB.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-    cv::dft(TempA, TempA, cv::DFT_ROWS, inputA.rows);
-    cv::dft(TempB, TempB, cv::DFT_ROWS, inputB.rows);
+    cv::copyMakeBorder(TempA, TempA, 0, 0, 0, width-TempA.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::copyMakeBorder(TempB, TempB, 0, 0, 0, width-TempB.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::dft(TempA, TempA, cv::DFT_ROWS, TempA.rows);
+    cv::dft(TempB, TempB, cv::DFT_ROWS, TempB.rows);
     cv::mulSpectrums(TempA, TempB, TempA, cv::DFT_ROWS, false);
-    cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, output.rows);
-    TempA.copyTo(output);
+    cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, output.rows); 
+    
+    if(flag){
+      int W_o = (TempA.cols-c)/2;
+      TempA(cv::Rect(W_o, 0, c, r)).copyTo(output);
+    }
+    else
+      TempA.copyTo(output);
   }
 
   void
@@ -46,47 +56,50 @@ namespace libFilters
 		     cv::Mat & output,
 		     bool label)
   {
-    bool flag = label? SAME_SIZE : EXPAND_SIZE; 
+    bool flag = label? SAME_SIZE : EXPAND_SIZE;
     cv::Mat temp;
     input.copyTo(temp);
     if(temp.cols != 1 && temp.rows != 1){
       cout<<"Input must be a 1D matrix"<<endl;
     }
+    int length = (temp.rows > temp.cols)? temp.rows : temp.cols;
     if(input.cols == 1)
       cv::transpose(temp, temp);
-    cv::Mat hilbert(temp.rows, temp.cols, CV_32FC1);
-    int n, m;
-    int half_len = (temp.cols-1)/2;
-    
+    cv::Mat hilbert(1, length, CV_32FC1);
+    int half_len = (length-1)/2;
     for(int i = 0; i < hilbert.cols; i++){
-	m = i-half_len;
+        int m = i-half_len;
 	if( m % 2 == 0)
 	  hilbert.at<float>(0, i) = 0.0;
 	else
 	  hilbert.at<float>(0, i) = 1.0/(M_PI*double(m));
     }
-    convolveDFT(temp, hilbert, temp);
+    convolveDFT(temp, hilbert, temp, label);
     if(input.cols == 1)
       cv::transpose(temp, temp);
-    if(flag){
-      int W_o = ((temp.cols-1)-(input.cols-1))/2;
-      int H_o = ((temp.rows-1)-(input.rows-1))/2;
-      temp(cv::Rect(W_o, H_o, input.cols, input.rows)).copyTo(output);
-    }
-    else
-      temp.copyTo(output);
+    temp.copyTo(output);
   }
 
   /********************************************************************************
    * Standard orientation generation
    ********************************************************************************/
   double* 
-  standard_filter_orientations(int n_ori){
+  standard_filter_orientations(int n_ori,
+			       bool label)
+  {
+    bool flag = label? RAD : DEG;
     double* oris = new double[n_ori];
-    double ori = 0;
-    double ori_step = (n_ori>0) ? (M_PI/double(n_ori)) : 0;
-    for(size_t i=0; i<n_ori; i++, ori += ori_step)
-      oris[i] = ori;
+    double ori = 0.0;
+    if(flag){
+      double ori_step = (n_ori>0) ? (M_PI/double(n_ori)) : 0;
+      for(size_t i=0; i<n_ori; i++, ori += ori_step)
+	oris[i] = ori;
+    }
+    else{
+      double ori_step = (n_ori>0) ? (180.0/double(n_ori)) : 0;
+      for(size_t i=0; i<n_ori; i++, ori += ori_step)
+	oris[i] = ori;
+    }
     return oris;
   }
 
@@ -150,12 +163,20 @@ namespace libFilters
 		 cv::Mat & output,
 		 double ori,
 		 int len_cols,
-		 int len_rows)
+		 int len_rows,
+		 bool label)
   {
+    bool flag = label? RAD:DEG;
     cv::Mat tmp;
     cv::Mat rotate_M = cv::Mat::zeros(2, 3, CV_32FC1);
     cv::Point center = cv::Point((input.cols-1)/2, (input.rows-1)/2);
-    double angle = ori/M_PI*180.0;
+    double angle;
+    
+    if(flag)
+      angle = ori/M_PI*180.0;
+    else
+      angle = ori;
+
     rotate_M = cv::getRotationMatrix2D(center, angle, 1.0);
     
     /* Apply rotation transformation to a matrix */
@@ -170,9 +191,10 @@ namespace libFilters
 
   void rotate_2D(const cv::Mat & input,
 		 cv::Mat & output,
-		 double ori)
+		 double ori,
+		 bool label)
   {
-    rotate_2D_crop(input, output, ori, input.cols, input.rows);
+    rotate_2D_crop(input, output, ori, input.cols, input.rows, label);
   }
 
  /********************************************************************************
@@ -244,7 +266,7 @@ namespace libFilters
     _gaussianFilter1D(half_rotate_len, sigma_x, 0,     HILBRT_OFF, output_x);
     _gaussianFilter1D(half_rotate_len, sigma_y, deriv, hlbrt, output_y);
     output = output_x*output_y.t();
-    rotate_2D_crop(output, output, ori, len, len);
+    rotate_2D_crop(output, output, ori, len, len, DEG);
     
     /*  Normalize  */
     if(deriv > 0)
@@ -312,7 +334,7 @@ namespace libFilters
     double sigma_y = sigma/enlongation;
     double* oris;
     filters.resize(n_ori);
-    oris = standard_filter_orientations(n_ori);
+    oris = standard_filter_orientations(n_ori, DEG);
     for(size_t i=0; i<n_ori; i++)
       gaussianFilter2D(oris[i], sigma_x, sigma_y, deriv, hlbrt, filters[i]);
   }
@@ -383,7 +405,6 @@ namespace libFilters
 	k_samples.at<float>(i, idx) = blur.at<float>(i%blur.rows, i/blur.rows);
     }
     
-    cout<<"Texton computing ... "<<endl;
     cv::kmeans(k_samples, 64, labels, 
 	       cv::TermCriteria(cv::TermCriteria::EPS, 10, 0.0001), 
 	       3, cv::KMEANS_PP_CENTERS);
@@ -407,6 +428,7 @@ namespace libFilters
         if ((x_sq + y_sq) <= r_sq)
 	  weights.at<int>(i, j) = 1;
       }
+    weights.at<int>(r, r) = 0;
     return weights;
   }
 
@@ -414,31 +436,88 @@ namespace libFilters
  * Construct orientation slice lookup map.
  */
   cv::Mat 
-  orientation_slice_map(int size_x, 
-			int size_y, 
+  orientation_slice_map(int r, 
 			int n_ori)
   {
   /* initialize map */
-    cv::Mat slice_map = cv::Mat::zeros(size_y, size_x, CV_32SC1);
-    int ind = 0;
-    FILE* pFile;
-    pFile = fopen("slice_map.txt", "w+");
-    
-    for (int i = 0, y = size_y/2; i < size_y; i++, y--){
-      for (int j = 0, x = -size_x/2; j < size_x; j++, x++) {
+    int size = 2*r+1;
+    cv::Mat slice_map = cv::Mat::zeros(size, size, CV_32FC1);
+    for (int i = 0, y = size/2; i < size; i++, y--)
+      for (int j = 0, x = -size/2; j < size; j++, x++) {
 	double ori = atan2(double(y), double(x));
-	int idx = int(ori / M_PI * double(n_ori));
-	if (idx >= (2*n_ori))
-	  idx = 2*n_ori - 1;
-	slice_map.at<int>(i, j) = idx;
-	fprintf(pFile, "%f ", ori/M_PI*180.0);
+	slice_map.at<float>(i, j) = ori/M_PI*180.0;
       }
-      fprintf(pFile, "\n");
-    }
     return slice_map;
   }
 
+   
+  void
+  gradient_hist_2D(const cv::Mat & label,
+		   int r,
+		   int n_ori,
+		   int num_bins,
+		   cv::Mat & gaussian_kernel,
+		   vector<cv::Mat> & gradients)
+  {
+    double *oris;
+    cv::Mat weights, slice_map, label_exp;
+    cv::Mat hist_left  = cv::Mat::zeros(1, num_bins, CV_32FC1);
+    cv::Mat hist_right = cv::Mat::zeros(1, num_bins, CV_32FC1);    
+    weights = weight_matrix_disc(r);
+    slice_map = orientation_slice_map(r, n_ori);
+    oris = standard_filter_orientations(n_ori, DEG);
+    gradients.resize(n_ori);
+    for(size_t i=0; i<n_ori; i++)
+      gradients[i] = cv::Mat::zeros(label.rows, label.cols, CV_32FC1);
+    cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
+    
+    for(int i=r; i<label_exp.rows-r; i++)
+      for(int j=r; j<label_exp.cols-r; j++)
+	for(size_t idx = 0; idx < n_ori; idx++){
+	  hist_left.setTo(0.0);
+	  hist_right.setTo(0.0);
+	  for(int x= -r; x <= r; x++)
+	    for(int y= -r; y <= r; y++){
+	      int bin = int(label_exp.at<float>(i+x, j+y));
+	      if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 && 
+		 slice_map.at<float>(x+r, y+r) <= oris[idx])
+		hist_right.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+	      else
+		hist_left.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+	    }
+	  
+	  if(gaussian_kernel.cols == 1)
+	    cv::transpose(gaussian_kernel, gaussian_kernel);
+	  convolveDFT(hist_right, gaussian_kernel, hist_right, SAME_SIZE);
+	  convolveDFT(hist_left, gaussian_kernel, hist_left, SAME_SIZE);
+	  
+	  double sum_l = 0.0, sum_r =0.0; 
+	  for(size_t nn = 0; nn<num_bins; nn++){
+	    sum_l += hist_left.at<float>(0, nn);
+	    sum_r += hist_right.at<float>(0, nn);
+	  }
+	  
+	  double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
+	  for(size_t nn = 0; nn<num_bins; nn++){
+	    if(sum_r == 0)
+	      hist_r = hist_right.at<float>(0,nn);
+	    else
+	      hist_r = hist_right.at<float>(0,nn)/sum_r;
+	    
+	    if(sum_l == 0)
+	      hist_l = hist_left.at<float>(0,nn);
+	    else
+	      hist_l = hist_left.at<float>(0,nn)/sum_l;
 
+	    tmp1 = hist_r-hist_l;
+	    tmp2 = hist_r+hist_l;
+	    if(tmp2 < 0.00001)
+	      tmp2 = 1.0;
+
+	    tmp += 0.5*(tmp1*tmp1)/tmp2;
+	  }
+	  gradients[idx].at<float>(i-r,j-r) = tmp;
+	}
+  }	  	      
 
 }
-

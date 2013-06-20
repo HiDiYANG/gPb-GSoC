@@ -22,8 +22,8 @@ namespace cv
   
   void
   pb_parts_final_selected(vector<cv::Mat> & layers,
-			  cv::Mat & texton
-			  /*vector<cv::Mat> & bg_r3,
+			  cv::Mat & texton,
+			  vector<cv::Mat> & bg_r3,
 			  vector<cv::Mat> & bg_r5,
 			  vector<cv::Mat> & bg_r10,
 			  vector<cv::Mat> & cga_r5,
@@ -31,8 +31,8 @@ namespace cv
 			  vector<cv::Mat> & cga_r20,
 			  vector<cv::Mat> & cgb_r5,
 			  vector<cv::Mat> & cgb_r10,
-			  vector<cv::Mat> & cgb_r20,
-			  vector<cv::Mat> & tg_r5,
+			  vector<cv::Mat> & cgb_r20
+			  /*vector<cv::Mat> & tg_r5,
 			  vector<cv::Mat> & tg_r10,
 			  vector<cv::Mat> & tg_r20*/);
 }

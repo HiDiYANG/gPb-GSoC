@@ -132,4 +132,15 @@ namespace libFilters
 		   int num_bins,
 		   cv::Mat & gaussian_kernel,
 		   std::vector<cv::Mat> & gradients);
+
+
+  void
+  print_ol(int i);
+
+  void
+  print_ol(double i);
+  
+  void
+  print_ol(char* i);
+
 }

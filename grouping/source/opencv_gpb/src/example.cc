@@ -1,5 +1,6 @@
 
 #include "globalPb.hh"
+#include "cv_lib_filters.hh"
 
 using namespace std;
 using namespace cv;
@@ -14,6 +15,9 @@ int main(int argc, char** argv){
   globalPb(img0, img1);
   MakeFilter(3, 1.5708, kernel);
   multiscalePb(img0, layers);
+
+  //libFilters::print_ol(10);
+
   imshow("Original", img0);
   pb_parts_final_selected(layers, texton, bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20);
 

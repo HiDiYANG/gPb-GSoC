@@ -130,6 +130,10 @@ namespace cv
 	  layers[c].at<float>(i,j)=bin;
 	}
       }
+    
+    //print_ol(10);
+    //print_ol(10.5);
+    //print_ol("ten");
 
     /********* END OF FILTERS INTIALIZATION ***************/
 

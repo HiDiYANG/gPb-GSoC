@@ -252,7 +252,6 @@ void pb_parts_final_selected(matrix<> L, matrix<> a, matrix <> b,
       }
 }
 
-
 /*
  * Matlab interface.
  */

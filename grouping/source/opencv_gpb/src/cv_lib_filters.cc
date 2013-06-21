@@ -203,7 +203,7 @@ namespace libFilters
   
   /* 1D multi-order gaussian filter generation */
   void 
-  _gaussianFilter1D(int half_len,
+  gaussianFilter1D(int half_len,
 		    double sigma,
 		    int deriv,
 		    bool label,
@@ -241,12 +241,12 @@ namespace libFilters
 		   cv::Mat & output)
   {
     int half_len = int(sigma*3.0);
-    _gaussianFilter1D(half_len, sigma, deriv, hlbrt, output);
+    gaussianFilter1D(half_len, sigma, deriv, hlbrt, output);
   }
 
   /* multi-order anistropic gaussian filter generation */
   void
-  _gaussianFilter2D(int half_len,
+  gaussianFilter2D(int half_len,
 		    double ori,
 		    double sigma_x,
 		    double sigma_y,
@@ -263,8 +263,8 @@ namespace libFilters
     cv::Mat output_x, output_y;
 
     /*   Conduct Compution */    
-    _gaussianFilter1D(half_rotate_len, sigma_x, 0,     HILBRT_OFF, output_x);
-    _gaussianFilter1D(half_rotate_len, sigma_y, deriv, hlbrt, output_y);
+    gaussianFilter1D(half_rotate_len, sigma_x, 0,     HILBRT_OFF, output_x);
+    gaussianFilter1D(half_rotate_len, sigma_y, deriv, hlbrt, output_y);
     output = output_x*output_y.t();
     rotate_2D_crop(output, output, ori, len, len, DEG);
     
@@ -289,12 +289,12 @@ namespace libFilters
     int half_len_x = int(sigma_x*3.0);
     int half_len_y = int(sigma_y*3.0);
     int half_len = (half_len_x>half_len_y)? half_len_x : half_len_y;
-    _gaussianFilter2D(half_len, ori, sigma_x, sigma_y, deriv, hlbrt, output);
+    gaussianFilter2D(half_len, ori, sigma_x, sigma_y, deriv, hlbrt, output);
   }
 
   /* Central-surrounding gaussian filter */
   void
-  _gaussianFilter2D_cs(int half_len,
+  gaussianFilter2D_cs(int half_len,
 		       double sigma_x,
 		       double sigma_y,
 		       double scale_factor,
@@ -303,8 +303,8 @@ namespace libFilters
     double sigma_x_c = sigma_x/scale_factor;
     double sigma_y_c = sigma_y/scale_factor;
     cv::Mat output_cen, output_sur;
-    _gaussianFilter2D(half_len, 0.0, sigma_x_c, sigma_y_c, 0, HILBRT_OFF, output_cen);
-    _gaussianFilter2D(half_len, 0.0, sigma_x,   sigma_y,   0, HILBRT_OFF, output_sur);
+    gaussianFilter2D(half_len, 0.0, sigma_x_c, sigma_y_c, 0, HILBRT_OFF, output_cen);
+    gaussianFilter2D(half_len, 0.0, sigma_x,   sigma_y,   0, HILBRT_OFF, output_sur);
     cv::addWeighted(output_sur, 1.0, output_cen, -1.0, 0.0, output);
     normalizeDistr(output, output, ZERO);
   }
@@ -318,7 +318,7 @@ namespace libFilters
     int half_len_x = int(sigma_x*3.0);
     int half_len_y = int(sigma_y*3.0);
     int half_len = (half_len_x>half_len_y)? half_len_x : half_len_y;    
-    _gaussianFilter2D_cs(half_len, sigma_x, sigma_y, scale_factor, output);
+    gaussianFilter2D_cs(half_len, sigma_x, sigma_y, scale_factor, output);
   }
  
   /* A set of multi-order anistropic gaussian filters generation */
@@ -382,6 +382,7 @@ namespace libFilters
   textonRun(const cv::Mat & input,
 	    cv::Mat & output,
 	    int n_ori,
+	    int Kmean_num,
 	    double sigma_sm,
 	    double sigma_lg)
   {
@@ -405,14 +406,14 @@ namespace libFilters
 	k_samples.at<float>(i, idx) = blur.at<float>(i%blur.rows, i/blur.rows);
     }
     
-    cv::kmeans(k_samples, 64, labels, 
+    cv::kmeans(k_samples, Kmean_num, labels, 
 	       cv::TermCriteria(cv::TermCriteria::EPS, 10, 0.0001), 
 	       3, cv::KMEANS_PP_CENTERS);
       
     output = cv::Mat::zeros(blur.rows, blur.cols, CV_32SC1);
     for(size_t i=0; i<labels.rows; i++)
       output.at<int>(i%output.rows, i/output.rows)=labels.at<int>(i, 0);
-    output.convertTo(output, CV_8UC1);
+    output.convertTo(output, CV_32FC1);
   }
 
   cv::Mat 
@@ -517,7 +518,42 @@ namespace libFilters
 	    tmp += 0.5*(tmp1*tmp1)/tmp2;
 	  }
 	  gradients[idx].at<float>(i-r,j-r) = tmp;
-	}
-  }	  	      
+	} 
+  }
+
+  void
+  gradient_hist_2D(const cv::Mat & label,
+		   int r,
+		   int n_ori,
+		   int num_bins,
+		   vector<cv::Mat> & gradients)
+  {
+    int length = 7;
+    cv::Mat impulse_resp = cv::Mat::zeros(1, length, CV_32FC1);
+    impulse_resp.at<float>(0, (length-1)/2) = 1.0;
+    gradient_hist_2D(label, r, n_ori, num_bins, impulse_resp, gradients);
+  }
+
+  void
+  Display_EXP(const vector<cv::Mat> & images, 
+	      const char* name)
+  {
+    int Depth = images.size();
+    int sub_c = images[0].cols;
+    int sub_r = images[0].rows;
+    int w_n = 4;
+    int h_n = int(double(Depth)/double(w_n)+0.5);
+    cv::Mat dispimage(h_n*sub_r, w_n*sub_c, CV_32FC1);
+
+    int c = 0;
+    for(size_t i=0; i<h_n; i++)
+      for(size_t j=0; j<w_n; j++){
+	for(size_t x=0; x<sub_r; x++)
+	  for(size_t y=0; y<sub_c; y++)
+	    dispimage.at<float>(i*sub_r+x, j*sub_c+y) = images[c].at<float>(x, y);
+	c++;
+      }
+    imshow(name, dispimage); 
+  }
 
 }

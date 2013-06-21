@@ -57,7 +57,7 @@ namespace libFilters
    ********************************************************************************/
   
   void 
-  _gaussianFilter1D(int half_len,
+  gaussianFilter1D(int half_len,
 		    double sigma,
 		    int deriv,
 		    bool hlbrt,
@@ -70,7 +70,7 @@ namespace libFilters
 		   cv::Mat & output);
 
   void
-  _gaussianFilter2D(int half_len,
+  gaussianFilter2D(int half_len,
 		    double ori,
 		    double sigma_x,
 		    double sigma_y,
@@ -86,9 +86,8 @@ namespace libFilters
 		   bool hlbrt,
 		   cv::Mat & output);
 
-
   void
-  _gaussianFilter2D_cs(int half_len,
+  gaussianFilter2D_cs(int half_len,
 		       double sigma_x,
 		       double sigma_y,
 		       double scale_factor,
@@ -113,8 +112,9 @@ namespace libFilters
 
   void
   textonRun(const cv::Mat & input,
-	    cv::Mat & filtered,
+	    cv::Mat & output,
 	    int n_ori,
+	    int Kmean_num,
 	    double sigma_sm,
 	    double sigma_lg); 
 
@@ -133,14 +133,15 @@ namespace libFilters
 		   cv::Mat & gaussian_kernel,
 		   std::vector<cv::Mat> & gradients);
 
+  void
+  gradient_hist_2D(const cv::Mat & label,
+		   int r,
+		   int n_ori,
+		   int num_bins,
+		   std::vector<cv::Mat> & gradients);
 
   void
-  print_ol(int i);
-
-  void
-  print_ol(double i);
-  
-  void
-  print_ol(char* i);
+  Display_EXP(const std::vector<cv::Mat> & images,
+	      const char* name);
 
 }

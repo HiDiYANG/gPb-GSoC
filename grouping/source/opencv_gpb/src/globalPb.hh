@@ -31,9 +31,9 @@ namespace cv
 			  vector<cv::Mat> & cga_r20,
 			  vector<cv::Mat> & cgb_r5,
 			  vector<cv::Mat> & cgb_r10,
-			  vector<cv::Mat> & cgb_r20
-			  /*vector<cv::Mat> & tg_r5,
+			  vector<cv::Mat> & cgb_r20,
+			  vector<cv::Mat> & tg_r5,
 			  vector<cv::Mat> & tg_r10,
-			  vector<cv::Mat> & tg_r20*/);
+			  vector<cv::Mat> & tg_r20);
 }
 

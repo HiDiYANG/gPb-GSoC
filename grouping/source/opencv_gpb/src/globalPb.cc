@@ -69,14 +69,14 @@ namespace cv
 			  vector<cv::Mat> & cga_r20,
 			  vector<cv::Mat> & cgb_r5,
 			  vector<cv::Mat> & cgb_r10,
-			  vector<cv::Mat> & cgb_r20
-			  /*vector<cv::Mat> & tg_r5,
+			  vector<cv::Mat> & cgb_r20,
+			  vector<cv::Mat> & tg_r5,
 			  vector<cv::Mat> & tg_r10,
-			  vector<cv::Mat> & tg_r20*/)
+			  vector<cv::Mat> & tg_r20)
   {
     int n_ori      = 8;                       // number of orientations
-    int num_bins   = 25;                        // bins for L, b, a
-    int border     = 30;                      // border pixels
+    int num_bins   = 25;                      // bins for L, b, a
+    int Kmean_bins = 64;                      // bins for texton
     double bg_smooth_sigma = 0.1;             // bg histogram smoothing sigma
     double cg_smooth_sigma = 0.05;            // cg histogram smoothing sigma
     double sigma_tg_filt_sm = 2.0;            // sigma for small tg filters
@@ -130,15 +130,11 @@ namespace cv
 	  layers[c].at<float>(i,j)=bin;
 	}
       }
-    
-    //print_ol(10);
-    //print_ol(10.5);
-    //print_ol("ten");
 
     /********* END OF FILTERS INTIALIZATION ***************/
 
     cout<<"computing texton ... "<<endl;
-    textonRun(grey, texton, n_ori, sigma_tg_filt_sm, sigma_tg_filt_lg);
+    textonRun(grey, texton, n_ori, Kmean_bins, sigma_tg_filt_sm, sigma_tg_filt_lg);
 
     // L Channel
     cout<<"computing bg's ... "<<endl;
@@ -157,6 +153,14 @@ namespace cv
     gradient_hist_2D(layers[2], r_cg[0], n_ori, num_bins, cg_smooth_kernel, cgb_r5);
     gradient_hist_2D(layers[2], r_cg[1], n_ori, num_bins, cg_smooth_kernel, cgb_r10);
     gradient_hist_2D(layers[2], r_cg[2], n_ori, num_bins, cg_smooth_kernel, cgb_r20);
+
+    // T channel
+    cout<<"computing tg's ... "<<endl;
+    gradient_hist_2D(texton, r_tg[0], n_ori, Kmean_bins, tg_r5);
+    gradient_hist_2D(texton, r_tg[1], n_ori, Kmean_bins, tg_r10);
+    gradient_hist_2D(texton, r_tg[2], n_ori, Kmean_bins, tg_r20);
+    
+    texton.convertTo(texton, CV_8UC1);
   }
   
   void 

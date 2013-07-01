@@ -33,6 +33,12 @@ namespace libFilters
   hilbertTransform1D(const cv::Mat & input,
 		     cv::Mat & output,
 		     bool label);
+  
+  //------------------------------------------
+  double* 
+  standard_filter_orientations(int n_ori,
+			       bool label);
+
 
   /********************************************************************************
    * Matrix Rotation
@@ -68,7 +74,8 @@ namespace libFilters
 		   int deriv,
 		   bool hlbrt,
 		   cv::Mat & output);
-
+  
+ //-----------------------------------------------
   void
   gaussianFilter2D(int half_len,
 		    double ori,
@@ -86,6 +93,7 @@ namespace libFilters
 		   bool hlbrt,
 		   cv::Mat & output);
 
+  //-----------------------------------------------
   void
   gaussianFilter2D_cs(int half_len,
 		       double sigma_x,
@@ -99,12 +107,14 @@ namespace libFilters
 		      double scale_factor,
 		      cv::Mat & output);
   
+ //-----------------------------------------------
   void
   oeFilters(int n_ori,
 	    double sigma,
 	    std::vector<cv::Mat> & filters,
 	    bool label);
   
+  //-----------------------------------------------
   void 
   textonFilters(int n_ori,
 		double sigma,
@@ -125,6 +135,7 @@ namespace libFilters
   orientation_slice_map(int r, 
 			int n_ori);
 
+  //-----------------------------------------------
   void
   gradient_hist_2D(const cv::Mat & label,
 		   int r,
@@ -140,8 +151,14 @@ namespace libFilters
 		   int num_bins,
 		   std::vector<cv::Mat> & gradients);
 
+  //-----------------------------------------------
+  void
+  Display_EXP(const cv::Mat & images,
+	      const char* name);
+
   void
   Display_EXP(const std::vector<cv::Mat> & images,
-	      const char* name);
+	      const char* name,
+	      const int w_n);
 
 }

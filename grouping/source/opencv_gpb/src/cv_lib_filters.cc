@@ -392,7 +392,7 @@ namespace libFilters
     filters.resize(4*n_ori+2);
     textonFilters(n_ori, sigma_sm, filters_small);
     textonFilters(n_ori, sigma_lg, filters_large);
-    
+        
     for(size_t i=0; i<2*n_ori+1; i++){
       filters_small[i].copyTo(filters[i]);
       filters_large[i].copyTo(filters[2*n_ori+1+i]);
@@ -509,13 +509,13 @@ namespace libFilters
 	      hist_l = hist_left.at<float>(0,nn);
 	    else
 	      hist_l = hist_left.at<float>(0,nn)/sum_l;
-
+	      
 	    tmp1 = hist_r-hist_l;
 	    tmp2 = hist_r+hist_l;
 	    if(tmp2 < 0.00001)
 	      tmp2 = 1.0;
 
-	    tmp += 0.5*(tmp1*tmp1)/tmp2;
+	    tmp += 4.0*(tmp1*tmp1)/tmp2;
 	  }
 	  gradients[idx].at<float>(i-r,j-r) = tmp;
 	} 
@@ -535,15 +535,37 @@ namespace libFilters
   }
 
   void
-  Display_EXP(const vector<cv::Mat> & images, 
+  Display_EXP(const cv::Mat & images,
 	      const char* name)
+  {
+    vector<cv::Mat> imgs;
+    imgs.resize(1);
+    images.copyTo(imgs[0]);
+    Display_EXP(imgs, name, 1);
+  }
+
+  void
+  Display_EXP(const vector<cv::Mat> & images, 
+	      const char* name,
+	      const int w_n)
   {
     int Depth = images.size();
     int sub_c = images[0].cols;
     int sub_r = images[0].rows;
-    int w_n = 4;
     int h_n = int(double(Depth)/double(w_n)+0.5);
     cv::Mat dispimage(h_n*sub_r, w_n*sub_c, CV_32FC1);
+    cv::Mat zeros = cv::Mat::zeros(sub_r, sub_c, CV_32FC1);
+    double temp_mx, temp_mn;
+
+    for(size_t n=0; n<Depth; n++){
+      temp_mx = 0.0; temp_mn=0.0;
+      for(size_t i=0; i<sub_r; i++)
+	for(size_t j=0; j<sub_c; j++){
+	  temp_mx = MAX(temp_mx, images[n].at<float>(i, j));
+	  temp_mn = MIN(temp_mn, images[n].at<float>(i, j));
+	}
+      cv::addWeighted(zeros, 0.0, images[n], 1.0/(temp_mx-temp_mn), -temp_mn/(temp_mx-temp_mn), images[n]);
+    }
 
     int c = 0;
     for(size_t i=0; i<h_n; i++)

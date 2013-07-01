@@ -62,8 +62,9 @@ st = floor(3*sigma*25);
 g = normpdf(-st:st,0,sigma*25);
 g = g./sum(g);
 
+RR = zeros(row, col, size(angs,1));
 cont = 1;
-for n = 1:1%size(angs,1)
+for n = 1:size(angs,1)
 J = zeros(row,col);
 for i=r+1:row-r
     for j=r+1:col-r
@@ -85,14 +86,14 @@ for i=r+1:row-r
         
         
         
-        sum_r = sum(hist_r);
-        sum_l = sum(hist_l);
-        if sum_r ~= 0
-           hist_r = hist_r./sum_r;
-        end
-        if sum_l ~= 0
-           hist_l = hist_l./sum_l;
-        end
+%         sum_r = sum(hist_r);
+%         sum_l = sum(hist_l);
+%         if sum_r ~= 0
+%            hist_r = hist_r./sum_r;
+%         end
+%         if sum_l ~= 0
+%            hist_l = hist_l./sum_l;
+%         end
         
         temp = hist_r+hist_l;
         temp(temp == 0) = 1;
@@ -105,31 +106,73 @@ for i=r+1:row-r
         
     end
 end
-RR{n} = J;
+RR(:,:,n) = J;
 figure,imshow(J,[]);
 end        
 
+bbg1 = dlmread('./source/opencv_gpb/src/bg1.txt');
+bbg2 = dlmread('./source/opencv_gpb/src/bg2.txt');
+bbg3 = dlmread('./source/opencv_gpb/src/bg3.txt');
+
+ccga1 = dlmread('./source/opencv_gpb/src/cga1.txt');
+ccga2 = dlmread('./source/opencv_gpb/src/cga2.txt');
+ccga3 = dlmread('./source/opencv_gpb/src/cga3.txt');
+
+ccgb1 = dlmread('./source/opencv_gpb/src/cgb1.txt');
+ccgb2 = dlmread('./source/opencv_gpb/src/cgb2.txt');
+ccgb3 = dlmread('./source/opencv_gpb/src/cgb3.txt');
+
+ttg1 = dlmread('./source/opencv_gpb/src/tg1.txt');
+ttg2 = dlmread('./source/opencv_gpb/src/tg2.txt');
+ttg3 = dlmread('./source/opencv_gpb/src/tg3.txt');
 
 
-% hist_l = dlmread('source/opencv_gpb/src/hist_left.txt');
-% hist_r = dlmread('source/opencv_gpb/src/hist_right.txt');
-% 
-% for i=1: size(hist_l,1)
-%     sum_r = sum(hist_r(i,:));
-%     sum_l = sum(hist_l(i,:));
-%     if sum_r ~= 0
-%         hist_r(i,:) = hist_r(i,:)./sum_r;
-%     end
-%     if sum_l ~= 0
-%         hist_l(i,:) = hist_l(i,:)./sum_l;
-%     end
-%     temp = hist_r(i,:)+hist_l(i,:);
-%     temp(temp == 0) = 1;
-%     
-%     
-%     
-%     NNN(i)=sum(0.5*(hist_r(i,:) - hist_l(i,:)).^2./temp);
-% end
+mPb_all = weights(1)*bbg1 + weights(2)*bbg2 + weights(1)*bbg3 + ...
+          weights(4)*ccga1 + weights(5)*ccga2 + weights(6)*ccga3 + ...
+          weights(7)*ccgb1 + weights(8)*ccgb2 + weights(9)*ccgb3 + ...
+          weights(10)*ttg1 + weights(11)*ttg2 + weights(12)*ttg3;
+ 
+
+
+
+
+
+
+
+
+
+
+
+bg_1 = changes(bg_r3);
+bg_2 = changes(bg_r5);
+bg_3 = changes(bg_r10);
+
+cga_1 = changes(cga_r5);
+cga_2 = changes(cga_r10);
+cga_3 = changes(cga_r20);
+
+cgb_1 = changes(cgb_r5);
+cgb_2 = changes(cgb_r10);
+cgb_3 = changes(cgb_r20);
+
+tg_1 = changes(tg_r5);
+tg_2 = changes(tg_r10);
+tg_3 = changes(tg_r20);
+
+% figure, display_img(bg_r3, 2, 4);
+% figure, display_img(bg_r5, 1, 8);
+% figure, display_img(bg_r10, 1, 8);
+% figure, display_img(cga_r5, 1, 8);
+% figure, display_img(cga_r10, 1, 8);
+% figure, display_img(cga_r20, 1, 8);
+% figure, display_img(cgb_r5, 1, 8);
+% figure, display_img(cgb_r10, 1, 8);
+% figure, display_img(cgb_r20, 1, 8);
+% figure, display_img(tg_r5, 1, 8);
+% figure, display_img(tg_r10, 1, 8);
+% figure, display_img(tg_r20, 1, 8);
+
+
         
         
         

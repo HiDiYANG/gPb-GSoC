@@ -163,6 +163,7 @@ namespace cv
     texton.convertTo(texton, CV_8UC1);
   }
   
+  
   void 
   MakeFilter(const int radii,
 	     const double theta,
@@ -179,7 +180,7 @@ namespace cv
     ira2 = 1.0/(pow(ra, 2));
     irb2 = 1.0/(pow(rb, 2));
     wr = int(MAX(ra, rb));
-    kernel = cv::Mat::zeros(2*wr+1, 2*wr+1, CV_32FC3);
+    kernel = cv::Mat::zeros(2*wr+1, 2*wr+1, CV_32FC1);
   
     sint = sin(theta);
     cost = cos(theta);
@@ -204,16 +205,32 @@ namespace cv
 	for(size_t n=0; n < 3; n++)
 	  y.at<float>(n,0) = pow(ai, double(n));
 	y = A*y;
-	for(size_t n=0; n < 3; n++)
-	  kernel.at<Vec3d>(j,i)[n] = y.at<float>(n,0);
+	kernel.at<float>(j,i) = y.at<float>(0,0);
       }
   }
 
   void
   multiscalePb(const cv::Mat & image,
-	       vector<cv::Mat> & layers)
+	       cv::Mat & mPb_max,
+	       vector<cv::Mat> & mPb_all,
+	       vector<cv::Mat> & bg_r3,
+	       vector<cv::Mat> & bg_r5,
+	       vector<cv::Mat> & bg_r10,
+	       vector<cv::Mat> & cga_r5,
+	       vector<cv::Mat> & cga_r10,
+	       vector<cv::Mat> & cga_r20,
+	       vector<cv::Mat> & cgb_r5,
+	       vector<cv::Mat> & cgb_r10,
+	       vector<cv::Mat> & cgb_r20,
+	       vector<cv::Mat> & tg_r5,
+	       vector<cv::Mat> & tg_r10,
+	       vector<cv::Mat> & tg_r20)
   {
-    double* weights;
+    cv::Mat texton, kernel, index;
+    vector<cv::Mat> layers;
+    int n_ori = 8;
+    int radii[4] ={3, 5, 10, 20};
+    double* weights, *ori;
     weights = _mPb_Weights(image.channels());
     layers.resize(3); 
     if(image.channels() == 3)
@@ -221,6 +238,63 @@ namespace cv
     else
       for(size_t i=0; i<3; i++)
 	image.copyTo(layers[i]);
+    
+    pb_parts_final_selected(layers, texton, bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
+    
+    mPb_all.resize(n_ori);
+    cout<<"Cues smoothing ..."<<endl;
+    ori = standard_filter_orientations(n_ori, RAD);
+    for(size_t idx=0; idx<n_ori; idx++){
+      // radian 3
+      MakeFilter(radii[0], ori[idx], kernel);
+      cv::filter2D(bg_r3[idx],   bg_r3[idx],   CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      
+      // radian 5
+      MakeFilter(radii[1], ori[idx], kernel);
+      cv::filter2D(bg_r5[idx],   bg_r5[idx],   CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      cv::filter2D(cga_r5[idx],  cga_r5[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      cv::filter2D(cgb_r5[idx],  cgb_r5[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      cv::filter2D(tg_r5[idx],   tg_r5[idx],   CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+
+      // radian 10
+      MakeFilter(radii[2], ori[idx], kernel);
+      cv::filter2D(bg_r10[idx],  bg_r10[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      cv::filter2D(cga_r10[idx], cga_r10[idx], CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      cv::filter2D(cgb_r10[idx], cgb_r10[idx], CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      cv::filter2D(tg_r10[idx],  tg_r10[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+
+      // radian 20
+      MakeFilter(radii[3], ori[idx], kernel);
+      cv::filter2D(cga_r20[idx], cga_r20[idx], CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      cv::filter2D(cgb_r20[idx], cgb_r20[idx], CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      cv::filter2D(tg_r20[idx],  tg_r20[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+      
+      mPb_all[idx] = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
+      addWeighted(mPb_all[idx], 1.0, bg_r3[idx],   weights[0], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, bg_r5[idx],   weights[1], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, bg_r10[idx],  weights[2], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, cga_r5[idx],  weights[3], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, cga_r10[idx], weights[4], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, cga_r20[idx], weights[5], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, cgb_r5[idx],  weights[6], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, cgb_r10[idx], weights[7], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, cgb_r20[idx], weights[8], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, tg_r5[idx],   weights[9], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, tg_r10[idx],  weights[10], 0.0, mPb_all[idx]);
+      addWeighted(mPb_all[idx], 1.0, tg_r20[idx],  weights[11], 0.0, mPb_all[idx]);
+      
+      if(idx == 0){
+	index = cv::Mat::zeros(image.rows, image.cols, CV_32SC1);
+	mPb_all[idx].copyTo(mPb_max);
+      }
+      else
+	for(size_t i=0; i<image.rows; i++)
+	  for(size_t j=0; j<image.cols; j++)
+	    if(mPb_max.at<float>(i,j) < mPb_all[idx].at<float>(i,j)){
+	      index.at<int>(i,j) = idx;
+	      mPb_max.at<float>(i,j) = mPb_all[idx].at<float>(i,j);
+	    }
+    }
   }
   
   void 
@@ -234,7 +308,7 @@ namespace cv
       cout<<"weight["<<i<<"]="<<weights[i]<<endl;*/
 
     //multiscalePb - mPb
-  
+
     //spectralPb   - sPb
 
     //globalPb     - gPb

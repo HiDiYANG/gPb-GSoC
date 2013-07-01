@@ -7,7 +7,7 @@ function a = fitparab(z,ra,rb,theta,filt)
 % INPUT
 %	z	Values to fit.
 %	ra,rb	Radius of elliptical neighborhood, ra=major axis.
-%	theta	Orientation of fit (i.e. of minor axis).
+%	theta	Orientfcation of fit (i.e. of minor axis).
 %
 % OUTPUT
 %	a,b,c	Coefficients of fit: a + bx + cx^2

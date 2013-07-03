@@ -163,7 +163,117 @@ namespace cv
     texton.convertTo(texton, CV_8UC1);
   }
   
-  
+  void
+  nonmax_oriented_2D(const cv::Mat & mPb_max,
+		     const cv::Mat & index,
+		     cv::Mat & output,
+		     double o_tol)
+  {
+    int rows = mPb_max.rows;
+    int cols = mPb_max.cols;
+    //mPb_max.copyTo(output);
+    output=cv::Mat::zeros(rows, cols, CV_32FC1);
+    for(size_t i=0; i<rows; i++)
+      for(size_t j=0; j<cols; j++){
+	double ori = index.at<float>(i,j);
+	double theta = ori; //ori+M_PI/2.0;
+	theta -= double(int(theta/M_PI))*M_PI;
+	double v = mPb_max.at<float>(i,j);
+	int ind0a_x = 0, ind0a_y = 0, ind0b_x = 0, ind0b_y = 0; 
+	int ind1a_x = 0, ind1a_y = 0, ind1b_x = 0, ind1b_y = 0;
+	double d = 0;
+	bool valid0 = false, valid1 = false;
+	double theta2 = 0;
+	
+	if(theta < 1e-6)
+	  theta = 0.0;
+
+	if(theta == 0){
+	  valid0 = (i>0); valid1 = (i<(rows-1));
+	  if(valid0){ ind0a_x = i-1; ind0a_y = j; ind0b_x = i-1; ind0b_y = j; }
+	  if(valid1){ ind1a_x = i+1; ind1a_y = j; ind1b_x = i+1; ind1b_y = j; }
+	}else if(theta < M_PI/4.0){
+	  d = tan(theta);
+	  theta2 = theta;
+	  valid0 = ((i>0) && (j>0)); 
+	  valid1 = (i<(rows-1) && j<(cols-1));
+	  if(valid0){ ind0a_x = i-1; ind0a_y = j; ind0b_x = i-1; ind0b_y = j-1; }
+	  if(valid1){ ind1a_x = i+1; ind1a_y = j; ind1b_x = i+1; ind1b_y = j+1; }
+	}else if(theta < M_PI/2.0){
+	  d = tan(M_PI/2.0 - theta);
+	  theta2 = M_PI/2.0 - theta;
+	  valid0 = ((i>0) && (j>0)); 
+	  valid1 = (i<(rows-1) && j<(cols-1));
+	  if(valid0){ ind0a_x = i; ind0a_y = j-1; ind0b_x = i-1; ind0b_y = j-1; }
+	  if(valid1){ ind1a_x = i; ind1a_y = j+1; ind1b_x = i+1; ind1b_y = j+1; }
+	}else if(theta == M_PI/2.0){
+	  valid0 = (j>0); valid1 = (j<(cols-1));
+	  if(valid0){ ind0a_x = i; ind0a_y = j-1; ind0b_x = i; ind0b_y = j-1; }
+	  if(valid1){ ind1a_x = i; ind1a_y = j+1; ind1b_x = i; ind1b_y = j+1; }
+	}else if(theta < 3.0*M_PI/4.0){
+	  d = tan(theta - M_PI/2.0);
+	  theta2 = theta - M_PI/2.0;
+	  valid0 = ((i<rows-1) && (j>0)); 
+	  valid1 = (i>0 && j<(cols-1));
+	  if(valid0){ ind0a_x = i; ind0a_y = j-1; ind0b_x = i+1; ind0b_y = j-1; }
+	  if(valid1){ ind1a_x = i; ind1a_y = j+1; ind1b_x = i-1; ind1b_y = j+1; }
+	}else{
+	  d = tan(M_PI-theta);
+	  theta2 = M_PI-theta;
+	  valid0 = ((i<rows-1) && (j>0)); 
+	  valid1 = (i>0 && j<(cols-1));
+	  if(valid0){ ind0a_x = i+1; ind0a_y = j; ind0b_x = i+1; ind0b_y = j-1; }
+	  if(valid1){ ind1a_x = i-1; ind1a_y = j; ind1b_x = i-1; ind1b_y = j+1; }
+	}
+
+	if(d > 1.0 || d < 0.0)
+	  cout<<"something wrong"<<endl;
+
+	if(valid0 && valid1){
+	  double v0a = 0, v0b = 0, v1a = 0, v1b = 0;
+	  double ori0a = 0, ori0b = 0, ori1a = 0, ori1b = 0;
+	  if(valid0){
+	    v0a = mPb_max.at<float>(ind0a_x, ind0a_y);
+	    v0b = mPb_max.at<float>(ind0b_x, ind0b_y);
+	    ori0a = index.at<float>(ind0a_x, ind0a_y)-ori;
+	    ori0b = index.at<float>(ind0b_x, ind0b_y)-ori;
+	  }
+	  if(valid1){
+	    v1a = mPb_max.at<float>(ind1a_x, ind1a_y);
+	    v1b = mPb_max.at<float>(ind1b_x, ind1b_y);
+	    ori1a = index.at<float>(ind1a_x, ind1a_y)-ori;
+	    ori1b = index.at<float>(ind1b_x, ind1b_y)-ori;
+	  }
+	  ori0a -= double(int(ori0a/(2*M_PI))) * (2*M_PI);
+	  ori0b -= double(int(ori0b/(2*M_PI))) * (2*M_PI);
+	  ori1a -= double(int(ori1a/(2*M_PI))) * (2*M_PI);
+	  ori1b -= double(int(ori1b/(2*M_PI))) * (2*M_PI);
+	  if(ori0a >= M_PI) {ori0a = 2*M_PI - ori0a; }
+	  if(ori0b >= M_PI) {ori0b = 2*M_PI - ori0b; }
+	  if(ori1a >= M_PI) {ori1a = 2*M_PI - ori1a; }
+	  if(ori1b >= M_PI) {ori1b = 2*M_PI - ori1b; }
+	  if(ori0a >= M_PI/2.0) {ori0a = M_PI - ori0a; }
+	  if(ori0b >= M_PI/2.0) {ori0b = M_PI - ori0b; }
+	  if(ori1a >= M_PI/2.0) {ori1a = M_PI - ori1a; }
+	  if(ori1b >= M_PI/2.0) {ori1b = M_PI - ori1b; }
+
+	  ori0a = (ori0a <= o_tol) ? 0.0 : (ori0a - o_tol);
+	  ori0b = (ori0b <= o_tol) ? 0.0 : (ori0b - o_tol);
+	  ori1a = (ori1a <= o_tol) ? 0.0 : (ori1a - o_tol);
+	  ori1b = (ori1b <= o_tol) ? 0.0 : (ori1b - o_tol);
+	  
+	  double v0 = (1.0-d)*v0a*cos(ori0a) + d*v0b*cos(ori0b);
+	  double v1 = (1.0-d)*v1a*cos(ori1a) + d*v1b*cos(ori1b);
+	  if((v>v0) && (v>v1)){
+	    v = 1.2*v;
+	    if(v > 1.0) v = 1.0;
+	    if(v < 0.0) v = 0.0;
+	    output.at<float>(i, j) = v;
+	  }
+	}
+      }
+  }
+
   void 
   MakeFilter(const int radii,
 	     const double theta,
@@ -174,7 +284,7 @@ namespace cv
     double x[5] = {0};
     int wr;
     cv::Mat A = cv::Mat::zeros(3, 3, CV_32FC1);
-    cv::Mat y = cv::Mat::zeros(3, 1, CV_32FC1);
+                  cv::Mat y = cv::Mat::zeros(3, 1, CV_32FC1);
     ra = MAX(1.5, double(radii));
     rb = MAX(1.5, double(radii)/4);
     ira2 = 1.0/(pow(ra, 2));
@@ -226,11 +336,12 @@ namespace cv
 	       vector<cv::Mat> & tg_r10,
 	       vector<cv::Mat> & tg_r20)
   {
-    cv::Mat texton, kernel, index;
+    cv::Mat texton, kernel, angles, temp;
     vector<cv::Mat> layers;
     int n_ori = 8;
     int radii[4] ={3, 5, 10, 20};
     double* weights, *ori;
+    
     weights = _mPb_Weights(image.channels());
     layers.resize(3); 
     if(image.channels() == 3)
@@ -241,8 +352,9 @@ namespace cv
     
     pb_parts_final_selected(layers, texton, bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
     
-    mPb_all.resize(n_ori);
     cout<<"Cues smoothing ..."<<endl;
+
+    mPb_all.resize(n_ori);
     ori = standard_filter_orientations(n_ori, RAD);
     for(size_t idx=0; idx<n_ori; idx++){
       // radian 3
@@ -284,17 +396,20 @@ namespace cv
       addWeighted(mPb_all[idx], 1.0, tg_r20[idx],  weights[11], 0.0, mPb_all[idx]);
       
       if(idx == 0){
-	index = cv::Mat::zeros(image.rows, image.cols, CV_32SC1);
+	angles = cv::Mat::ones(image.rows, image.cols, CV_32FC1);
+	cv::multiply(angles, angles, angles, ori[idx]);
 	mPb_all[idx].copyTo(mPb_max);
       }
       else
 	for(size_t i=0; i<image.rows; i++)
 	  for(size_t j=0; j<image.cols; j++)
 	    if(mPb_max.at<float>(i,j) < mPb_all[idx].at<float>(i,j)){
-	      index.at<int>(i,j) = idx;
+	      angles.at<float>(i,j) = ori[idx];
 	      mPb_max.at<float>(i,j) = mPb_all[idx].at<float>(i,j);
 	    }
     }
+    nonmax_oriented_2D(mPb_max, angles, temp, M_PI/8.0);
+    temp.copyTo(mPb_max);
   }
   
   void 

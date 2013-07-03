@@ -534,6 +534,8 @@ namespace libFilters
     gradient_hist_2D(label, r, n_ori, num_bins, impulse_resp, gradients);
   }
 
+
+  //-------------------------------------------------------------------
   void
   Display_EXP(const cv::Mat & images,
 	      const char* name)

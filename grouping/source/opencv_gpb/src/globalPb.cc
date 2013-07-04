@@ -428,6 +428,8 @@ namespace cv
     mPb_max.copyTo(gPb);
 
     //spectralPb   - sPb
+    
+
 
     //globalPb     - gPb
   

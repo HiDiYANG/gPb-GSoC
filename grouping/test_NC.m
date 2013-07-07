@@ -1,4 +1,8 @@
-load mPb_sm.mat
+load mPb.mat
+mPb = imresize(mPb, 0.5);
+mPb = max(0, min(1, 1.2*mPb));
+
+
 [ mmax nmax ] = size(mPb);
 
 %Transform image into data for N-cuts
@@ -12,7 +16,7 @@ data = data/maxdata;
 
 %Calculate the affinity mnatrix 'W' for the data
 W = CalculateAffinity_greyscale(data);
-figure,imshow(W,[]), title('Affinity Matrix');
+%figure,imshow(W,[]), title('Affinity Matrix');
  
 % compute the degree matrix D 
 N = length(W);

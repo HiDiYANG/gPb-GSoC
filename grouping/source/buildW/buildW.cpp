@@ -127,7 +127,6 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs,const mxArray *prhs[])
       } 
       ct = ct + W->nz[row];
     }
-    
     delete W;
 }
 

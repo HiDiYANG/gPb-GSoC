@@ -4,6 +4,21 @@ function [affinity] = CalculateAffinity_greyscale(data)
 sigmaxy = 150;
 sigmai  = 0.1;
 
+[rows, cols] = size(data);
+
+for i = 1:rows
+    for j = 1:cols
+        map = zeros(1,25);
+        c = 0;
+        for n = -2:2
+            for m = -2:2
+                indx = i+n;
+                indy = j+m;
+                if( (indx >= 1 && indx <=rows)&&(indy >=1 && indy <=cols) ) 
+                    map(c) = data(indx, indy);
+                    c = c+1;
+                end
+
 % calculate the affinity based on spatial and intensity parameters
 for i=1:size(data,1)    
     for j=1:size(data,1)

@@ -10,6 +10,7 @@
 
 #include "cv_lib_filters.hh"
 #include "globalPb.hh"
+#include "buildW/buildW.hh"
 #include <string>
 #include <sstream>
 
@@ -417,7 +418,7 @@ namespace cv
 	   cv:: Mat & gPb)
   {
     gPb = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
-    cv::Mat mPb_max;
+    cv::Mat mPb_max, ind_x, ind_y, val;
     vector<cv::Mat> bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20; 
     vector<cv::Mat> cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20, mPb_all;
     double *weights;
@@ -428,8 +429,8 @@ namespace cv
     mPb_max.copyTo(gPb);
 
     //spectralPb   - sPb
+    cv::buildW(mPb_max, ind_x, ind_y, val);
     
-
 
     //globalPb     - gPb
   

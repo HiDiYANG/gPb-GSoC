@@ -23,8 +23,8 @@ l{2} = zeros(size(mPb, 1), size(mPb, 2) + 1);
 l{2}(:, 2:end) = mPb;
 
 % build the pairwise affinity matrix
-[val,I,J] = buildW(l{1},l{2});
-W = sparse(val,I,J);
+[I,J,val] = buildW(l{1},l{2});
+W = sparse(I,J,val);
 
 [wx, wy] = size(W);
 x = 1 : wx;

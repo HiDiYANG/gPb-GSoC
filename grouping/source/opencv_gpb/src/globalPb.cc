@@ -430,8 +430,38 @@ namespace cv
 
     //spectralPb   - sPb
     cv::buildW(mPb_max, ind_x, ind_y, val);
+    cv::Mat diag = cv::Mat::zeros(mPb_max.rows*mPb_max.cols, 1, CV_32FC1);
+    FILE* pFile1, *pFile2, *pFile3;
+    pFile1 = fopen("ind_x.txt", "w+");
+    pFile2 = fopen("ind_y.txt", "w+");
+    pFile3 = fopen("val.txt", "w+");
     
+    // compute Diagnoal matrix D based on affinity matrix
+    for(size_t i=0; i<ind_y.rows; i++){
+      int idx = ind_y.at<int>(i,1);
+      diag.at<float>(idx,1) += val.at<float>(i,1);
+    }
 
+    //Generate inv(D)*(D-W) for computing generalized eigenvalues and eigenvectors
+    
+    for(size_t i=0; i<ind_y.rows; i++ ){
+      int idx = ind_y.at<int>(i,1);
+      double temp_diag = diag.at<float>(idx, 1);
+      if(idx == ind_x.at<int>(i,1))
+	val.at<float>(i,1) = (temp_diag-val.at<float>(i,1))/temp_diag;
+      else
+	val.at<float>(i,1) = -val.at<float>(i,1)/temp_diag;
+
+      //record for test
+      fprintf(pFile1, "%d\n", ind_x.at<int>(i, 1)+1);
+      fprintf(pFile2, "%d\n", ind_y.at<int>(i, 1)+1);
+      fprintf(pFile3, "%f\n", val.at<float>(i, 1));
+      
+    }
+    fclose(pFile1);
+    fclose(pFile2);
+    fclose(pFile3);
+    
     //globalPb     - gPb
   
   }

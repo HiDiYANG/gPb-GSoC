@@ -14,11 +14,14 @@ namespace cv
 
     // copy edge info into lattice struct
     Group::DualLattice boundaries; 
-    int h = input.rows;
-    int w = input.cols;
-        
+    //int h = input.rows;
+    //int w = input.cols;
+    
     cv::copyMakeBorder(input, boundaries.H, 1, 0, 0, 0, cv::BORDER_CONSTANT, 0.0);
     cv::copyMakeBorder(input, boundaries.V, 0, 0, 1, 0, cv::BORDER_CONSTANT, 0.0);
+    cv::transpose(boundaries.H, boundaries.H);
+    cv::transpose(boundaries.V, boundaries.V);
+    
     boundaries.width = boundaries.H.rows;
     boundaries.height = boundaries.V.cols;
 
@@ -27,17 +30,17 @@ namespace cv
 
     SMatrix* W = NULL;
     Group::computeAffinities2(ic,sigma,dthresh,&W);
-    int nzz = 0;
+    int nnz = 0;
     for(size_t i=0; i<W->n; i++)
-      nzz += W->nz[i];
-    ind_x = cv::Mat::zeros(nzz, 1, CV_32FC1);
-    ind_y = cv::Mat::zeros(nzz, 1, CV_32FC1);
-    val   = cv::Mat::zeros(nzz, 1, CV_32FC1);
+      nnz += W->nz[i];
+    ind_x = cv::Mat::ones(nnz, 1, CV_32SC1);
+    ind_y = cv::Mat::ones(nnz, 1, CV_32SC1);
+    val   = cv::Mat::zeros(nnz, 1, CV_32FC1);
     int ct = 0;
     for(size_t row = 0; row < W->n; row++){
       for(size_t i=0; i<W->nz[row]; i++){
-	ind_y.at<float>(ct+i) = static_cast<double>(row);
-	ind_x.at<float>(ct+i) = static_cast<double>(W->col[row][i]);
+	ind_y.at<int>(ct+i) = static_cast<int>(row);
+	ind_x.at<int>(ct+i) = static_cast<int>(W->col[row][i]);
 	  val.at<float>(ct+i) = static_cast<double>(W->values[row][i]);
       }
       ct = ct + W->nz[row];

@@ -5,10 +5,10 @@ addpath(fullfile(pwd,'lib'));
 %% 1. compute globalPb
 clear all; close all; clc;
 
-imgFile = 'data/101087_small.jpg';
+imgFile = 'data/101087.jpg';
 outFile = 'data/101087_gPb.mat';
 
-gPb_orient = globalPb(imgFile, outFile);
+[gPb_orient2, gPb_thin2, textons] = globalPb(imgFile, outFile);
 
 %% 2. compute Hierarchical Regions
 

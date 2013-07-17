@@ -2,9 +2,9 @@ clc;
 clear all;
 close all;
 
-zz = zeros(2400, 2400);
+W = zeros(2400, 2400);
 for i=1:size(I,1)
-    zz(I(i), J(i)) = 1;
+    W(I(i), J(i)) = val(i);
 end
 
 % % imgFile = 'data/101087.jpg';

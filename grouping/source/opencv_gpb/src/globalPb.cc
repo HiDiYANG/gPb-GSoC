@@ -444,10 +444,10 @@ namespace cv
 
     //Generate inv(D)*(D-W) for computing generalized eigenvalues and eigenvectors
     
-    for(size_t i=0; i<ind_y.rows; i++ ){
-      int idx = ind_y.at<int>(i,1);
+    for(size_t i=0; i<ind_x.rows; i++ ){
+      int idx = ind_x.at<int>(i,1);
       double temp_diag = diag.at<float>(idx, 1);
-      if(idx == ind_x.at<int>(i,1))
+      if(idx == ind_y.at<int>(i,1))
 	val.at<float>(i,1) = (temp_diag-val.at<float>(i,1))/temp_diag;
       else
 	val.at<float>(i,1) = -val.at<float>(i,1)/temp_diag;

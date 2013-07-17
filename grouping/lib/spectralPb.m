@@ -24,16 +24,6 @@ l{2}(:, 2:end) = mPb;
 
 % build the pairwise affinity matrix
 [I,J,val] = buildW(l{1},l{2});
-
-% orig_sz = [300 200];
-% tx = 300;
-% ty = 200;
-% nvec=17;
-% 
-% I = dlmread('source/opencv_gpb/src/ind_x.txt');
-% J = dlmread('source/opencv_gpb/src/ind_y.txt');
-% val = dlmread('source/opencv_gpb/src/val.txt');
-
 W = sparse(I,J,val);
 [wx, wy] = size(W);
 x = 1 : wx;
@@ -44,7 +34,7 @@ clear S x;
 opts.issym=1;
 opts.isreal = 1;
 opts.disp=2;
-[EigVect, EVal] = eigs(D\(D - W),17,'sm');
+[EigVect, EVal] = eigs((D-W)\D,nvec,'sm');
 %[EigVect, EVal] = eigs(D - W, D, nvec,'sm');
 clear D W opts;
 

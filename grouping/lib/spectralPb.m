@@ -34,7 +34,7 @@ clear S x;
 opts.issym=1;
 opts.isreal = 1;
 opts.disp=2;
-[EigVect, EVal] = eigs((D-W)\D,nvec,'sm');
+[EigVect, EVal] = eigs(D\(D-W),nvec,'sm');
 %[EigVect, EVal] = eigs(D - W, D, nvec,'sm');
 clear D W opts;
 

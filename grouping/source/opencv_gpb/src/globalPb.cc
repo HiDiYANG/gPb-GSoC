@@ -10,7 +10,7 @@
 
 #include "cv_lib_filters.hh"
 #include "globalPb.hh"
-#include "buildW/buildW.hh"
+#include "buildW.hh"
 #include <string>
 #include <sstream>
 

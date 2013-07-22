@@ -9,3 +9,8 @@
 //
 
 #include "contour2ucm.hh"
+
+namespace cv
+{
+  
+}

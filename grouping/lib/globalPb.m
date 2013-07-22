@@ -1,4 +1,4 @@
-function [gPb_orient, gPb_thin, gPb, textons] = globalPb(imgFile, outFile, rsz)
+function [gPb_orient, gPb_thin, textons] = globalPb(imgFile, outFile, rsz)
 % syntax:
 %   [gPb_orient, gPb_thin, textons] = globalPb(imgFile, outFile, rsz)
 %
@@ -36,12 +36,17 @@ else
 end
 
 %% mPb
-[mPb, mPb_rsz, mPb_all, bg1, bg2, bg3, cga1, cga2, cga3, cgb1, cgb2, cgb3, tg1, tg2, tg3, textons] = multiscalePb(im, rsz);
+[mPb, mPb_rsz, bg1, bg2, bg3, cga1, cga2, cga3, cgb1, cgb2, cgb3, tg1, tg2, tg3, textons] = multiscalePb(im, rsz);
 
 %% sPb
 outFile2 = strcat(outFile, '_pbs.mat');
 [sPb] = spectralPb(mPb_rsz, orig_sz, outFile2);
 delete(outFile2);
+
+sPb_l8 = sPb(:,:,8)';
+dlmwrite('sPb_l8.txt', sPb_l8(:), 'precision', 4);
+
+
 
 %% gPb
 gPb_orient = zeros(size(tg1));
@@ -62,7 +67,7 @@ for o = 1 : size(gPb_orient, 3),
     t2 = weights(11)*tg2(:, :, o);
     t3 = weights(12)*tg3(:, :, o);
 
-    sc = weights(13)*mPb_all(:, :, o);
+    sc = weights(13)*sPb(:, :, o);
 
     gPb_orient(:, :, o) = l1 + a1 + b1 + t1 + l2 + a2 + b2 + t2 + l3 + a3 + b3 + t3 + sc;
 end
@@ -76,14 +81,14 @@ gPb_thin = gPb .* (mPb>0.05);
 %gPb_thin = gPb_thin .* bwmorph(gPb_thin, 'skel', inf);
 
 SE = ones(3,3);
-img = gPb_thin
+img = gPb_thin;
 bwskel = zeros(size(img,1),size(img,2));
 while nnz(img)
   eroded = imerode(img,SE);
   temp = imdilate(eroded,SE);
   temp = img - temp;
   bwskel = bwskel | temp;
-  img = eroded
+  img = eroded;
 end
 
 gPb_thin = gPb_thin .* bwskel;

@@ -8,7 +8,7 @@ clear all; close all; clc;
 imgFile = 'data/101087.jpg';
 outFile = 'data/101087_gPb.mat';
 
-[gPb_orient, gPb_thin, gPb, textons] = globalPb(imgFile, outFile);
+[gPb_orient, gPb_thin, textons] = globalPb(imgFile, outFile);
 
 %% 2. compute Hierarchical Regions
 

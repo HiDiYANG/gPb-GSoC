@@ -323,7 +323,6 @@ namespace cv
   void
   multiscalePb(const cv::Mat & image,
 	       cv::Mat & mPb_max,
-	       vector<cv::Mat> & mPb_all,
 	       vector<cv::Mat> & bg_r3,
 	       vector<cv::Mat> & bg_r5,
 	       vector<cv::Mat> & bg_r10,
@@ -338,7 +337,7 @@ namespace cv
 	       vector<cv::Mat> & tg_r20)
   {
     cv::Mat texton, kernel, angles, temp;
-    vector<cv::Mat> layers;
+    vector<cv::Mat> layers, mPb_all;
     int n_ori = 8;
     int radii[4] ={3, 5, 10, 20};
     double* weights, *ori;
@@ -413,60 +412,31 @@ namespace cv
     temp.copyTo(mPb_max);
   }
   
-  void 
-  globalPb(const cv::Mat & image,
-	   cv:: Mat & gPb,
-	   cv:: Mat & gPb_thin,
-	   vector<cv:: Mat> & gPb_ori)
+  void gPb_gen(const cv::Mat & mPb_max,
+	       const double* weights,
+	       const vector<cv::Mat> & sPb,
+	       const vector<cv::Mat> & bg_r3,
+	       const vector<cv::Mat> & bg_r5,
+	       const vector<cv::Mat> & bg_r10,
+	       const vector<cv::Mat> & cga_r5,
+	       const vector<cv::Mat> & cga_r10,
+	       const vector<cv::Mat> & cga_r20,
+	       const vector<cv::Mat> & cgb_r5,
+	       const vector<cv::Mat> & cgb_r10,
+	       const vector<cv::Mat> & cgb_r20,
+	       const vector<cv::Mat> & tg_r5,
+	       const vector<cv::Mat> & tg_r10,
+	       const vector<cv::Mat> & tg_r20,
+	       vector<cv::Mat> & gPb_ori,
+	       cv::Mat & gPb_thin,
+	       cv::Mat & gPb
+	       )
   {
-    gPb = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
-    cv::Mat mPb_max, ind_x, ind_y, val;
-    vector<cv::Mat> bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20; 
-    vector<cv::Mat> cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20, mPb_all;
-    double *weights;
-    weights = _gPb_Weights(image.channels());
-
-    //multiscalePb - mPb
-    multiscalePb(image, mPb_max, mPb_all, bg_r3,bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
-    mPb_max.copyTo(gPb);
-
-    //spectralPb   - sPb
-    cv::buildW(mPb_max, ind_x, ind_y, val);
-    cv::Mat diag = cv::Mat::zeros(mPb_max.rows*mPb_max.cols, 1, CV_32FC1);
-    FILE* pFile1, *pFile2, *pFile3;
-    pFile1 = fopen("ind_x.txt", "w+");
-    pFile2 = fopen("ind_y.txt", "w+");
-    pFile3 = fopen("val.txt", "w+");
+    cv::Mat img_tmp, eroded, temp, bwskel;
+    int n_ori = 8, nnz = 0;
     
-    // compute Diagnoal matrix D based on affinity matrix
-    for(size_t i=0; i<ind_y.rows; i++){
-      int idx = ind_y.at<int>(i,1);
-      diag.at<float>(idx,1) += val.at<float>(i,1);
-    }
-
-    //Generate inv(D)*(D-W) for computing generalized eigenvalues and eigenvectors
-    
-    for(size_t i=0; i<ind_x.rows; i++ ){
-      int idx = ind_x.at<int>(i,1);
-      double temp_diag = diag.at<float>(idx, 1);
-      if(idx == ind_y.at<int>(i,1))
-	val.at<float>(i,1) = (temp_diag-val.at<float>(i,1))/temp_diag;
-      else
-	val.at<float>(i,1) = -val.at<float>(i,1)/temp_diag;
-
-      //record for test
-      fprintf(pFile1, "%d\n", ind_x.at<int>(i, 1)+1);
-      fprintf(pFile2, "%d\n", ind_y.at<int>(i, 1)+1);
-      fprintf(pFile3, "%f\n", val.at<float>(i, 1));
-      
-    }
-    fclose(pFile1);
-    fclose(pFile2);
-    fclose(pFile3);
-    
-    //globalPb - gPb
-    gPb_ori.resize(8);
-    for(size_t idx=0; idx<8; idx++){
+    gPb_ori.resize(n_ori);
+    for(size_t idx=0; idx<n_ori; idx++){
       gPb_ori[idx] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
       addWeighted(gPb_ori[idx], 1.0, bg_r3[idx],   weights[0], 0.0, gPb_ori[idx]);
       addWeighted(gPb_ori[idx], 1.0, bg_r5[idx],   weights[1], 0.0, gPb_ori[idx]);
@@ -480,34 +450,32 @@ namespace cv
       addWeighted(gPb_ori[idx], 1.0, tg_r5[idx],   weights[9], 0.0, gPb_ori[idx]);
       addWeighted(gPb_ori[idx], 1.0, tg_r10[idx],  weights[10], 0.0, gPb_ori[idx]);
       addWeighted(gPb_ori[idx], 1.0, tg_r20[idx],  weights[11], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, mPb_all[idx], weights[12], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, sPb[idx], weights[12], 0.0, gPb_ori[idx]);
     
       if(idx == 0)
 	gPb_ori[idx].copyTo(gPb);
       else
-	for(size_t i=0; i<image.rows; i++)
-	  for(size_t j=0; j<image.cols; j++)
+	for(size_t i=0; i<mPb_max.rows; i++)
+	  for(size_t j=0; j<mPb_max.cols; j++)
 	    if(gPb.at<float>(i,j) < gPb_ori[idx].at<float>(i,j))
 	      gPb.at<float>(i,j) = gPb_ori[idx].at<float>(i,j);	    
     }
     
     gPb.copyTo(gPb_thin);
-    for(size_t i=0; i<image.rows; i++)
-      for(size_t j=0; j<image.cols; j++)
+    for(size_t i=0; i<mPb_max.rows; i++)
+      for(size_t j=0; j<mPb_max.cols; j++)
 	if(mPb_max.at<float>(i,j)<0.05)
 	  gPb_thin.at<float>(i,j) = 0.0;
 
-    cv::Mat img_tmp, eroded, temp, bwskel;
-    int nnz = 0;
-    bwskel = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
+    bwskel = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
     gPb_thin.copyTo(img_tmp);
     do{
       cv::erode(img_tmp, eroded, cv::Mat(), cv::Point(-1, -1));
       cv::dilate(eroded, temp, cv::Mat(), cv::Point(-1,-1));
       cv::subtract(img_tmp, temp, temp);
       nnz = 0;
-      for(size_t i=0; i<image.rows; i++)
-	for(size_t j=0; j<image.cols; j++){
+      for(size_t i=0; i<mPb_max.rows; i++)
+	for(size_t j=0; j<mPb_max.cols; j++){
 	  if(bwskel.at<float>(i,j) > 0.0 || temp.at<float>(i,j) > 0.0)
 	    bwskel.at<float>(i,j) = 1.0;
 	  else
@@ -515,8 +483,101 @@ namespace cv
 	  if(eroded.at<float>(i,j) != 0.0) nnz++;
 	}
       eroded.copyTo(img_tmp);
-      cout<<"nnz = "<<nnz<<endl;
     }while(nnz);
     cv::multiply(gPb_thin, bwskel, gPb_thin, 1.0);
+  }
+
+  void sPb_gen(cv::Mat & mPb_max,
+	   vector<cv::Mat> & sPb)
+  {
+    int n_ori = 8;
+    sPb.resize(n_ori);
+    /*cv::Mat ind_x, ind_y, val;
+    cv::buildW(mPb_max, ind_x, ind_y, val);
+    cv::Mat diag = cv::Mat::zeros(mPb_max.rows*mPb_max.cols, 1, CV_32FC1);
+    
+    // compute Diagnoal matrix D based on affinity matrix
+    for(size_t i=0; i<ind_y.rows; i++){
+      int idx = ind_y.at<int>(i,1);
+      diag.at<float>(idx,1) += val.at<float>(i,1);
+      }*/
+
+    //Generate inv(D)*(D-W) for computing generalized eigenvalues and eigenvectors
+    
+    /*for(size_t i=0; i<ind_x.rows; i++ ){
+      int idx = ind_x.at<int>(i,1);
+      double temp_diag = diag.at<float>(idx, 1);
+      if(idx == ind_y.at<int>(i,1))
+	val.at<float>(i,1) = (temp_diag-val.at<float>(i,1))/temp_diag;
+      else
+	val.at<float>(i,1) = -val.at<float>(i,1)/temp_diag;    
+	}*/
+
+    FILE* pFile1, *pFile2, *pFile3, *pFile4, *pFile5, *pFile6, *pFile7, *pFile8;
+    pFile1 = fopen("sPb_data/sPb_l1.txt", "r");
+    pFile2 = fopen("sPb_data/sPb_l2.txt", "r");
+    pFile3 = fopen("sPb_data/sPb_l3.txt", "r");
+    pFile4 = fopen("sPb_data/sPb_l4.txt", "r");
+    pFile5 = fopen("sPb_data/sPb_l5.txt", "r");
+    pFile6 = fopen("sPb_data/sPb_l6.txt", "r");
+    pFile7 = fopen("sPb_data/sPb_l7.txt", "r");
+    pFile8 = fopen("sPb_data/sPb_l8.txt", "r");
+    for(size_t idx=0; idx<n_ori; idx++)
+      sPb[idx] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
+    
+    for(size_t i=0; i<mPb_max.rows; i++)
+      for(size_t j=0; j<mPb_max.cols; j++){
+	float l1, l2, l3, l4, l5, l6, l7, l8;
+	fscanf(pFile1, "%f", &l1);
+	fscanf(pFile2, "%f", &l2);
+	fscanf(pFile3, "%f", &l3);
+	fscanf(pFile4, "%f", &l4);
+	fscanf(pFile5, "%f", &l5);
+	fscanf(pFile6, "%f", &l6);
+	fscanf(pFile7, "%f", &l7);
+	fscanf(pFile8, "%f", &l8);
+	
+	sPb[0].at<float>(i, j) = l1;
+	sPb[1].at<float>(i, j) = l2;
+	sPb[2].at<float>(i, j) = l3;
+	sPb[3].at<float>(i, j) = l4;
+	sPb[4].at<float>(i, j) = l5;
+	sPb[5].at<float>(i, j) = l6;
+	sPb[6].at<float>(i, j) = l7;
+	sPb[7].at<float>(i, j) = l8;
+      } 
+    fclose(pFile1);
+    fclose(pFile2);
+    fclose(pFile3);
+    fclose(pFile4);
+    fclose(pFile5);
+    fclose(pFile6);
+    fclose(pFile7);
+    fclose(pFile8);    
+  }
+
+
+  void 
+  globalPb(const cv::Mat & image,
+	   cv::Mat & gPb,
+	   cv::Mat & gPb_thin,
+	   vector<cv::Mat> & gPb_ori)
+  {
+    gPb = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
+    cv::Mat mPb_max;
+    vector<cv::Mat> bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20; 
+    vector<cv::Mat> cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20, sPb;
+    double *weights;
+    weights = _gPb_Weights(image.channels());
+
+    //multiscalePb - mPb
+    multiscalePb(image, mPb_max, bg_r3,bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
+    mPb_max.copyTo(gPb);
+    
+    //spectralPb   - sPb
+    sPb_gen(mPb_max, sPb);
+    
+    //globalPb - gPb
+    gPb_gen(mPb_max, weights, sPb, bg_r3,bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20, gPb_ori, gPb_thin, gPb);
   }
 }

@@ -38,7 +38,6 @@ namespace cv
   void
   multiscalePb(const cv::Mat & image,
 	       cv::Mat & mPb_max,
-	       vector<cv::Mat> & mPb_all,
 	       vector<cv::Mat> & bg_r3,
 	       vector<cv::Mat> & bg_r5,
 	       vector<cv::Mat> & bg_r10,

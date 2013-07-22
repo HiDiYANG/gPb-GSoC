@@ -415,7 +415,9 @@ namespace cv
   
   void 
   globalPb(const cv::Mat & image,
-	   cv:: Mat & gPb)
+	   cv:: Mat & gPb,
+	   cv:: Mat & gPb_thin,
+	   vector<cv:: Mat> & gPb_ori)
   {
     gPb = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
     cv::Mat mPb_max, ind_x, ind_y, val;
@@ -462,7 +464,59 @@ namespace cv
     fclose(pFile2);
     fclose(pFile3);
     
-    //globalPb     - gPb
-  
+    //globalPb - gPb
+    gPb_ori.resize(8);
+    for(size_t idx=0; idx<8; idx++){
+      gPb_ori[idx] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
+      addWeighted(gPb_ori[idx], 1.0, bg_r3[idx],   weights[0], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, bg_r5[idx],   weights[1], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, bg_r10[idx],  weights[2], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, cga_r5[idx],  weights[3], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, cga_r10[idx], weights[4], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, cga_r20[idx], weights[5], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, cgb_r5[idx],  weights[6], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, cgb_r10[idx], weights[7], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, cgb_r20[idx], weights[8], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, tg_r5[idx],   weights[9], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, tg_r10[idx],  weights[10], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, tg_r20[idx],  weights[11], 0.0, gPb_ori[idx]);
+      addWeighted(gPb_ori[idx], 1.0, mPb_all[idx], weights[12], 0.0, gPb_ori[idx]);
+    
+      if(idx == 0)
+	gPb_ori[idx].copyTo(gPb);
+      else
+	for(size_t i=0; i<image.rows; i++)
+	  for(size_t j=0; j<image.cols; j++)
+	    if(gPb.at<float>(i,j) < gPb_ori[idx].at<float>(i,j))
+	      gPb.at<float>(i,j) = gPb_ori[idx].at<float>(i,j);	    
+    }
+    
+    gPb.copyTo(gPb_thin);
+    for(size_t i=0; i<image.rows; i++)
+      for(size_t j=0; j<image.cols; j++)
+	if(mPb_max.at<float>(i,j)<0.05)
+	  gPb_thin.at<float>(i,j) = 0.0;
+
+    cv::Mat img_tmp, eroded, temp, bwskel;
+    int nnz = 0;
+    bwskel = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
+    gPb_thin.copyTo(img_tmp);
+    do{
+      cv::erode(img_tmp, eroded, cv::Mat(), cv::Point(-1, -1));
+      cv::dilate(eroded, temp, cv::Mat(), cv::Point(-1,-1));
+      cv::subtract(img_tmp, temp, temp);
+      nnz = 0;
+      for(size_t i=0; i<image.rows; i++)
+	for(size_t j=0; j<image.cols; j++){
+	  if(bwskel.at<float>(i,j) > 0.0 || temp.at<float>(i,j) > 0.0)
+	    bwskel.at<float>(i,j) = 1.0;
+	  else
+	    bwskel.at<float>(i,j) = 0.0;
+	  if(eroded.at<float>(i,j) != 0.0) nnz++;
+	}
+      eroded.copyTo(img_tmp);
+      cout<<"nnz = "<<nnz<<endl;
+    }while(nnz);
+    cv::multiply(gPb_thin, bwskel, gPb_thin, 1.0);
   }
 }

@@ -9,7 +9,9 @@ namespace cv
 {
   void 
   globalPb(const cv::Mat & image,
-	   cv::Mat & gPb);
+	   cv::Mat & gPb,
+	   cv::Mat & gPb_thin,
+	   vector<cv::Mat> & gPb_ori);
 
 
   void

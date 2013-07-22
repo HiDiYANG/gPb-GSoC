@@ -6,8 +6,6 @@
 #include <opencv/highgui.h>
 #include <opencv2/core/core.hpp>
 
-#define MAX_ITER 10
-
 /* 
  * This is the power iteration method to find the maximum
  * eigenvalue/eigenvector a n-by-n matrix. This method doesn't
@@ -26,35 +24,43 @@
 
 double power(const cv::Mat & a,
 	     cv::Mat & q,
-	     cv::Mat & z)
+	     cv::Mat & z,
+	     const double tol)
 {
-    double norm, lambda;
+    double norm, lambda, lambda_lst, err;
     int n = q.rows;
     z = cv::Mat::zeros(n, 1, CV_32FC1);
+    bool fst_loop = true;
     
-    for(size_t i = 0; i<MAX_ITER; i++){
+    do{
       z=a*q;
       norm = 0.0;
       for(size_t j=0; j<n; j++){
 	norm += z.at<float>(j, 0)*z.at<float>(j, 0);
-	std::cout<<"z["<<j<<"] = "<<z.at<float>(j,0)<<std::endl;
       }
       norm = sqrt(norm);
-      std::cout<<"norm = "<<norm<<std::endl;
       for(size_t j=0; j<n; j++){
 	q.at<float>(j, 0)=z.at<float>(j, 0)/norm;
-	std::cout<<"q["<<j<<"] = "<<q.at<float>(j,0)<<std::endl;
       }
+
+      if(fst_loop){
+	lambda_lst = 0.0;
+	fst_loop = false;
+      }else
+	lambda_lst = lambda;
+
       lambda = 0.0;
       for(size_t j=0; j<n; j++)
 	lambda += q.at<float>(j, 0)*z.at<float>(j, 0);
-    }
+      err = fabs(lambda - lambda_lst);
+    }while(err > tol);
     return lambda;
 }
 
 double powermethod(const cv::Mat & x, 
 		   int mode, 
-		   cv::Mat & y)
+		   cv::Mat & y,
+		   double tol)
 {
   int n = x.rows;
   cv::Mat a = cv::Mat::zeros(x.rows, x.cols, CV_32FC1);
@@ -67,9 +73,8 @@ double powermethod(const cv::Mat & x,
   x.copyTo(a);
  
   q.at<float>(0,0) = 1.0;
-  lambda = power(a,q,z);
+  lambda = power(a,q,z,tol);
     
-  
   /* mode ==0 is for maximum eigenvalue/vector */
   if (mode == 0) {
     q.copyTo(y);
@@ -81,12 +86,19 @@ double powermethod(const cv::Mat & x,
     for (size_t i=0; i<n; i++) 
       b.at<float>(i,i) = lambda-a.at<float>(i,i);
     
+    for(size_t i=0; i<4; i++){
+      for(size_t j=0; j<4; j++)
+	std::cout<<b.at<float>(i,j)<<" ";
+      std::cout<<std::endl;
+    }
+    
+    
     /* perform one more time power iteration method */
     q = cv::Mat::zeros(x.rows,1,CV_32FC1);
     q.at<float>(0,0)=1.0;
             
     /* iterative method to find maximum eigenvalue */
-    lambdamin = power(b,q,z);
+    lambdamin = power(b,q,z,tol);
     
     cv::multiply(q, ones, y, -1.0);
     w = lambda - lambdamin;
@@ -96,28 +108,39 @@ double powermethod(const cv::Mat & x,
 
 int main(int argc, char** agrv)
 {
-  cv::Mat c = cv::Mat::zeros(3, 3, CV_32FC1);
-  c.at<float>(0, 0) = 2.0;
-  c.at<float>(0, 1) = 16.0;
-  c.at<float>(0, 2) = 8.0;
-  c.at<float>(1, 0) = 4.0;
-  c.at<float>(1, 1) = 14.0;
-  c.at<float>(1, 2) = 8.0;
-  c.at<float>(2, 0) = -8.0;
-  c.at<float>(2, 1) = -32.0;
-  c.at<float>(2, 2) = -18.0;
+  cv::Mat c = cv::Mat::zeros(4, 4, CV_32FC1);
+  c.at<float>(0, 0) = 4.0;
+  c.at<float>(0, 1) = 2.0;
+  c.at<float>(0, 2) = 2.0;
+  c.at<float>(0, 3) = 1.0;
 
-  for(size_t i=0; i<3; i++){
-    for(size_t j=0; j<3; j++)
+  c.at<float>(1, 0) = 2.0;
+  c.at<float>(1, 1) = -3.0;
+  c.at<float>(1, 2) = 1.0;
+  c.at<float>(1, 3) = 5.0;
+  
+  c.at<float>(2, 0) = 2.0;
+  c.at<float>(2, 1) = 1.0;
+  c.at<float>(2, 2) = 3.0;
+  c.at<float>(2, 3) = 1.0;
+
+  c.at<float>(3, 0) = 1.0;
+  c.at<float>(3, 1) = 5.0;
+  c.at<float>(3, 2) = 1.0;
+  c.at<float>(3, 3) = 2.0;
+
+  for(size_t i=0; i<4; i++){
+    for(size_t j=0; j<4; j++)
       std::cout<<c.at<float>(i,j)<<" ";
     std::cout<<std::endl;
   }
   
-  cv::Mat y = cv::Mat::zeros(3, 1, CV_32FC1);
-  int mode = 0;
+  cv::Mat y = cv::Mat::zeros(4, 1, CV_32FC1);
+  int mode = 1;
   double lambda;
+  double tol = 0.00001;
 
-  lambda = powermethod(c, mode, y);
+  lambda = powermethod(c, mode, y, tol);
   std::cout<<"lambda = "<<lambda<<std::endl;
 
 }

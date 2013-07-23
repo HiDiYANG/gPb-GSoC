@@ -513,6 +513,7 @@ namespace cv
 	val.at<float>(i,1) = -val.at<float>(i,1)/temp_diag;    
 	}*/
 
+    // sPb eigen decomposition problem will be solved later. This is a cheating code for ucm development. 
     FILE* pFile1, *pFile2, *pFile3, *pFile4, *pFile5, *pFile6, *pFile7, *pFile8;
     pFile1 = fopen("sPb_data/sPb_l1.txt", "r");
     pFile2 = fopen("sPb_data/sPb_l2.txt", "r");
@@ -555,7 +556,6 @@ namespace cv
     fclose(pFile7);
     fclose(pFile8);    
   }
-
 
   void 
   globalPb(const cv::Mat & image,

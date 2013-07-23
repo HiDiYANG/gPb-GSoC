@@ -19,6 +19,7 @@ int main(int argc, char** argv){
   imshow("Original", img0);
   imshow("gPb",  gPb);
   imshow("gPb_thin", gPb_thin);
+  imshow("ws_wt", ws_wt);
   //Display_EXP(gPb_ori, "gPb_ori", 4);
   //Display_EXP(sPb, "sPb", 4);
   while(true){

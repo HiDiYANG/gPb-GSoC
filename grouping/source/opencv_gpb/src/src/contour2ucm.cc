@@ -28,8 +28,7 @@ namespace cv
 		   const vector<cv::Mat> & gPb_ori,
 		   cv::Mat & ws_wt)
   {
-    cout<<"here ... "<<endl;
     creat_finest_partition(gPb, ws_wt);
-    cout<<"end ..."<<endl;
+    ws_wt.convertTo(ws_wt, CV_8UC1);
   }
 }

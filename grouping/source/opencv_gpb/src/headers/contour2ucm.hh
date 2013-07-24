@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <stack>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <opencv2/core/core.hpp>

@@ -7,11 +7,12 @@ using namespace std;
 using namespace cv;
 using namespace libFilters;
 
+
 int main(int argc, char** argv){
 
   Mat img0, gPb, gPb_thin, labels;// texton, mPb_max;
   vector<Mat> gPb_ori, sPb; 
-  
+
   img0 = imread(argv[1], CV_LOAD_IMAGE_COLOR);
   globalPb(img0, gPb, gPb_thin, gPb_ori);
   contour2ucm(gPb, gPb_ori, labels);

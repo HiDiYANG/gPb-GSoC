@@ -91,7 +91,7 @@ namespace cv
 	  next_label++;
 	}
       }
-    
+    next_label--;
     return next_label;
   }
 
@@ -127,12 +127,11 @@ namespace cv
     
     int num_labels;
     num_labels = connected_component(ws_bw, labels);
+    int scale = 255/(num_labels);
     cout<<"num_labels: "<<num_labels<<endl;
     for(size_t i=0; i<labels.rows; i++)
       for(size_t j=0; j<labels.cols; j++)
-	labels.at<int>(i,j) *= 51; 
+	labels.at<int>(i,j) *= scale; 
     labels.convertTo(labels, CV_8UC1);
-    ws_bw.convertTo(ws_bw, CV_8UC1);
-    imshow("ws_bw", ws_bw*255);
   }
 }

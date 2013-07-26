@@ -12,12 +12,31 @@
 #define MAX_SIZE 100
 
 using namespace std;
-typedef struct{
+
+class vertex{
+public: 
   int id;
   bool is_subdivision;
   int x;
   int y;
-}vertex;
+  //--------------------------------------------------
+  vertex() : id(0), is_subdivision(false), x(0), y(0){}
+  vertex(const vertex& c){
+    id = c.id; 
+    is_subdivision = c.is_subdivision;
+    x = c.x;
+    y = c.y;
+  }
+  vertex(int i, int j){
+    id = 0;
+    is_subdivision = false;
+    x = i;
+    y = j;
+  }
+  void display(){
+    cout<<"id: "<<id<<", is: "<<is_subdivision<<", x: "<<x<<", y: "<<y<<endl;  
+  }
+};
 
 namespace cv
 {
@@ -148,7 +167,7 @@ namespace cv
 	  //record current position
 	  pos[0] = i; pos[1] = j;
 	  q.push(pos);
-	  while(q.size()){
+	  while(!q.empty()){
 	    curr_pos = q.top(); //load current position
 	    q.pop();            //clear current position from stack
 	    neighbor_exists_2D(curr_pos, ws_bw.rows, ws_bw.cols, mask);
@@ -177,58 +196,114 @@ namespace cv
 
   void contour_side(const cv::Mat & ws_bw,
 		    cv::Mat & labels,
-		    cv::Mat & is_v,
-		    cv::Mat & assign)
+		    cv::Mat & _is_edge)
   {
     int num_labels = connected_component(ws_bw, labels);
     int rows = ws_bw.rows, cols = ws_bw.cols;
     int* label_x = new int[num_labels];
     int* label_y = new int[num_labels];
+    bool* has_vertex = new bool[num_labels];
     int* pos = new int[2];
 
-    vertex * v = new vertex[1];
     cv::Mat mask, mask_cmp;
-    stack<vertex *> _vertices;
+    stack<vertex> _vertices;
     
-    is_v = cv::Mat::zeros(rows, cols, CV_32SC1);
-    //ws_bw.copyTo(is_e);
-    assign = cv::Mat::zeros(rows, cols, CV_32SC1);
+    cv::Mat _assignment = cv::Mat::zeros(rows, cols, CV_32SC1);
+    cv::Mat _is_vertex = cv::Mat::zeros(rows, cols, CV_32SC1);
+    ws_bw.copyTo(_is_edge);
 
     for(size_t i=0; i<rows; i++)
       for(size_t j=0; j<cols; j++){
 	int val = labels.at<int>(i,j);
+	cout<<"val = "<<val<<endl;
+
 	if(val != 0){
 	  pos[0] = i; pos[1] = j;
 	  neighbor_exists_2D(pos, rows, cols, mask);
 	  neighbor_compare_2D(pos, labels, mask, mask_cmp);
 	  if(is_vertex_2D(mask_cmp)){
-	    is_v.at<int>(i,j) = 255;
-	    cout<<"is_v: "<<is_v.at<int>(i,j)<<endl;
-	    v->id = _vertices.size();
-	    v->x = i; v->y = j; v->is_subdivision = false;
-	    assign.at<int>(i,j) = v->id;
-	    _vertices.push(v); 
-	    cout<<"v.id = "<<v->id<<endl;
+	    vertex v = vertex(i, j);
+	    v.id = _vertices.size();
+	    _assignment.at<int>(i,j) = v.id;
+	    _vertices.push(v);
+	    _is_vertex.at<int>(i,j) = 1;
+	    has_vertex[val-1] = true;
 	  }
 	  label_x[val-1]=i;
 	  label_y[val-1]=j;
 	}
       }
+    
+    vertex* vertices = new vertex[_vertices.size()];
+    int ind_v = 0;
+    int size_vertices = _vertices.size();
+    while(!_vertices.empty()){
+      vertex temp = _vertices.top();
+      _vertices.pop();
+      vertices[ind_v].id = temp.id;
+      vertices[ind_v].is_subdivision = temp.is_subdivision;
+      vertices[ind_v].x = temp.x;
+      vertices[ind_v].y = temp.y;
+      ind_v++;
+    }
 
+    for(size_t i=0; i<num_labels; i++){
+      if(!has_vertex[i]){
+	vertex v = vertex(label_x[i], label_y[i]);
+	v.id = _vertices.size();
+	_assignment.at<int>(label_x[i], label_y[i])=v.id;
+	_is_vertex.at<int>(label_x[i], label_y[i]) = 1;
+	has_vertex[i] = true;
+	}
+    }
+    for(size_t v_id = 0; v_id < size_vertices; v_id++){
+      vertex v = vertices[v_id];
+      int label = labels.at<int>(v.x, v.y);
+      int* q_x = new int[8];
+      int* q_y = new int[8];
+      int n_neighbors = 0;
+      int x_start = (v.x > 0) ? (v.x - 1) : (v.x + 1);
+      int x_end   = (v.x + 1);
+      for(size_t x = x_start; (x <= x_end)&&(x < size_x); x += 2){
+	if(labels.at<int>(x, v.y) == label){
+	  q_x[n_neighbors] = x;
+	  q_y[n_neighbors] = v.y;
+	  n_neighbors++;
+	}
+      }
+      int y_start = (v.y > 0) ? (v.y - 1) : (v.y + 1);
+      int y_end   = (v.y + 1);
+      for(size_t y = y_start; (y <= y_end)&&(y < size_y); y += 2){
+	if(labels.at<int>(v.x, y) == label){
+	  q_x[n_neighbors] = v.x;
+	  q_y[n_neighbors] = y;
+	  n_neighbors++;
+	}
+      }
+      for(size_t x = x_start; (x <= x_end)&&(x < size_x); x += 2)
+	for(size_t y = y_start; (y <= y_end)&&(y < size_y); y += 2){
+	  if((labels.at<int>(x,y) == label) &&
+	     (labels.at<int>(v.x, y) != label) &&
+	     (labels.at<int>(x, v.y) != label)){
+	    q_x[n_neighbors] = x;
+	    q_y[n_neighbors] = y;
+	    n_neighbors++;
+	  }
+	}
+      
   }
   
   void fit_contour(const cv::Mat & ws_bw,
 		   cv::Mat & labels,
-		   cv::Mat & is_v,
-		   cv::Mat & assign)
+		   cv::Mat & is_e)
   {
-    contour_side(ws_bw, labels, is_v, assign);
+    contour_side(ws_bw, labels, is_e);
   }
 
   void creat_finest_partition(const cv::Mat & gPb,
 			      cv::Mat & ws_wt,
 			      cv::Mat & labels,
-			      cv::Mat & is_v,
+			      cv::Mat & is_e,
 			      cv::Mat & assign)
   {
     cv::Mat temp = cv::Mat::zeros(gPb.rows, gPb.cols, CV_32FC1);
@@ -242,7 +317,7 @@ namespace cv
 	if(ws_wt.at<int>(i,j) > 0)
 	  ws_bw.at<int>(i,j)=0;
     
-    fit_contour(ws_bw, labels, is_v, assign);
+    fit_contour(ws_bw, labels, is_e);
   }
 
   void contour2ucm(const cv::Mat & gPb,
@@ -253,22 +328,17 @@ namespace cv
     creat_finest_partition(gPb, ws_wt, labels, is_v, assign);
     //ws_wt.convertTo(ws_wt, CV_8UC1);
     cv::Mat ws_bw = cv::Mat::zeros(ws_wt.rows, ws_wt.cols, CV_32SC1);
-    fit_contour(ws_bw, labels, is_v, assign);
-    for(size_t i=0; i<ws_wt.rows; i++)
-      for(size_t j=0; j<ws_wt.cols; j++)
-	if(ws_wt.at<int>(i,j)==0)
-	  ws_bw.at<int>(i,j)=1;
 
-    int num_labels = connected_component(ws_bw, labels);
-    
-    int scale = 255/(num_labels);
-    cout<<"num_labels: "<<num_labels<<endl;
+    vertex v1 = vertex(11, 12);
+    v1.id = 21;
+    v1.is_subdivision = true;
+    v1.display();
+
+    int scale = 51;
     for(size_t i=0; i<labels.rows; i++)
       for(size_t j=0; j<labels.cols; j++)
 	labels.at<int>(i,j) *= scale; 
     labels.convertTo(labels, CV_8UC1);    
-    is_v.convertTo(is_v, CV_8UC1);
-    imshow("is_v", is_v);
 	
   }
 }

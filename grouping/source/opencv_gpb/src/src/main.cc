@@ -9,18 +9,12 @@ using namespace cv;
 using namespace libFilters;
 
 
+
 int main(int argc, char** argv){
 
   Mat img0, gPb, gPb_thin, labels;// texton, mPb_max;
   vector<Mat> gPb_ori, sPb; 
-
-  list<int> a;
-  //a.insert(1);
-  //a.insert(2);
-  //a.insert(3);
   
-  //cout<<"size of list: "<<a.size()<<endl;
-  //cout<<"a[2]: "<<a[1]<<endl;
   
 
   img0 = imread(argv[1], CV_LOAD_IMAGE_COLOR);

@@ -215,6 +215,32 @@ namespace cv
     return next_label;
   }
 
+  static bool* check_neighbor(const cv::Mat & mask_cmp,
+			      const cv::Mat & _is_vertex,
+			      int* nx,
+			      int* ny)
+  { 
+    bool* flag = new bool[2];
+    flag[0] = true; flag[1] = false;
+    cout<<"nx: "<<*nx<<" , ny: "<<*ny<<endl;
+    for(size_t i=0; i<mask_cmp.rows; i++){
+      for(size_t j=0; j<mask_cmp.cols; j++){
+	if(mask_cmp.at<int>(i, j) == 1){
+	  (*nx) = (*nx)+i-1; (*ny) = (*ny)+j-1;
+	  flag[0] = false;
+	  if(!_is_vertex.at<int>(*nx, *ny))
+	    flag[1] = true;
+	  else
+	    flag[1] = false;
+	}
+	if(!flag[0]) break;
+      }
+      if(!flag[0]) break;
+    }
+    cout<<"nx: "<<*nx<<" , ny: "<<*ny<<endl;
+    return flag;
+  }
+
   void contour_side(const cv::Mat & ws_bw,
 		    cv::Mat & labels,
 		    cv::Mat & _is_edge,
@@ -229,16 +255,18 @@ namespace cv
 
     cv::Mat mask, mask_cmp;
     vector<contour_vertex> _vertices;
-    //vector<contour_edge> _edges;
+    vector<contour_edge> _edges;
     
     cv::Mat _assignment = cv::Mat::zeros(rows, cols, CV_32SC1);
     _is_vertex = cv::Mat::zeros(rows, cols, CV_32SC1);
-    ws_bw.copyTo(_is_edge);
+    _is_edge   = cv::Mat::zeros(rows, cols, CV_32SC1);
+    //ws_bw.copyTo(_is_edge);
+
+    //--------------------- Vertex Assignment ----------------
 
     for(size_t i=0; i<rows; i++)
       for(size_t j=0; j<cols; j++){
 	int label = labels.at<int>(i,j);
-
 	if(label != 0){
 	  pos[0] = i; pos[1] = j;
 	  neighbor_exists_2D(pos, rows, cols, mask);
@@ -260,82 +288,179 @@ namespace cv
     
     for(size_t i=0; i<num_labels; i++){
       if(!has_vertex[i]){
-	vertex* v = create_contour_vertex(label_x[i], label_y[i]);
+	contour_vertex* v = create_contour_vertex(label_x[i], label_y[i]);
 	v->id = _vertices.size();
-	_assignment.at<int>(label_x[i], label_y[i])=v.id;
+	_assignment.at<int>(label_x[i], label_y[i])=v->id;
 	_vertices.push_back(*v);
 	delete[] v;
 	_is_vertex.at<int>(label_x[i], label_y[i]) = 1;
+	_is_edge.at<int>(label_x[i], label_y[i]) = 0;
 	has_vertex[i] = true;
       }
     }
 
-    for(size_t v_id = 0; v_id < size_vertices; v_id++){
-      vertex v = _vertices[v_id];
+    //------------- EDGE ASSIGNMENT ---------------------
+
+    for(size_t v_id = 0; v_id < _vertices.size(); v_id++){
+      contour_vertex v = _vertices[v_id];
       int label = labels.at<int>(v.x, v.y);
-      int* q_x = new int[8];
-      int* q_y = new int[8];
+      int q_x[8] = { 0 };
+      int q_y[8] = { 0 };
       int n_neighbors = 0;
-      int x_start = (v.x > 0) ? (v.x - 1) : (v.x + 1);
-      int x_end   = (v.x + 1);
-      for(size_t x = x_start; (x <= x_end)&&(x < size_x); x += 2){
-	if(labels.at<int>(x, v.y) == label){
-	  q_x[n_neighbors] = x;
-	  q_y[n_neighbors] = v.y;
-	  n_neighbors++;
-	}
-      }
-      int y_start = (v.y > 0) ? (v.y - 1) : (v.y + 1);
-      int y_end   = (v.y + 1);
-      for(size_t y = y_start; (y <= y_end)&&(y < size_y); y += 2){
-	if(labels.at<int>(v.x, y) == label){
-	  q_x[n_neighbors] = v.x;
-	  q_y[n_neighbors] = y;
-	  n_neighbors++;
-	}
-      }
-      for(size_t x = x_start; (x <= x_end)&&(x < size_x); x += 2)
-	for(size_t y = y_start; (y <= y_end)&&(y < size_y); y += 2){
-	  if((labels.at<int>(x,y) == label) &&
-	     (labels.at<int>(v.x, y) != label) &&
-	     (labels.at<int>(x, v.y) != label)){
-	    q_x[n_neighbors] = x;
-	    q_y[n_neighbors] = y;
+      int* pos = new int[2];
+      pos[0] = v.x; pos[1] = v.y;
+      neighbor_exists_2D(pos, rows, cols, mask);
+      neighbor_compare_2D(pos, labels, mask, mask_cmp);
+      for(size_t i = 0; i<mask_cmp.rows; i++){
+	for(size_t j = 0; j<mask_cmp.cols; j++){
+	  if(mask_cmp.at<int>(i, j) == 1){
+	    q_x[n_neighbors] = v.x + i - 1;
+	    q_y[n_neighbors] = v.y + j - 1;
 	    n_neighbors++;
 	  }
 	}
-      
-      /*
+      }
+
       for(size_t n = 0; n < n_neighbors; n++){
-	if(_is_vertex.at<int>(q_x[n], q_y[n])){
-	  if(_assignments.at<int>(q_x[n], q_y[n]) > v_id){
-	    vertex v_end = vertices[_assignments.at<int>(q_x[n], q_y[n])];
-	    edge* e = edge::create_contour_edge(v, v_end);
-	    e->id = _edges.size();
-	    e->contour_equiv_id = e->id;
-	    _edges.push(*e);
-	    delete[] e;	    
-	  }
-	  else if(!_is_edge.at<int>(q_x[n], q_y[n])){
-	    _is_edge.at<int>(v.x, v.y) = 1;
-	    int e_id = _edges.size();
-	    bool endpoint_is_new_vertex = false;
-	    stack<int> e_x;
-	    stack<int> e_y;
-	    do{
-	      e_x.push(q_x[n]);
-	      e_y.push(q_y[n]);
-	      _is_edge.at<int>(q_x[n], q_y[n]) = 1;
-	      _assignments.at<int>(q_x[n], q_y[n]) = e_id;
-	      int* pos = new int[2];
-	      pos[0] = v.x; pos[1] = v.y;
-	      neighbor_exists_2D(pos, rows, cols, mask);
-	      
-	    }while(!endpoint_is_new_vertex);
-	    
+	int nx = q_x[n], ny = q_y[n];
+	if(_is_vertex.at<int>(nx, ny)){
+	  if(_assignment.at<int>(nx, ny) > v_id){
+	    contour_vertex v_end = _vertices[_assignment.at<int>(nx, ny)];
+	    contour_edge* e      = create_contour_edge(v, v_end);
+	    e->id                = _edges.size();
+	    e->contour_equiv_id  = e->id;
+	    _edges.push_back(*e); 
+	    delete[] e;
 	  }
 	}
-	}*/
+	else if(!_is_edge.at<int>(nx, ny)){
+	  // temporarily mark start vertex as inaccessible
+	  _is_edge.at<int>(v.x, v.y) = 1;
+	  int e_id = _edges.size();
+	  bool endpoint_is_new_vertex = false;
+	  vector<int> e_x;
+	  vector<int> e_y;
+	  do{
+	    e_x.push_back(nx);
+	    e_y.push_back(ny);
+	    _is_edge.at<int>(nx, ny) = 1;
+	    _assignment.at<int>(nx, ny) = e_id;
+	    pos[0] = nx; pos[1] = ny;
+	    neighbor_exists_2D(pos, rows, cols, mask);
+	    mask_cmp = cv::Mat::zeros(3, 3, CV_32SC1);
+	    for(size_t i=0; i<3; i++)
+	      for(size_t j=0; j<3; j++){
+		if(mask.at<int>(i,j) == 1){
+		  int i_x = nx+i-1, i_y = ny+j-1;
+		  if((labels.at<int>(i_x, i_y)==label) && 
+		     (!_is_edge.at<int>(i_x, i_y)))
+		    mask_cmp.at<int>(i, j) = 1;
+		}
+	      }
+	    bool* flag;
+	    int xxx = nx, yyy = ny;
+	    cout<<"nx: "<<nx<<", ny: "<<ny<<endl;
+	    flag = check_neighbor(mask_cmp, _is_vertex, &xxx, &yyy);
+	    cout<<"xxx: "<<xxx<<", yyy: "<<yyy<<endl;
+	    cout<<"flag[0]: "<<flag[0]<<", flag[1]: "<<flag[1]<<endl;
+	    
+	    // check neighborhood 
+	    if(mask_cmp.at<int>(0,0)){
+	      nx--; ny--;
+	      if(!_is_vertex.at<int>(nx, ny))
+		continue;
+	      else
+		break;
+	    }
+		
+	    if(mask_cmp.at<int>(0,1)){
+	      nx--; ny;
+	      if(!_is_vertex.at<int>(nx, ny))
+		continue;
+	      else
+		break;
+	    }
+
+	    if(mask_cmp.at<int>(0,2)){
+	      nx--; ny++;
+	      if(!_is_vertex.at<int>(nx, ny))
+		continue;
+	      else
+		break;
+	    }
+
+	    if(mask_cmp.at<int>(1,0)){
+	      nx; ny--;
+	      if(!_is_vertex.at<int>(nx, ny))
+		continue;
+	      else
+		break;
+	    }
+		
+	    if(mask_cmp.at<int>(1,2)){
+	      nx; ny++;
+	      if(!_is_vertex.at<int>(nx, ny))
+		continue;
+	      else
+		break;
+	    }
+	    
+	    if(mask_cmp.at<int>(2,0)){
+	      nx++; ny--;
+	      if(!_is_vertex.at<int>(nx, ny))
+		continue;
+	      else
+		break;
+	    }
+		
+	    if(mask_cmp.at<int>(2,1)){
+	      nx++; ny;
+	      if(!_is_vertex.at<int>(nx, ny))
+		continue;
+	      else
+		break;
+	    }
+
+	    if(mask_cmp.at<int>(2,2)){
+	      nx++; ny++;
+	      if(!_is_vertex.at<int>(nx, ny))
+		continue;
+	      else
+		break;
+	    }
+
+	    endpoint_is_new_vertex = true;
+	    _is_edge.at<int>(nx, ny) = 0;	      
+	  }while(!endpoint_is_new_vertex);	  
+	  // remove inaccesssible mark from start vertex
+	  _is_edge.at<int>(v.x, v.y) = 0;
+	  
+	  // add endpoint as vertex (if needed) probably never get here
+	  if(endpoint_is_new_vertex){
+	    contour_vertex * v_end = create_contour_vertex(nx, ny);
+	    v_end->id = _vertices.size();
+	    _assignment.at<int>(nx, ny) = v_end->id;
+	    _vertices.push_back(*v_end);
+	    delete[] v_end;
+	    _is_vertex.at<int>(nx, ny) = 1;
+	  }
+
+	  // create edge and set its identity
+	  contour_vertex v_e = _vertices[_assignment.at<int>(nx, ny)];
+	  contour_edge* e = create_contour_edge(v, v_e);
+	  e->id = e_id;
+	  e->contour_equiv_id = e_id;
+	  int n_edge_points = (endpoint_is_new_vertex ? (e_x.size()-1) : e_x.size());
+	  e->x_coords.resize(n_edge_points);
+	  e->y_coords.resize(n_edge_points);
+	  for(size_t i = 0; i<n_edge_points; i++){
+	    e->x_coords[i] = e_x[i];
+	    e->y_coords[i] = e_y[i];
+	  }
+	  _edges.push_back(*e); delete[] e;
+	}
+      }
+    }
   }
   
   void fit_contour(const cv::Mat & ws_bw,

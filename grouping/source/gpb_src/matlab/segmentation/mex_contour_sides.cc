@@ -135,9 +135,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
       matrix<> im_skel = im; //lib_image::skeletonize_2D(im);
       matrix<unsigned long> labels = lib_image::connected_components(im_skel);
       lib_image::contour_set contours(labels);
-      contours.subdivide_local();
-      contours.subdivide_global();
-      contours.completion_cdt();
+      //contours.subdivide_local();
+      //contours.subdivide_global();
+      //contours.completion_cdt();
       cout << "[" << (double(clock() - time)/CLOCKS_PER_SEC) << " sec]\n";
       cout.flush();
       /* extract contour sides */

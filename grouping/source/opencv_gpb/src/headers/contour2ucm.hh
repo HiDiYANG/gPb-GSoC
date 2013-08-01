@@ -48,10 +48,15 @@ public:
 namespace cv
 {
   void creat_finest_partition(const cv::Mat & gPb,
-			      cv::Mat & ws_wt);
+			      cv::Mat & ws_wt,
+			      cv::Mat & labels,
+			      cv::Mat & _is_vertex,
+			      cv::Mat & _is_edge);
 
   void contour2ucm(const cv::Mat & gPb,
 		   const vector<cv::Mat> & gPb_ori,
-		   cv::Mat & ws_wt);
+		   cv::Mat & labels,
+		   cv::Mat & _is_vertex,
+		   cv::Mat & _is_edge);
  
 }

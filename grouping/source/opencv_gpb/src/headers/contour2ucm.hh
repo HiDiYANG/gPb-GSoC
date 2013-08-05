@@ -7,6 +7,7 @@
 #include <opencv2/core/core.hpp>
 #include "watershed.h"
 #include "ucm_mean_pb.hh"
+#include "uvt.hh"
 
 class contour_vertex;
 class contour_edge;
@@ -50,6 +51,7 @@ namespace cv
 {
   void contour2ucm(const cv::Mat & gPb,
 		   const vector<cv::Mat> & gPb_ori,
-		   cv::Mat & ucm);
+		   cv::Mat & ucm,
+		   bool label);
  
 }

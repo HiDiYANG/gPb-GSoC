@@ -75,7 +75,7 @@ namespace cv
 	  temp = 0;
 	if(temp > 1)
 	  temp = 1;
-	output.at<float>(i,j) = 1-temp;
+	output.at<float>(i,j) = 1.0-temp;
       }
   }
   
@@ -780,8 +780,10 @@ namespace cv
 
   void contour2ucm(const cv::Mat & gPb,
 		   const vector<cv::Mat> & gPb_ori,
-		   cv::Mat & ucm)
+		   cv::Mat & ucm,
+		   bool label)
   { 
+    bool flag = label ? DOUBLE_SIZE : SINGLE_SIZE;
     cv::Mat ws_wt8, ws_wt2, labels, ws_wt;
     creat_finest_partition(gPb, gPb_ori, ws_wt);
     
@@ -813,10 +815,7 @@ namespace cv
     fclose(pFile2);
     
     cv::copyMakeBorder(ws_wt2, ws_wt2, 0, 1, 0, 1, cv::BORDER_REFLECT);
-    ws_wt2.convertTo(ws_wt2, CV_64FC1);
-    
-    cv::ucm_mean_pb(ws_wt2, labels, ucm, SINGLE_SIZE);
-    ucm.convertTo(ucm, CV_32FC1);
+    cv::ucm_mean_pb(ws_wt2, labels, ucm, flag);
     pb_normalize(ucm, ucm);
   }
 }

@@ -1,10 +1,15 @@
 /*
-Source code for computing ultrametric contour maps based on average boundary strength, as described in :
+    Source code for computing ultrametric contour maps based on average boundary strength, as described in :
 
-P. Arbelaez, M. Maire, C. Fowlkes, and J. Malik. From contours to regions: An empirical evaluation. In CVPR, 2009.
+    P. Arbelaez, M. Maire, C. Fowlkes, and J. Malik. From contours to regions: An empirical evaluation. In CVPR, 2009.
 
-Pablo Arbelaez <arbelaez@eecs.berkeley.edu>
-March 2009.
+    Pablo Arbelaez <arbelaez@eecs.berkeley.edu>
+    March 2009.
+
+    Modified to fit OpenCV implementation for GSoC2013    
+    By Di Yang
+    di.yang@anu.edu.au
+    August 2013
 */
 
 #include "ucm_mean_pb.hh"
@@ -366,7 +371,7 @@ void ucm_mean_pb(const cv::Mat & input1,
   int ind = 0;
   for(size_t j=0; j<input1.cols; j++)
     for(size_t i=0; i<input1.rows; i++){
-      local_boundaries[ind++] = input1.at<double>(i,j);
+      local_boundaries[ind++] = double(input1.at<float>(i,j));
     }
   
   int totcc = -1;
@@ -394,6 +399,7 @@ void ucm_mean_pb(const cv::Mat & input1,
 	if(i%2 == 0 && j%2 == 0)
 	  output.at<double>(i/2,j/2) = ucm2.at<double>(i,j);
   }
+  output.convertTo(output, CV_32FC1);
   delete[] ucm;
   delete[] initial_partition;
   delete[] local_boundaries;

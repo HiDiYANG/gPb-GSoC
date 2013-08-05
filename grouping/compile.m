@@ -104,6 +104,11 @@ mex ./ucm_mean_pb.cpp -L../../lib -lopencv_gpb
 system('mv *mex* ../../lib');
 cd(savepwd);
 
+cd('source/uvt/');
+mex ./uvt.cpp -L../../lib -lopencv_gpb
+system('mv *mex* ../../lib');
+cd(savepwd);
+
 disp('..................................Done Compiling');
 
 end

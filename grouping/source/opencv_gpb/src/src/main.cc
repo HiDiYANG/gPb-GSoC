@@ -1,3 +1,14 @@
+//
+//    gPb opencv implementation
+//    including interactive segmentation.
+//
+//    Created by Di Yang, Vicent Rabaud, and Gary Bradski on 31/05/13.
+//    Copyright (c) 2013 The Australian National University. 
+//    and Willow Garage inc.
+//    All rights reserved.
+//    
+//
+
 #include "globalPb.hh"
 #include "cv_lib_filters.hh"
 #include "contour2ucm.hh"
@@ -42,6 +53,8 @@ int main(int argc, char** argv){
 
   img0 = cv::imread(argv[1], CV_LOAD_IMAGE_COLOR);
   cv::globalPb(img0, gPb, gPb_thin, gPb_ori);
+
+  // if you wanna conduct interactive segmentation later, choose DOUBLE_SIZE, otherwise SINGLE_SIZE will do either.
   cv::contour2ucm(gPb, gPb_ori, ucm, DOUBLE_SIZE);
   
   //back up
@@ -69,13 +82,14 @@ int main(int argc, char** argv){
       vector<cv::Vec4i> hierarchy;
       cv::findContours(markers, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
       seeds = cv::Mat::zeros(markers.size(), CV_8UC1);
-      for( int i = 0, color = 1; i< contours.size(); i++ ){ 
-	cv::drawContours(seeds, contours, i, uchar(color++), -1, 8, hierarchy, 0, cv::Point() );
+      int num_seed = 1;
+      for( int i = 0; i< contours.size(); i++ ){ 
+	cv::drawContours(seeds, contours, i, uchar(num_seed++), -1, 8, hierarchy, 0, cv::Point() );
       }
       seeds.convertTo(seeds, CV_32SC1);
       cv::uvt(ucm, seeds, boundary, labels, SINGLE_SIZE);
       cv::imshow("boundary", boundary*255);
-      cv::imshow("labels", labels*127);
+      cv::imshow("labels", labels*int(255/--num_seed));
     }
       
   }

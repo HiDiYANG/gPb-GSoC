@@ -75,6 +75,7 @@ int main(int argc, char** argv){
       //restore everything
       markers = cv::Mat::zeros(markers.size(), CV_8UC1);
       ucm.copyTo(ucm2);
+      cv::imshow("ucm", ucm2);
     }
 
     if(ch == 'w' || ch == '\n'){

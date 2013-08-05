@@ -61,6 +61,24 @@ double contour_edge::length() const{
 
 namespace cv
 {
+  void pb_normalize(const cv::Mat & input,
+		    cv::Mat & output)
+  {
+    float beta1 = -2.7487, beta2 = 11.1189, beta3 = 0.0602;
+    input.copyTo(output);
+    for(size_t i=0; i<output.rows; i++)
+      for(size_t j=0; j<output.cols; j++){
+	float temp = output.at<float>(i,j);
+	temp = 1/(1+exp(beta1+beta2*temp));
+	temp = (temp-beta3)/(1-beta3);
+	if(temp < 0)
+	  temp = 0;
+	if(temp > 1)
+	  temp = 1;
+	output.at<float>(i,j) = 1-temp;
+      }
+  }
+  
   void neighbor_exists_2D(const int* pos,
 			  const int size_x, const int size_y,
 			  cv::Mat & mask)
@@ -164,6 +182,224 @@ namespace cv
 
   }
 
+  void super_contour(const cv::Mat & input,
+		     cv::Mat & output)
+  {
+    cv::Mat H = cv::Mat::zeros(input.rows, input.cols-1, CV_32FC1);
+    cv::Mat V = cv::Mat::zeros(input.rows-1, input.cols, CV_32FC1);
+    output = cv::Mat::zeros(input.rows*2, input.cols*2, CV_32FC1);
+    for(size_t i=0; i<input.rows; i++)
+      for(size_t j=0; j<input.cols; j++){
+	if(j<input.cols-1)
+	  H.at<float>(i,j)=min(input.at<float>(i,j), input.at<float>(i, j+1));
+	if(i<input.rows-1)
+	  V.at<float>(i,j)=min(input.at<float>(i,j), input.at<float>(i+1, j));
+      }
+    for(size_t i=0; i<output.rows; i++)
+      for(size_t j=0; j<output.cols; j++){
+	if(i%2==0 && j%2==0)
+	  output.at<float>(i,j) = input.at<float>(i/2, j/2);
+	if(i%2==0 && j%2==1 && (j-1)/2 < H.cols)
+	  output.at<float>(i,j) = H.at<float>(i/2, (j-1)/2);
+	if(i%2==1 && j%2==0 && (i-1)/2 < V.rows)
+	  output.at<float>(i,j) = V.at<float>((i-1)/2, j/2);
+	if(j == output.cols)
+	  output.at<float>(i,j) = max(output.at<float>(i,j), output.at<float>(i,j-1));
+	if(i == output.rows)
+	  output.at<float>(i,j) = output.at<float>(i-1,j);
+      }
+  }
+
+  void clean_watersheds(const cv::Mat & input,
+			cv::Mat & output,
+			cv::Mat & labels)
+  {
+    input.copyTo(output);
+    cv::Mat c = cv::Mat::zeros(input.rows, input.cols, CV_32SC1);
+    for(size_t i=0; i<output.rows; i++)
+      for(size_t j=0; j<output.cols; j++){
+	if(output.at<float>(i,j)==0.0)
+	  c.at<int>(i,j) = 1;
+	/*if(i==0 || i==output.rows-1)
+	  c.at<int>(i,j) = 0;
+	if(j==0 || j==output.cols-1)
+	c.at<int>(i,j) = 0;*/
+      }
+    
+    // Morphological clean up isolated pixel.
+    cv::Mat mask;
+    for(int i=0; i<c.rows; i++)
+      for(int j=0; j<c.cols; j++){
+	bool is_break = false;
+	int* pos = new int[2];
+	pos[0] = i; pos[1] = j;
+	mask = cv::Mat::zeros(3,3,CV_32SC1);
+	neighbor_exists_2D(pos, c.rows, c.cols, mask);
+	for(int x=0; x<3; x++){
+	  for(int y=0; y<3; y++){
+	    if(mask.at<int>(x, y) == 1){
+	      if(c.at<int>(i+x-1, j+y-1) == c.at<int>(i,j)){
+		is_break = true;
+		break;
+	      }
+	    }
+	  }
+	  if(is_break)
+	    break;
+	}
+	if(!is_break)
+	  c.at<int>(i,j) = c.at<int>(i-1,j+1);
+      }
+    
+    for(size_t i=0; i<c.rows; i++)
+      for(size_t j=0; j<c.cols; j++){
+	if((c.at<int>(i,j)==0) && (output.at<float>(i,j)==0.0)){
+	  float* vec = new float[4];
+	  int ind=0;
+	  vec[0] = max(output.at<float>(i-2,j-1), output.at<float>(i-1,j-2));
+	  vec[1] = max(output.at<float>(i+2,j-1), output.at<float>(i+1,j-2));
+	  vec[2] = max(output.at<float>(i+2,j+1), output.at<float>(i+1,j+2));
+	  vec[3] = max(output.at<float>(i-2,j+1), output.at<float>(i-1,j+2));
+	  
+	  for(size_t n=1; n<4; n++)
+	    if(vec[ind]>vec[n])
+	      ind = n;
+	  switch(ind){
+	  case 0:
+	    if(output.at<float>(i-2,j-1)<output.at<float>(i-1,j-2)){
+	      output.at<float>(i, j-1) = 0;
+	      output.at<float>(i-1, j) = vec[0];
+	    }else{
+	      output.at<float>(i, j-1) = vec[0];
+	      output.at<float>(i-1, j) = 0;
+	    }
+	    output.at<float>(i-1, j-1) = vec[0];
+	    break;
+	  case 1:
+	    if(output.at<float>(i+2, j-1) < output.at<float>(i+1, j-2)){
+	      output.at<float>(i, j-1) = 0;
+	      output.at<float>(i+1, j) = vec[1];
+	    }else{
+	      output.at<float>(i, j-1) = vec[1];
+	      output.at<float>(i+1, j) = 0;
+	    }
+	    output.at<float>(i+1, j-1) = vec[1];
+	    break;
+	  case 2:
+	    if(output.at<float>(i+2, j+1) < output.at<float>(i+1, j+2)){
+	      output.at<float>(i, j+1) = 0;
+	      output.at<float>(i+1, j) = vec[2];
+	    }else{
+	      output.at<float>(i, j+1) = vec[2];
+	      output.at<float>(i+1, j) = 0;
+	    }
+	    output.at<float>(i+1, j+1) = vec[2];
+	    break;
+	  case 3:
+	    if(output.at<float>(i-2, j+1) < output.at<float>(i-1, j+2)){
+	      output.at<float>(i, j+1) = 0;
+	      output.at<float>(i-1, j) = vec[3];
+	    }else{
+	      output.at<float>(i, j+1) = vec[3];
+	      output.at<float>(i-1, j) = 0;
+	    }
+	    output.at<float>(i-1, j+1) = vec[3];
+	    break;
+	  } 
+	}
+      }
+    c = cv::Mat::zeros(input.rows, input.cols, CV_32SC1);
+    for(size_t i=0; i<c.rows; i++)
+      for(size_t j=0; j<c.cols; j++){
+	if(output.at<float>(i, j) == 0)
+	  c.at<int>(i, j) = -1;
+	/*if(i==0 || i==output.rows-1)
+	  c.at<int>(i,j) = 0;
+	if(j==0 || j==output.cols-1)
+	c.at<int>(i,j) = 0;*/
+      }
+       
+    int index = 1;
+    for(size_t j=0; j<c.cols; j++)
+      for(size_t i=0; i<c.rows; i++){
+	if(c.at<int>(i,j) == -1){
+	  cv::Point seed;
+	  seed.x = j;
+	  seed.y = i;
+	  cv::floodFill(c, seed, cv::Scalar(index));
+	  index++;
+	}
+      }
+    labels = cv::Mat::zeros(c.rows/2, c.cols/2, CV_32SC1);
+    vector<int> i_x;
+    vector<int> i_y;
+    for(size_t i=0; i<c.rows; i++)
+      for(size_t j=0; j<c.cols; j++){
+	if((i%2 == 1) && (j%2==1)){
+	  labels.at<int>((i-1)/2, (j-1)/2) = c.at<int>(i,j)-1;
+	  if( ((i-1)/2) < (c.rows/2-1) ||
+	      ((j-1)/2) < (c.cols/2-1) ){
+	    if(labels.at<int>((i-1)/2, (j-1)/2) == -1){
+	      i_x.push_back((i-1)/2);
+	      i_y.push_back((j-1)/2);
+	    }
+	  }
+	}
+      }
+    for(size_t i = 0; i<labels.rows; i++)
+      labels.at<int>(i, labels.cols-1) = labels.at<int>(i, labels.cols-2);
+    for(size_t j = 0; j<labels.cols; j++)
+      labels.at<int>(labels.rows-1, j-1) = labels.at<int>(labels.rows-1, j-2);
+    labels.at<int>(labels.rows-1, labels.cols-1) = labels.at<int>(labels.rows-2, labels.cols-2);
+
+    if(i_x.size()){
+      for(size_t i=0; i<i_x.size(); i++){
+	int* pos = new int[2];
+	int max_labels = -1;
+	pos[0] = i_x[i]; pos[1] = i_y[i];
+	neighbor_exists_2D(pos, labels.rows, labels.cols, mask);
+	for(size_t x=0; x<3; x++)
+	  for(size_t y=0; y<3; y++){
+	    if(mask.at<int>(x,y) == 1){
+	      if(max_labels < labels.at<int>(pos[0]+x-1, pos[1]+y-1))
+		max_labels = labels.at<int>(pos[0]+x-1, pos[1]+y-1);
+	    }
+	  }
+	labels.at<int>(pos[0], pos[1]) = max_labels;
+      }
+    }
+  }
+
+  void rot90(const cv::Mat & input,
+	     cv::Mat & output,
+	     int flag)
+  {
+    cv::Mat temp;
+    input.copyTo(output);
+    if(flag == 1)
+      output.t();
+    output.copyTo(temp); 
+    for(size_t i=0; i<output.rows; i++)
+      for(size_t j=0; j<output.cols; j++)
+	output.at<float>(i, j) = temp.at<float>(output.rows-i-1, j);
+    if(flag == -1)
+      output.t();
+  }
+
+  void to_8(const cv::Mat & input,
+	    cv::Mat & output)
+  {
+    input.copyTo(output);
+    for(size_t i=0; i<output.rows-1; i++)
+      for(size_t j=0; j<output.cols-1; j++)
+	if(output.at<float>(i, j) > 0 && 
+	   output.at<float>(i+1, j+1)>0 &&
+	   output.at<float>(i, j+1)== 0 &&
+	   output.at<float>(i+1, j)== 0)
+	  output.at<float>(i, j+1) = (output.at<float>(i, j) + output.at<float>(i+1, j+1))/2.0;
+  }
+
+  
   int connected_component(const cv::Mat & ws_bw,
 			   cv::Mat & labels)
   {
@@ -221,8 +457,7 @@ namespace cv
 		    cv::Mat & _is_vertex,
 		    cv::Mat & _assignment,
 		    vector<contour_vertex> & _vertices,
-		    vector<contour_edge> & _edges,
-		    vector< vector<contour_edge> > & _edges_equiv)
+		    vector<contour_edge> & _edges)
   {
     int num_labels = connected_component(ws_bw, labels);
     int rows = ws_bw.rows, cols = ws_bw.cols;
@@ -232,9 +467,9 @@ namespace cv
     int* pos = new int[2];
 
     cv::Mat mask, mask_cmp;
+    vector< vector<contour_edge> > _edges_equiv;
     //vector<contour_vertex> _vertices;
     //vector<contour_edge> _edges;
-    //vector< vector<contour_edge> > _edges_equiv;
     
     _assignment = cv::Mat::zeros(rows, cols, CV_32SC1);
     _is_vertex = cv::Mat::zeros(rows, cols, CV_32SC1);
@@ -462,41 +697,31 @@ namespace cv
   void fit_contour(const cv::Mat & ws_bw,
 		   cv::Mat & labels,
 		   cv::Mat & _is_edge,
-		   cv::Mat & _is_vertex)
+		   cv::Mat & _is_vertex,
+		   cv::Mat & edges_endpoints,
+		   vector<contour_vertex> & _vertices,
+		   vector<contour_edge> & _edges)
   {
     cv::Mat _assignment;
-    vector<contour_vertex> _vertices;
-    vector<contour_edge> _edges;
-    vector< vector<contour_edge> > _edges_equiv;
-    
-    contour_side(ws_bw, labels, _is_edge, _is_vertex, _assignment,  _vertices, _edges, _edges_equiv);
-	
-    
-    
-    
+    contour_side(ws_bw, labels, _is_edge, _is_vertex, _assignment, _vertices, _edges);
 
+    int n_edges = _edges.size();
+    edges_endpoints = cv::Mat::zeros(n_edges, 2, CV_32SC1);
 
-    /*
-    FILE* pFile1, *pFile2;
-    pFile1 = fopen("edge_x.txt", "w+");
-    pFile2 = fopen("edge_y.txt", "w+");
-    
-    for(size_t i=0; i<_edges.size(); i++){
-      for(size_t j=0; j<_edges[i].size(); j++){
-	fprintf(pFile1, "%d ", _edges[i].x_coords[j]);
-	fprintf(pFile2, "%d ", _edges[i].y_coords[j]);
-      }
-      fprintf(pFile1, "\n");
-      fprintf(pFile1, "\n");
-      }*/
+    for(size_t i = 0; i<n_edges; i++){
+      edges_endpoints.at<int>(i,1) = _edges[i].vertex_start->id;
+      edges_endpoints.at<int>(i,2) = _edges[i].vertex_end->id;
+    }
   }
 
   void creat_finest_partition(const cv::Mat & gPb,
-			      cv::Mat & ws_wt,
-			      cv::Mat & labels,
-			      cv::Mat & _is_edge,
-			      cv::Mat & _is_vertex)
+			      const vector<cv::Mat> & gPb_ori,
+			      cv::Mat & ws_wt)
   {
+    cv::Mat edges_endpoints, _is_vertex, _is_edge, labels;
+    vector<contour_vertex> _vertices;
+    vector<contour_edge> _edges;
+    
     cv::Mat temp = cv::Mat::zeros(gPb.rows, gPb.cols, CV_32FC1);
     cv::Mat ws_bw = cv::Mat::ones(gPb.rows, gPb.cols, CV_32FC1);
     cv::multiply(gPb, ws_bw, temp, 255.0);
@@ -507,27 +732,91 @@ namespace cv
       for(size_t j=0; j<ws_wt.cols; j++)
 	if(ws_wt.at<int>(i,j) > 0)
 	  ws_bw.at<int>(i,j)=0;
+
+    fit_contour(ws_bw, labels, _is_edge, _is_vertex, edges_endpoints, _vertices, _edges);
+    ws_wt = cv::Mat::zeros(gPb.rows, gPb.cols, CV_32FC1);
     
-    fit_contour(ws_bw, labels, _is_edge, _is_vertex);
+    int n_edges = _edges.size();
+    for(size_t i=0; i<n_edges; i++){
+      cv::Point v1, v2;
+      double ang;
+      int orient;
+      v1.x = _vertices[edges_endpoints.at<int>(i,1)].x;
+      v1.y = _vertices[edges_endpoints.at<int>(i,1)].y;
+
+      v2.x = _vertices[edges_endpoints.at<int>(i,2)].x;
+      v2.y = _vertices[edges_endpoints.at<int>(i,2)].y;
+
+      if(v1.y == v2.y)
+	ang = 0.5*M_PI;
+      else
+	ang = atan((v1.x-v2.x) / (v1.y-v2.y));
+ 
+      if( (ang<-78.75) || (ang>=78.75) )
+	orient = 1;
+      else if( (ang<78.75) && (ang>=56.25) )
+	orient = 2;
+      else if( (ang<56.25) && (ang>=33.75) )
+	orient = 3;
+      else if( (ang<33.75) && (ang>=11.25) )
+	orient = 4;
+      else if( (ang<11.25) && (ang>=-11.25))
+	orient = 5;
+      else if( (ang<-11.25) && (ang>=-33.75))
+	orient = 6;
+      else if( (ang<-33.75) && (ang>=-56.25))
+	orient = 7;
+      else if( (ang<-56.25) && (ang>=-78.75))
+	orient = 8;
+      
+      for(size_t j=0; j<_edges[i].x_coords.size();j++)
+	ws_wt.at<float>(_edges[i].x_coords[j], _edges[i].y_coords[j]) = 
+	  max(gPb_ori[orient].at<float>(_edges[i].x_coords[j], _edges[i].y_coords[j]), ws_wt.at<float>(_edges[i].x_coords[j], _edges[i].y_coords[j]));
+      
+      ws_wt.at<float>(v1.x, v1.y) = max(gPb_ori[orient].at<float>(v1.x, v1.y), ws_wt.at<float>(v1.x, v1.y));
+      ws_wt.at<float>(v2.x, v2.y) = max(gPb_ori[orient].at<float>(v2.x, v2.y), ws_wt.at<float>(v2.x, v2.y));	  
+    }
   }
 
   void contour2ucm(const cv::Mat & gPb,
 		   const vector<cv::Mat> & gPb_ori,
-		   cv::Mat & labels,
-		   cv::Mat & _is_vertex,
-		   cv::Mat & _is_edge)
+		   cv::Mat & ucm)
   { 
-    cv::Mat ws_wt;
-    creat_finest_partition(gPb, ws_wt, labels, _is_edge, _is_vertex);
-    //ws_wt.convertTo(ws_wt, CV_8UC1);
-    cv::Mat ws_bw = cv::Mat::zeros(ws_wt.rows, ws_wt.cols, CV_32SC1);
+    cv::Mat ws_wt8, ws_wt2, labels, ws_wt;
+    creat_finest_partition(gPb, gPb_ori, ws_wt);
+    
+    rot90(ws_wt, ws_wt8, 1);
+    to_8(ws_wt8, ws_wt8);
+    rot90(ws_wt8, ws_wt8, -1);
+    to_8(ws_wt8, ws_wt8);
+    super_contour(ws_wt8, ws_wt2);
+    clean_watersheds(ws_wt2, ws_wt2, labels);
 
-    int scale = 51;
-    for(size_t i=0; i<labels.rows; i++)
-      for(size_t j=0; j<labels.cols; j++)
-	labels.at<int>(i,j) *= scale; 
-    labels.convertTo(labels, CV_8UC1);
-    _is_edge.convertTo(_is_edge, CV_8UC1);
-    _is_vertex.convertTo(_is_vertex, CV_8UC1);
+    FILE* pFile1, *pFile2;
+    pFile1 = fopen("ws_wt2.txt", "w+");
+    pFile2 = fopen("labels.txt", "w+");
+    
+    for(size_t i=0; i<ws_wt2.rows; i++){
+      for(size_t j=0; j<ws_wt2.cols; j++){
+	fprintf(pFile1, "%f ", ws_wt2.at<float>(i,j));
+      }
+      fprintf(pFile1, "\n");
+    }
+    
+    for(size_t i=0; i<labels.rows; i++){
+      for(size_t j=0; j<labels.cols; j++){
+	fprintf(pFile2, "%d ", labels.at<int>(i,j));
+      }
+      fprintf(pFile2, "\n");
+    }
+    fclose(pFile1);
+    fclose(pFile2);
+    
+    cv::copyMakeBorder(ws_wt2, ws_wt2, 0, 1, 0, 1, cv::BORDER_REFLECT);
+    ws_wt2.convertTo(ws_wt2, CV_64FC1);
+    
+    cv::ucm_mean_pb(ws_wt2, labels, ucm, SINGLE_SIZE);
+    ucm.convertTo(ucm, CV_32FC1);
+    pb_normalize(ucm, ucm);
   }
 }

@@ -6,6 +6,7 @@
 #include <opencv/highgui.h>
 #include <opencv2/core/core.hpp>
 #include "watershed.h"
+#include "ucm_mean_pb.hh"
 
 class contour_vertex;
 class contour_edge;
@@ -47,16 +48,8 @@ public:
 
 namespace cv
 {
-  void creat_finest_partition(const cv::Mat & gPb,
-			      cv::Mat & ws_wt,
-			      cv::Mat & labels,
-			      cv::Mat & _is_vertex,
-			      cv::Mat & _is_edge);
-
   void contour2ucm(const cv::Mat & gPb,
 		   const vector<cv::Mat> & gPb_ori,
-		   cv::Mat & labels,
-		   cv::Mat & _is_vertex,
-		   cv::Mat & _is_edge);
+		   cv::Mat & ucm);
  
 }

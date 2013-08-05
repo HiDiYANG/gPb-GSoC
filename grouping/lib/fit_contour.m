@@ -34,19 +34,19 @@ contours.edge_equiv_ids = edge_equiv_ids + 1;
 contours.is_completion = is_compl;
 
 % get image size
-im_size = size(skel);
+%im_size = size(skel);
 
 % store vertex regions
-contours.regions_v_left  = convert_cell_inds(v_left,  im_size);
-contours.regions_v_right = convert_cell_inds(v_right, im_size);
+%contours.regions_v_left  = convert_cell_inds(v_left,  im_size);
+%contours.regions_v_right = convert_cell_inds(v_right, im_size);
 
 % store edge regions
-contours.regions_e_left  = convert_cell_inds(e_left,  im_size);
-contours.regions_e_right = convert_cell_inds(e_right, im_size);
+%contours.regions_e_left  = convert_cell_inds(e_left,  im_size);
+%contours.regions_e_right = convert_cell_inds(e_right, im_size);
 
 % store contour regions
-contours.regions_c_left  = convert_cell_inds(c_left,  im_size);
-contours.regions_c_right = convert_cell_inds(c_right, im_size);
+%contours.regions_c_left  = convert_cell_inds(c_left,  im_size);
+%contours.regions_c_right = convert_cell_inds(c_right, im_size);
 
 % convert from c to matlab indices
 function cell_inds = convert_cell_inds(cell_inds, im_size)

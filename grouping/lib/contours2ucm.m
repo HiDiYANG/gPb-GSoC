@@ -36,16 +36,14 @@ labels(end, :) = labels(end-1, :);
 labels(:, end) = labels(:, end-1);
 ws_wt2(end+1, :) = ws_wt2(end, :);
 ws_wt2(:, end+1) = ws_wt2(:, end);
-labels
 
-
-% compute ucm with mean pb.
+% compute ucm wii98p4[-0-------------------------------------ln ,th mean pb.
 super_ucm = double(ucm_mean_pb(ws_wt2, labels));
 
 % output
 super_ucm = normalize_output(super_ucm); % ojo
 
-if strcmp(fmt,'doubleSize'),
+if strcmp(fmt,'doubleSize')
     ucm = super_ucm;
 else
     ucm = super_ucm(3:2:end, 3:2:end);
@@ -58,7 +56,7 @@ function [seg8] = to_8(seg4)
 seg8 = seg4;
 for i = 1 : size(seg4,1)-1,
 	for j = 1 : size(seg4,2)-1,
-		if (seg8(i,j) > 0 && seg8(i+1, j+1) > 0 && seg8(i,j+1) == 0 && seg8(i+1,j) == 0),
+		if (seg8(i,j) > 0 && seg8(i+1, j+1) > 0 && seg8(i,j+1) == 0 && seg8(i+1,j) == 0)
 			seg8(i,j+1) = ( seg8(i,j) + seg8(i+1,j+1) )/2;	
 		end
 	end
@@ -81,7 +79,7 @@ for e = 1 : numel(contours.edge_x_coords)
     v2 = contours.vertices(contours.edges(e, 2), :);
 
     if v1(2) == v2(2),
-        ang = 90;
+        ang = 0.5;
     else
         ang = atan((v1(1)-v2(1)) / (v1(2)-v2(2)));
     end
@@ -149,9 +147,9 @@ for r = 1 : numel(R),
             max(ws_clean(xc-2, yc+1), ws_clean(xc-1, yc+2)) ];
     
     [nd,id] = min(vec);
-    switch id,
-        case 1,
-            if ws_clean(xc-2, yc-1) < ws_clean(xc-1, yc-2),
+    switch id
+        case 1
+            if ws_clean(xc-2, yc-1) < ws_clean(xc-1, yc-2)
                ws_clean(xc, yc-1) = 0;
                ws_clean(xc-1, yc) = vec(1);
             else
@@ -160,8 +158,8 @@ for r = 1 : numel(R),
                
             end
             ws_clean(xc-1, yc-1) = vec(1);
-        case 2,
-           if ws_clean(xc+2, yc-1) < ws_clean(xc+1, yc-2),
+        case 2
+           if ws_clean(xc+2, yc-1) < ws_clean(xc+1, yc-2)
                ws_clean(xc, yc-1) = 0;
                ws_clean(xc+1, yc) = vec(2);
            else
@@ -170,8 +168,8 @@ for r = 1 : numel(R),
             end
             ws_clean(xc+1, yc-1) = vec(2);
             
-        case 3,
-            if ws_clean(xc+2, yc+1) < ws_clean(xc+1, yc+2), 
+        case 3
+            if ws_clean(xc+2, yc+1) < ws_clean(xc+1, yc+2) 
                ws_clean(xc, yc+1) = 0;
                ws_clean(xc+1, yc) = vec(3);
             else
@@ -179,8 +177,8 @@ for r = 1 : numel(R),
                 ws_clean(xc+1, yc) = 0;
             end
             ws_clean(xc+1, yc+1) = vec(3);
-        case 4, 
-            if ws_clean(xc-2, yc+1) < ws_clean(xc-1, yc+2), 
+        case 4
+            if ws_clean(xc-2, yc+1) < ws_clean(xc-1, yc+2) 
                ws_clean(xc, yc+1) = 0;
                ws_clean(xc-1, yc) = vec(4);
             else

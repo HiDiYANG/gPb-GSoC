@@ -96,24 +96,11 @@ using namespace std;
 
 int main()
 {
-  vector<contour_vertex> _vertices;
-  vector<contour_edge> _edges;
+  int a[4] = {1,2,3,4};
   
-  contour_vertex * v1 = create_contour_vertex(1,1);
-  contour_vertex * v2 = create_contour_vertex(3,3);
+  for(size_t i=0; i<4; i++)
+    cout<<"address a["<<i<<"]: "<<&a[i]<<endl;
+  
 
-  _vertices.push_back(*v1);
-  _vertices.push_back(*v2);
-
-  contour_vertex * vv1 = &_vertices[0];
-  contour_vertex * vv2 = &_vertices[1];
-
-  contour_edge * e1 = create_contour_edge(*vv1, *vv2);
-  cout<<"vv1.edges_start.empty: "<<vv1->edges_start.empty()<<endl;
-  cout<<"vv2.edges_end.empty: "<<vv2->edges_end.empty()<<endl;
-  cout<<"-------------------------------"<<endl;
-  cout<<"v1.edges_start.empty: "<<_vertices[0].edges_start.empty()<<endl;
-  cout<<"v2.edges_end.empty: "<<_vertices[1].edges_end.empty()<<endl;
-  cout<<"-------------------------------"<<endl;
   
 }

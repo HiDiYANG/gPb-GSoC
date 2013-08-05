@@ -1,8 +1,5 @@
 *~
-*.png
-*.jpg
 build_*/
-data
 .settings
 .project
 .cproject

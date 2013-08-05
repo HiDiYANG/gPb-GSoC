@@ -15,9 +15,13 @@
 #include <float.h>
 #endif
 
+#define DOUBLE_SIZE 1
+#define SINGLE_SIZE 0
+
 namespace cv{
   void uvt(const cv::Mat & ucm_mtr,
 	   const cv::Mat & seeds,
 	   cv::Mat & boundary,
-	   cv::Mat & labels);
+	   cv::Mat & labels,
+	   bool sz);
 }

@@ -119,8 +119,10 @@ double* labels, double* boundaries)
 void uvt(const cv::Mat & ucm_mtr,
 	 const cv::Mat & seeds,
 	 cv::Mat & boundary,
-	 cv::Mat & labels)
+	 cv::Mat & labels,
+	 bool sz)
 { 
+  bool flag = sz ? DOUBLE_SIZE : SINGLE_SIZE;
   int rows = ucm_mtr.rows;
   int cols = ucm_mtr.cols;
   double* ucm = new double[rows*cols];
@@ -129,7 +131,7 @@ void uvt(const cv::Mat & ucm_mtr,
   for(size_t j=0; j<cols; j++)
     for(size_t i=0; i<rows; i++){
       ucm[ind] = double(ucm_mtr.at<float>(i,j));
-      markers[ind] = double(seeds.at<float>(i,j));
+      markers[ind] = double(seeds.at<int>(i,j));
       ind++;
     }
 
@@ -138,8 +140,31 @@ void uvt(const cv::Mat & ucm_mtr,
   
   UVT(ucm, markers, rows, cols, lab, bdry);
   
-  boundary = cv::Mat(cols, rows, CV_64FC1, bdry).t();
-  labels = cv::Mat(cols, rows, CV_64FC1, lab).t();
-  
+
+  if(flag){
+    boundary = cv::Mat(cols, rows, CV_64FC1, bdry).t();
+    labels = cv::Mat(cols, rows, CV_64FC1, lab).t();
+  }else{
+    boundary = cv::Mat(int(rows/2), int(cols/2), CV_64FC1);
+    labels = cv::Mat(int(rows/2), int(cols/2), CV_64FC1);
+    cv::Mat temp1 = cv::Mat(cols, rows, CV_64FC1, bdry).t();
+    cv::Mat temp2 = cv::Mat(cols, rows, CV_64FC1, lab).t();
+    for(size_t i=0; i<temp1.rows; i++)
+      for(size_t j=0; j<temp2.cols; j++){
+	if(i%2 == 0 && j%2 == 0){
+	  boundary.at<double>(i/2, j/2) = temp1.at<double>(i,j);
+	  labels.at<double>(i/2, j/2) = temp2.at<double>(i,j);
+	}
+      }
+  }
+
+  boundary.convertTo(boundary, CV_8UC1);
+  labels.convertTo(labels, CV_8UC1);
+
+  delete[] ucm;
+  delete[] markers;
+  delete[] bdry;
+  delete[] lab;
+
 }
 }

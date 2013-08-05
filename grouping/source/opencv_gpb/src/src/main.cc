@@ -16,11 +16,11 @@
 using namespace std;
 using namespace libFilters;
 
-cv::Mat markers, ucm;
+cv::Mat markers, ucm2;
 cv::Point prev_pt(-1, -1);
 void on_mouse( int event, int x, int y, int flags, void* param )
 {
-  if( ucm.empty() )
+  if( ucm2.empty() )
     return;
 	
   if( event == cv::EVENT_LBUTTONUP || !(flags& cv::EVENT_FLAG_LBUTTON) )
@@ -33,9 +33,9 @@ void on_mouse( int event, int x, int y, int flags, void* param )
     if( prev_pt.x < 0 )
       prev_pt = pt;
     cv::line( markers, prev_pt, pt, uchar(255), 3, 8, 0 );
-    cv::line( ucm,     prev_pt, pt, 1.0, 3, 8, 0 );
+    cv::line( ucm2,     prev_pt, pt, 1.0, 3, 8, 0 );
     prev_pt = pt;
-    cv::imshow("ucm", ucm );
+    cv::imshow("ucm", ucm2 );
   }
 }
 
@@ -48,7 +48,7 @@ int main(int argc, char** argv){
   cout<<"Press 'w' or 'ENTER' - conduct interactive segmentation"<<endl;
   cout<<"Press 'ESC' - exit the program"<<endl<<endl<<endl;
 
-  cv::Mat img0, gPb, gPb_thin, ucm2, boundary, labels, seeds;
+  cv::Mat img0, gPb, gPb_thin, ucm, boundary, labels, seeds;
   vector<cv::Mat> gPb_ori; 
 
   img0 = cv::imread(argv[1], CV_LOAD_IMAGE_COLOR);
@@ -75,6 +75,7 @@ int main(int argc, char** argv){
       //restore everything
       markers = cv::Mat::zeros(markers.size(), CV_8UC1);
       ucm.copyTo(ucm2);
+      cout<<"here"<<endl;
       cv::imshow("ucm", ucm2);
     }
 

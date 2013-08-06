@@ -48,7 +48,7 @@ int main(int argc, char** argv){
   cout<<"Press 'w' or 'ENTER' - conduct interactive segmentation"<<endl;
   cout<<"Press 'ESC' - exit the program"<<endl<<endl<<endl;
 
-  cv::Mat img0, gPb, gPb_thin, ucm, boundary, labels, seeds;
+  cv::Mat img0, gPb, gPb_thin, ucm;
   vector<cv::Mat> gPb_ori; 
 
   img0 = cv::imread(argv[1], CV_LOAD_IMAGE_COLOR);
@@ -75,11 +75,13 @@ int main(int argc, char** argv){
       //restore everything
       markers = cv::Mat::zeros(markers.size(), CV_8UC1);
       ucm.copyTo(ucm2);
-      cout<<"here"<<endl;
       cv::imshow("ucm", ucm2);
+      cv::destroyWindow("boundary");
+      cv::destroyWindow("labels");
     }
 
     if(ch == 'w' || ch == '\n'){
+      cv::Mat boundary, labels, seeds;
       vector< vector<cv::Point> > contours;
       vector<cv::Vec4i> hierarchy;
       cv::findContours(markers, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
@@ -91,7 +93,7 @@ int main(int argc, char** argv){
       seeds.convertTo(seeds, CV_32SC1);
       cv::uvt(ucm, seeds, boundary, labels, SINGLE_SIZE);
       cv::imshow("boundary", boundary*255);
-      cv::imshow("labels", labels*int(255/--num_seed));
+      cv::imshow("labels", labels*int(255/num_seed));
     }
       
   }

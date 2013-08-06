@@ -140,7 +140,6 @@ void uvt(const cv::Mat & ucm_mtr,
   
   UVT(ucm, markers, rows, cols, lab, bdry);
   
-
   if(flag){
     boundary = cv::Mat(cols, rows, CV_64FC1, bdry).t();
     labels = cv::Mat(cols, rows, CV_64FC1, lab).t();

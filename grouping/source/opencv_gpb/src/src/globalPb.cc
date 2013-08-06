@@ -11,8 +11,6 @@
 #include "cv_lib_filters.hh"
 #include "globalPb.hh"
 #include "buildW.hh"
-#include <string>
-#include <sstream>
 
 using namespace std;
 using namespace libFilters;

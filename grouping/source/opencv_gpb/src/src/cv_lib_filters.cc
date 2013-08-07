@@ -487,8 +487,6 @@ namespace libFilters
 		hist_left.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
 	    }
 	  
-	  if(gaussian_kernel.cols == 1)
-	    cv::transpose(gaussian_kernel, gaussian_kernel);
 	  convolveDFT(hist_right, gaussian_kernel, hist_right, SAME_SIZE);
 	  convolveDFT(hist_left, gaussian_kernel, hist_left, SAME_SIZE);
 	  

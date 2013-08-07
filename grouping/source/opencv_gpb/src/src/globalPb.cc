@@ -11,6 +11,7 @@
 #include "cv_lib_filters.hh"
 #include "globalPb.hh"
 #include "buildW.hh"
+#include <time.h>
 
 using namespace std;
 using namespace libFilters;
@@ -97,6 +98,12 @@ namespace cv
     // Histogram filter generation
     gaussianFilter1D(double(num_bins)*bg_smooth_sigma, 0, false, bg_smooth_kernel);
     gaussianFilter1D(double(num_bins)*cg_smooth_sigma, 0, false, cg_smooth_kernel);
+    cv::transpose(bg_smooth_kernel, bg_smooth_kernel);
+    cv::transpose(cg_smooth_kernel, cg_smooth_kernel);
+
+    int length = 7;
+    cv::Mat impulse_resp = cv::Mat::zeros(1, length, CV_32FC1);
+    impulse_resp.at<float>(0, (length-1)/2) = 1.0;
     
     // Normalize color channels
     color.convertTo(color, CV_32FC3);
@@ -155,9 +162,9 @@ namespace cv
 
     // T channel
     cout<<"computing tg's ... "<<endl;
-    gradient_hist_2D(texton, r_tg[0], n_ori, Kmean_bins, tg_r5);
-    gradient_hist_2D(texton, r_tg[1], n_ori, Kmean_bins, tg_r10);
-    gradient_hist_2D(texton, r_tg[2], n_ori, Kmean_bins, tg_r20);
+    gradient_hist_2D(texton, r_tg[0], n_ori, Kmean_bins, impulse_resp, tg_r5);
+    gradient_hist_2D(texton, r_tg[1], n_ori, Kmean_bins, impulse_resp, tg_r10);
+    gradient_hist_2D(texton, r_tg[2], n_ori, Kmean_bins, impulse_resp, tg_r20);
     
     texton.convertTo(texton, CV_8UC1);
   }
@@ -348,7 +355,11 @@ namespace cv
       for(size_t i=0; i<3; i++)
 	image.copyTo(layers[i]);
     
+    clock_t start, stop;
+    start = clock();
     pb_parts_final_selected(layers, texton, bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
+    stop = clock();
+    cout<<"running time using: "<<(double)(stop-start)/CLOCKS_PER_SEC<<"s"<<endl;
     
     cout<<"Cues smoothing ..."<<endl;
 

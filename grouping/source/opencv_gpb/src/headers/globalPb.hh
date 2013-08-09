@@ -16,7 +16,6 @@ namespace cv
 
   void
   pb_parts_final_selected(vector<cv::Mat> & layers,
-			  cv::Mat & texton,
 			  vector<cv::Mat> & bg_r3,
 			  vector<cv::Mat> & bg_r5,
 			  vector<cv::Mat> & bg_r10,

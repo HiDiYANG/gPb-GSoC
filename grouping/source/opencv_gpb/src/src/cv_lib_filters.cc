@@ -534,48 +534,100 @@ namespace libFilters
 
 
   //-------------------------------------------------------------------
-  void
-  Display_EXP(const cv::Mat & images,
-	      const char* name)
-  {
-    vector<cv::Mat> imgs;
-    imgs.resize(1);
-    images.copyTo(imgs[0]);
-    Display_EXP(imgs, name, 1);
-  }
+  //---------------------------------------------------
+  //---------------------------------------------------
+  //---------------------------------------------------
+  //---------------------------------------------------
 
-  void
-  Display_EXP(const vector<cv::Mat> & images, 
-	      const char* name,
-	      const int w_n)
-  {
-    int Depth = images.size();
-    int sub_c = images[0].cols;
-    int sub_r = images[0].rows;
-    int h_n = int(double(Depth)/double(w_n)+0.5);
-    cv::Mat dispimage(h_n*sub_r, w_n*sub_c, CV_32FC1);
-    cv::Mat zeros = cv::Mat::zeros(sub_r, sub_c, CV_32FC1);
-    double temp_mx, temp_mn;
+  struct parallelInvoker{
+    const cv::Mat * label_ptr;
+    int r;
+    int num_bins;
+    cv::Mat * gaussian_kernel_ptr;
+    vector<cv::Mat> * gradients_ptr;
+  
+    void operator()(const cv::BlockedRange & range) const
+    {  
+      const cv::Mat & label = * label_ptr;
+      cv::Mat & gaussian_kernel = * gaussian_kernel_ptr;
+      vector<cv::Mat> & gradients = * gradients_ptr;
+      
+      double *oris;
+      cv::Mat weights, slice_map, label_exp;
+      cv::Mat hist_left  = cv::Mat::zeros(1, num_bins, CV_32FC1);
+      cv::Mat hist_right = cv::Mat::zeros(1, num_bins, CV_32FC1);    
+      weights = weight_matrix_disc(r);
+      slice_map = orientation_slice_map(r, range.end());
+      oris = standard_filter_orientations(range.end(), DEG);
+      gradients.resize(range.end());
+      for(size_t i=0; i<range.end(); i++)
+	gradients[i] = cv::Mat::zeros(label.rows, label.cols, CV_32FC1);
+      cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
+    
+      for(size_t idx = range.begin(); idx < range.end(); idx++)
+	for(int i=r; i<label_exp.rows-r; i++)
+	  for(int j=r; j<label_exp.cols-r; j++){
+	    hist_left.setTo(0.0);
+	    hist_right.setTo(0.0);
+	    for(int x= -r; x <= r; x++)
+	      for(int y= -r; y <= r; y++){
+		int bin = int(label_exp.at<float>(i+x, j+y));
+		if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 && 
+		   slice_map.at<float>(x+r, y+r) <= oris[idx])
+		  hist_right.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+		else
+		  hist_left.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+	      }
+	    
+	    convolveDFT(hist_right, gaussian_kernel, hist_right, SAME_SIZE);
+	    convolveDFT(hist_left, gaussian_kernel, hist_left, SAME_SIZE);
+	  
+	    double sum_l = 0.0, sum_r =0.0; 
+	    for(size_t nn = 0; nn<num_bins; nn++){
+	      sum_l += hist_left.at<float>(0, nn);
+	      sum_r += hist_right.at<float>(0, nn);
+	    }
+	  
+	    double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
+	    for(size_t nn = 0; nn<num_bins; nn++){
+	      if(sum_r == 0)
+		hist_r = hist_right.at<float>(0,nn);
+	      else
+		hist_r = hist_right.at<float>(0,nn)/sum_r;
+	    
+	      if(sum_l == 0)
+		hist_l = hist_left.at<float>(0,nn);
+	      else
+		hist_l = hist_left.at<float>(0,nn)/sum_l;
+	      
+	      tmp1 = hist_r-hist_l;
+	      tmp2 = hist_r+hist_l;
+	      if(tmp2 < 0.00001)
+		tmp2 = 1.0;
 
-    for(size_t n=0; n<Depth; n++){
-      temp_mx = 0.0; temp_mn=0.0;
-      for(size_t i=0; i<sub_r; i++)
-	for(size_t j=0; j<sub_c; j++){
-	  temp_mx = MAX(temp_mx, images[n].at<float>(i, j));
-	  temp_mn = MIN(temp_mn, images[n].at<float>(i, j));
-	}
-      cv::addWeighted(zeros, 0.0, images[n], 1.0/(temp_mx-temp_mn), -temp_mn/(temp_mx-temp_mn), images[n]);
+	      tmp += 4.0*(tmp1*tmp1)/tmp2;
+	    }
+	    gradients[idx].at<float>(i-r,j-r) = tmp;
+	  }
     }
+  };
 
-    int c = 0;
-    for(size_t i=0; i<h_n; i++)
-      for(size_t j=0; j<w_n; j++){
-	for(size_t x=0; x<sub_r; x++)
-	  for(size_t y=0; y<sub_c; y++)
-	    dispimage.at<float>(i*sub_r+x, j*sub_c+y) = images[c].at<float>(x, y);
-	c++;
-      }
-    imshow(name, dispimage); 
+  void 
+  parallel_for_gradient_hist_2D(const cv::Mat & label,
+				int r,
+				int n_ori,
+				int num_bins,
+				cv::Mat & gaussian_kernel,
+				std::vector<cv::Mat> & gradients)
+  {
+    parallelInvoker parallel;
+    parallel.label_ptr = & label;
+    parallel.r = r;
+    parallel.num_bins = num_bins;
+    parallel.gaussian_kernel_ptr = & gaussian_kernel; 
+    parallel.gradients_ptr = & gradients;
+    int totalCols = n_ori;
+    cv::BlockedRange range(0, totalCols);
+    cv::parallel_for(range, parallel);
   }
-
 }

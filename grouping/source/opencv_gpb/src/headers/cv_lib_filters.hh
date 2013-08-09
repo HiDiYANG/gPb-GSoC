@@ -152,13 +152,12 @@ namespace libFilters
 		   std::vector<cv::Mat> & gradients);
 
   //-----------------------------------------------
-  void
-  Display_EXP(const cv::Mat & images,
-	      const char* name);
-
-  void
-  Display_EXP(const std::vector<cv::Mat> & images,
-	      const char* name,
-	      const int w_n);
+  void 
+  parallel_for_gradient_hist_2D(const cv::Mat & label,
+				int r,
+				int n_ori,
+				int num_bins,
+				cv::Mat & gaussian_kernel,
+				std::vector<cv::Mat> & gradients);
 
 }

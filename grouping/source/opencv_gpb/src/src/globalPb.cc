@@ -40,7 +40,7 @@ namespace
   static double* 
   _mPb_Weights(int nChannels)
   {
-    double *weights = new double[13];
+    double *weights = new double[12];
     if(nChannels == 3){
       weights[0] = 0.0146; weights[1] = 0.0145; weights[2] = 0.0163;
       weights[3] = 0.0210; weights[4] = 0.0243; weights[5] = 0.0287;
@@ -60,7 +60,6 @@ namespace cv
 {
   void
   pb_parts_final_selected(vector<cv::Mat> & layers,
-			  cv::Mat & texton,
 			  vector<cv::Mat> & bg_r3,
 			  vector<cv::Mat> & bg_r5,
 			  vector<cv::Mat> & bg_r10,
@@ -75,35 +74,31 @@ namespace cv
 			  vector<cv::Mat> & tg_r20)
   {
     int n_ori      = 8;                       // number of orientations
-    int num_bins   = 25;                      // bins for L, b, a
-    int Kmean_bins = 64;                      // bins for texton
     double bg_smooth_sigma = 0.1;             // bg histogram smoothing sigma
     double cg_smooth_sigma = 0.05;            // cg histogram smoothing sigma
     double sigma_tg_filt_sm = 2.0;            // sigma for small tg filters
     double sigma_tg_filt_lg = sqrt(2.0)*2.0;  // sigma for large tg filters
+ 
+    int bins[2] = {25, 64}; 
+    int radii[4] = {3, 5, 10, 20};
     
-    int n_bg = 3;
-    int n_cg = 3;
-    int n_tg = 3;
-    int r_bg[3] = { 3,  5, 10 };
-    int r_cg[3] = { 5, 10, 20 };
-    int r_tg[3] = { 5, 10, 20 };
-    
+    vector<vector<cv::Mat> > gradients;
+    vector<cv::Mat> filters;
+    filters.resize(3);
     cv::Mat color, grey, ones;
-    cv::Mat bg_smooth_kernel, cg_smooth_kernel;
     cv::merge(layers, color);
     cv::cvtColor(color, grey, CV_BGR2GRAY);
     ones = cv::Mat::ones(color.rows, color.cols, CV_32FC1);
     
     // Histogram filter generation
-    gaussianFilter1D(double(num_bins)*bg_smooth_sigma, 0, false, bg_smooth_kernel);
-    gaussianFilter1D(double(num_bins)*cg_smooth_sigma, 0, false, cg_smooth_kernel);
-    cv::transpose(bg_smooth_kernel, bg_smooth_kernel);
-    cv::transpose(cg_smooth_kernel, cg_smooth_kernel);
+    gaussianFilter1D(double(bins[0])*bg_smooth_sigma, 0, false, filters[0]);
+    gaussianFilter1D(double(bins[0])*cg_smooth_sigma, 0, false, filters[1]);
+    cv::transpose(filters[0], filters[0]);
+    cv::transpose(filters[1], filters[1]);
 
     int length = 7;
-    cv::Mat impulse_resp = cv::Mat::zeros(1, length, CV_32FC1);
-    impulse_resp.at<float>(0, (length-1)/2) = 1.0;
+    filters[2] = cv::Mat::zeros(1, length, CV_32FC1);
+    filters[2].at<float>(0, (length-1)/2) = 1.0;
     
     // Normalize color channels
     color.convertTo(color, CV_32FC3);
@@ -131,42 +126,73 @@ namespace cv
 
 	  //quantize color channels
 	  
-	  float bin = floor(layers[c].at<float>(i,j)*float(num_bins));
-	  if(bin == float(num_bins)) bin--;
+	  float bin = floor(layers[c].at<float>(i,j)*float(bins[0]));
+	  if(bin == float(bins[0])) bin--;
 	  layers[c].at<float>(i,j)=bin;
 	}
       }
+    layers.resize(4);
 
     /********* END OF FILTERS INTIALIZATION ***************/
-
     cout<<"computing texton ... "<<endl;
-    textonRun(grey, texton, n_ori, Kmean_bins, sigma_tg_filt_sm, sigma_tg_filt_lg);
+    textonRun(grey, layers[3], n_ori, bins[1], sigma_tg_filt_sm, sigma_tg_filt_lg);
+    //layers.push_back(texton);
 
+    cout<<"computing ... "<<endl;
+    clock_t start, stop;
+    gradients.resize(layers.size()*3);
+    for(size_t i=0; i<gradients.size(); i++){
+      start = clock();
+      gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9], filters[i/3-int(i>5)], gradients[i]);
+      stop = clock();
+      cout<<"running time using: "<<(double)(stop-start)/CLOCKS_PER_SEC<<"s"<<endl;
+    }
+    /*
     // L Channel
     cout<<"computing bg's ... "<<endl;
-    gradient_hist_2D(layers[0], r_bg[0], n_ori, num_bins, bg_smooth_kernel, bg_r3);
-    gradient_hist_2D(layers[0], r_bg[1], n_ori, num_bins, bg_smooth_kernel, bg_r5);
-    gradient_hist_2D(layers[0], r_bg[2], n_ori, num_bins, bg_smooth_kernel, bg_r10);
+    gradient_hist_2D(layers[0], r_bg[0], n_ori, num_bins, filters[0], bg_r3);
+    gradient_hist_2D(layers[0], r_bg[1], n_ori, num_bins, filters[0], bg_r5);
+    gradient_hist_2D(layers[0], r_bg[2], n_ori, num_bins, filters[0], bg_r10);
 
     // a Channel
     cout<<"computing cga's ... "<<endl;
-    gradient_hist_2D(layers[1], r_cg[0], n_ori, num_bins, cg_smooth_kernel, cga_r5);
-    gradient_hist_2D(layers[1], r_cg[1], n_ori, num_bins, cg_smooth_kernel, cga_r10);
-    gradient_hist_2D(layers[1], r_cg[2], n_ori, num_bins, cg_smooth_kernel, cga_r20);
+    gradient_hist_2D(layers[1], r_cg[0], n_ori, num_bins, filters[1], cga_r5);
+    gradient_hist_2D(layers[1], r_cg[1], n_ori, num_bins, filters[1], cga_r10);
+    gradient_hist_2D(layers[1], r_cg[2], n_ori, num_bins, filters[1], cga_r20);
 
     // b Channel
     cout<<"computing cgb's ... "<<endl;
-    gradient_hist_2D(layers[2], r_cg[0], n_ori, num_bins, cg_smooth_kernel, cgb_r5);
-    gradient_hist_2D(layers[2], r_cg[1], n_ori, num_bins, cg_smooth_kernel, cgb_r10);
-    gradient_hist_2D(layers[2], r_cg[2], n_ori, num_bins, cg_smooth_kernel, cgb_r20);
+    gradient_hist_2D(layers[2], r_cg[0], n_ori, num_bins, filters[1], cgb_r5);
+    gradient_hist_2D(layers[2], r_cg[1], n_ori, num_bins, filters[1], cgb_r10);
+    gradient_hist_2D(layers[2], r_cg[2], n_ori, num_bins, filters[1], cgb_r20);
 
     // T channel
     cout<<"computing tg's ... "<<endl;
-    gradient_hist_2D(texton, r_tg[0], n_ori, Kmean_bins, impulse_resp, tg_r5);
-    gradient_hist_2D(texton, r_tg[1], n_ori, Kmean_bins, impulse_resp, tg_r10);
-    gradient_hist_2D(texton, r_tg[2], n_ori, Kmean_bins, impulse_resp, tg_r20);
+    gradient_hist_2D(layers[3], r_tg[0], n_ori, Kmean_bins, filters[2], tg_r5);
+    gradient_hist_2D(layers[3], r_tg[1], n_ori, Kmean_bins, filters[2], tg_r10);
+    gradient_hist_2D(layers[3], r_tg[2], n_ori, Kmean_bins, filters[2], tg_r20);
+    */
+
+    for(size_t i=0; i<n_ori; i++){
+      bg_r3.push_back(gradients[0][i]);
+      bg_r5.push_back(gradients[1][i]);
+      bg_r10.push_back(gradients[2][i]);
+      
+      cga_r5.push_back(gradients[3][i]);
+      cga_r10.push_back(gradients[4][i]);
+      cga_r20.push_back(gradients[5][i]);
+      
+      cgb_r5.push_back(gradients[6][i]);
+      cgb_r10.push_back(gradients[7][i]);
+      cgb_r20.push_back(gradients[8][i]);
+      
+      tg_r5.push_back(gradients[9][i]);
+      tg_r10.push_back(gradients[10][i]);
+      tg_r20.push_back(gradients[11][i]);
+    }
+
     
-    texton.convertTo(texton, CV_8UC1);
+
   }
   
   void
@@ -341,7 +367,7 @@ namespace cv
 	       vector<cv::Mat> & tg_r10,
 	       vector<cv::Mat> & tg_r20)
   {
-    cv::Mat texton, kernel, angles, temp;
+    cv::Mat kernel, angles, temp;
     vector<cv::Mat> layers, mPb_all;
     int n_ori = 8;
     int radii[4] ={3, 5, 10, 20};
@@ -357,15 +383,17 @@ namespace cv
     
     clock_t start, stop;
     start = clock();
-    pb_parts_final_selected(layers, texton, bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
+    pb_parts_final_selected(layers, bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
     stop = clock();
     cout<<"running time using: "<<(double)(stop-start)/CLOCKS_PER_SEC<<"s"<<endl;
     
     cout<<"Cues smoothing ..."<<endl;
-
     mPb_all.resize(n_ori);
     ori = standard_filter_orientations(n_ori, RAD);
     for(size_t idx=0; idx<n_ori; idx++){
+      
+
+
       // radian 3
       MakeFilter(radii[0], ori[idx], kernel);
       cv::filter2D(bg_r3[idx],   bg_r3[idx],   CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);

@@ -13,22 +13,10 @@ namespace cv
 	   cv::Mat & gPb_thin,
 	   vector<cv::Mat> & gPb_ori);
 
-
   void
   pb_parts_final_selected(vector<cv::Mat> & layers,
-			  vector<cv::Mat> & bg_r3,
-			  vector<cv::Mat> & bg_r5,
-			  vector<cv::Mat> & bg_r10,
-			  vector<cv::Mat> & cga_r5,
-			  vector<cv::Mat> & cga_r10,
-			  vector<cv::Mat> & cga_r20,
-			  vector<cv::Mat> & cgb_r5,
-			  vector<cv::Mat> & cgb_r10,
-			  vector<cv::Mat> & cgb_r20,
-			  vector<cv::Mat> & tg_r5,
-			  vector<cv::Mat> & tg_r10,
-			  vector<cv::Mat> & tg_r20);
-
+			  vector<vector<cv::Mat> > & gradients);
+  
   void 
   MakeFilter(const int radii,
 	     const double theta,
@@ -37,18 +25,5 @@ namespace cv
   void
   multiscalePb(const cv::Mat & image,
 	       cv::Mat & mPb_max,
-	       vector<cv::Mat> & bg_r3,
-	       vector<cv::Mat> & bg_r5,
-	       vector<cv::Mat> & bg_r10,
-	       vector<cv::Mat> & cga_r5,
-	       vector<cv::Mat> & cga_r10,
-	       vector<cv::Mat> & cga_r20,
-	       vector<cv::Mat> & cgb_r5,
-	       vector<cv::Mat> & cgb_r10,
-	       vector<cv::Mat> & cgb_r20,
-	       vector<cv::Mat> & tg_r5,
-	       vector<cv::Mat> & tg_r10,
-	       vector<cv::Mat> & tg_r20);
-   
+	       vector<vector<cv::Mat> > & gradients);   
 }
-

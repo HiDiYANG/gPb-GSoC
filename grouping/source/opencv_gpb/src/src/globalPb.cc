@@ -60,20 +60,10 @@ namespace cv
 {
   void
   pb_parts_final_selected(vector<cv::Mat> & layers,
-			  vector<cv::Mat> & bg_r3,
-			  vector<cv::Mat> & bg_r5,
-			  vector<cv::Mat> & bg_r10,
-			  vector<cv::Mat> & cga_r5,
-			  vector<cv::Mat> & cga_r10,
-			  vector<cv::Mat> & cga_r20,
-			  vector<cv::Mat> & cgb_r5,
-			  vector<cv::Mat> & cgb_r10,
-			  vector<cv::Mat> & cgb_r20,
-			  vector<cv::Mat> & tg_r5,
-			  vector<cv::Mat> & tg_r10,
-			  vector<cv::Mat> & tg_r20)
+			  vector<vector<cv::Mat> > & gradients)
   {
-    int n_ori      = 8;                       // number of orientations
+    int n_ori  = 8;                           // number of orientations
+    int length = 7;
     double bg_smooth_sigma = 0.1;             // bg histogram smoothing sigma
     double cg_smooth_sigma = 0.05;            // cg histogram smoothing sigma
     double sigma_tg_filt_sm = 2.0;            // sigma for small tg filters
@@ -82,7 +72,6 @@ namespace cv
     int bins[2] = {25, 64}; 
     int radii[4] = {3, 5, 10, 20};
     
-    vector<vector<cv::Mat> > gradients;
     vector<cv::Mat> filters;
     filters.resize(3);
     cv::Mat color, grey, ones;
@@ -95,8 +84,6 @@ namespace cv
     gaussianFilter1D(double(bins[0])*cg_smooth_sigma, 0, false, filters[1]);
     cv::transpose(filters[0], filters[0]);
     cv::transpose(filters[1], filters[1]);
-
-    int length = 7;
     filters[2] = cv::Mat::zeros(1, length, CV_32FC1);
     filters[2].at<float>(0, (length-1)/2) = 1.0;
     
@@ -136,63 +123,16 @@ namespace cv
     /********* END OF FILTERS INTIALIZATION ***************/
     cout<<"computing texton ... "<<endl;
     textonRun(grey, layers[3], n_ori, bins[1], sigma_tg_filt_sm, sigma_tg_filt_lg);
-    //layers.push_back(texton);
 
     cout<<"computing ... "<<endl;
     clock_t start, stop;
     gradients.resize(layers.size()*3);
     for(size_t i=0; i<gradients.size(); i++){
       start = clock();
-      gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9], filters[i/3-int(i>5)], gradients[i]);
+      parallel_for_gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9], filters[i/3-int(i>5)], gradients[i]);
       stop = clock();
       cout<<"running time using: "<<(double)(stop-start)/CLOCKS_PER_SEC<<"s"<<endl;
     }
-    /*
-    // L Channel
-    cout<<"computing bg's ... "<<endl;
-    gradient_hist_2D(layers[0], r_bg[0], n_ori, num_bins, filters[0], bg_r3);
-    gradient_hist_2D(layers[0], r_bg[1], n_ori, num_bins, filters[0], bg_r5);
-    gradient_hist_2D(layers[0], r_bg[2], n_ori, num_bins, filters[0], bg_r10);
-
-    // a Channel
-    cout<<"computing cga's ... "<<endl;
-    gradient_hist_2D(layers[1], r_cg[0], n_ori, num_bins, filters[1], cga_r5);
-    gradient_hist_2D(layers[1], r_cg[1], n_ori, num_bins, filters[1], cga_r10);
-    gradient_hist_2D(layers[1], r_cg[2], n_ori, num_bins, filters[1], cga_r20);
-
-    // b Channel
-    cout<<"computing cgb's ... "<<endl;
-    gradient_hist_2D(layers[2], r_cg[0], n_ori, num_bins, filters[1], cgb_r5);
-    gradient_hist_2D(layers[2], r_cg[1], n_ori, num_bins, filters[1], cgb_r10);
-    gradient_hist_2D(layers[2], r_cg[2], n_ori, num_bins, filters[1], cgb_r20);
-
-    // T channel
-    cout<<"computing tg's ... "<<endl;
-    gradient_hist_2D(layers[3], r_tg[0], n_ori, Kmean_bins, filters[2], tg_r5);
-    gradient_hist_2D(layers[3], r_tg[1], n_ori, Kmean_bins, filters[2], tg_r10);
-    gradient_hist_2D(layers[3], r_tg[2], n_ori, Kmean_bins, filters[2], tg_r20);
-    */
-
-    for(size_t i=0; i<n_ori; i++){
-      bg_r3.push_back(gradients[0][i]);
-      bg_r5.push_back(gradients[1][i]);
-      bg_r10.push_back(gradients[2][i]);
-      
-      cga_r5.push_back(gradients[3][i]);
-      cga_r10.push_back(gradients[4][i]);
-      cga_r20.push_back(gradients[5][i]);
-      
-      cgb_r5.push_back(gradients[6][i]);
-      cgb_r10.push_back(gradients[7][i]);
-      cgb_r20.push_back(gradients[8][i]);
-      
-      tg_r5.push_back(gradients[9][i]);
-      tg_r10.push_back(gradients[10][i]);
-      tg_r20.push_back(gradients[11][i]);
-    }
-
-    
-
   }
   
   void
@@ -354,18 +294,7 @@ namespace cv
   void
   multiscalePb(const cv::Mat & image,
 	       cv::Mat & mPb_max,
-	       vector<cv::Mat> & bg_r3,
-	       vector<cv::Mat> & bg_r5,
-	       vector<cv::Mat> & bg_r10,
-	       vector<cv::Mat> & cga_r5,
-	       vector<cv::Mat> & cga_r10,
-	       vector<cv::Mat> & cga_r20,
-	       vector<cv::Mat> & cgb_r5,
-	       vector<cv::Mat> & cgb_r10,
-	       vector<cv::Mat> & cgb_r20,
-	       vector<cv::Mat> & tg_r5,
-	       vector<cv::Mat> & tg_r10,
-	       vector<cv::Mat> & tg_r20)
+	       vector<vector<cv::Mat> > & gradients)  
   {
     cv::Mat kernel, angles, temp;
     vector<cv::Mat> layers, mPb_all;
@@ -383,7 +312,7 @@ namespace cv
     
     clock_t start, stop;
     start = clock();
-    pb_parts_final_selected(layers, bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
+    pb_parts_final_selected(layers, gradients);
     stop = clock();
     cout<<"running time using: "<<(double)(stop-start)/CLOCKS_PER_SEC<<"s"<<endl;
     
@@ -391,47 +320,13 @@ namespace cv
     mPb_all.resize(n_ori);
     ori = standard_filter_orientations(n_ori, RAD);
     for(size_t idx=0; idx<n_ori; idx++){
-      
-
-
-      // radian 3
-      MakeFilter(radii[0], ori[idx], kernel);
-      cv::filter2D(bg_r3[idx],   bg_r3[idx],   CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      
-      // radian 5
-      MakeFilter(radii[1], ori[idx], kernel);
-      cv::filter2D(bg_r5[idx],   bg_r5[idx],   CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      cv::filter2D(cga_r5[idx],  cga_r5[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      cv::filter2D(cgb_r5[idx],  cgb_r5[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      cv::filter2D(tg_r5[idx],   tg_r5[idx],   CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-
-      // radian 10
-      MakeFilter(radii[2], ori[idx], kernel);
-      cv::filter2D(bg_r10[idx],  bg_r10[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      cv::filter2D(cga_r10[idx], cga_r10[idx], CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      cv::filter2D(cgb_r10[idx], cgb_r10[idx], CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      cv::filter2D(tg_r10[idx],  tg_r10[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-
-      // radian 20
-      MakeFilter(radii[3], ori[idx], kernel);
-      cv::filter2D(cga_r20[idx], cga_r20[idx], CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      cv::filter2D(cgb_r20[idx], cgb_r20[idx], CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      cv::filter2D(tg_r20[idx],  tg_r20[idx],  CV_32F, kernel, cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-      
       mPb_all[idx] = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
-      addWeighted(mPb_all[idx], 1.0, bg_r3[idx],   weights[0], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, bg_r5[idx],   weights[1], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, bg_r10[idx],  weights[2], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, cga_r5[idx],  weights[3], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, cga_r10[idx], weights[4], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, cga_r20[idx], weights[5], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, cgb_r5[idx],  weights[6], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, cgb_r10[idx], weights[7], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, cgb_r20[idx], weights[8], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, tg_r5[idx],   weights[9], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, tg_r10[idx],  weights[10], 0.0, mPb_all[idx]);
-      addWeighted(mPb_all[idx], 1.0, tg_r20[idx],  weights[11], 0.0, mPb_all[idx]);
-      
+      for(size_t ch = 0; ch<gradients.size(); ch++){
+	MakeFilter(radii[ch-(ch/3)*3+int(ch>2)], ori[idx], kernel);
+	cv::filter2D(gradients[ch][idx], gradients[ch][idx], CV_32F, kernel, cv::Point(-1, -1), 0, cv::BORDER_REFLECT);
+	cv::addWeighted(mPb_all[idx], 1.0, gradients[ch][idx], weights[ch], 0.0, mPb_all[idx]);	
+      }
+
       if(idx == 0){
 	angles = cv::Mat::ones(image.rows, image.cols, CV_32FC1);
 	cv::multiply(angles, angles, angles, ori[idx]);
@@ -447,48 +342,26 @@ namespace cv
     }
     nonmax_oriented_2D(mPb_max, angles, temp, M_PI/8.0);
     temp.copyTo(mPb_max);
-  }
+  } 
   
   void gPb_gen(const cv::Mat & mPb_max,
 	       const double* weights,
 	       const vector<cv::Mat> & sPb,
-	       const vector<cv::Mat> & bg_r3,
-	       const vector<cv::Mat> & bg_r5,
-	       const vector<cv::Mat> & bg_r10,
-	       const vector<cv::Mat> & cga_r5,
-	       const vector<cv::Mat> & cga_r10,
-	       const vector<cv::Mat> & cga_r20,
-	       const vector<cv::Mat> & cgb_r5,
-	       const vector<cv::Mat> & cgb_r10,
-	       const vector<cv::Mat> & cgb_r20,
-	       const vector<cv::Mat> & tg_r5,
-	       const vector<cv::Mat> & tg_r10,
-	       const vector<cv::Mat> & tg_r20,
+	       vector<vector<cv::Mat> > & gradients,
 	       vector<cv::Mat> & gPb_ori,
 	       cv::Mat & gPb_thin,
-	       cv::Mat & gPb
-	       )
+	       cv::Mat & gPb)
   {
     cv::Mat img_tmp, eroded, temp, bwskel;
     int n_ori = 8, nnz = 0;
+    gradients.push_back(sPb);
     
     gPb_ori.resize(n_ori);
     for(size_t idx=0; idx<n_ori; idx++){
       gPb_ori[idx] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
-      addWeighted(gPb_ori[idx], 1.0, bg_r3[idx],   weights[0], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, bg_r5[idx],   weights[1], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, bg_r10[idx],  weights[2], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, cga_r5[idx],  weights[3], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, cga_r10[idx], weights[4], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, cga_r20[idx], weights[5], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, cgb_r5[idx],  weights[6], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, cgb_r10[idx], weights[7], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, cgb_r20[idx], weights[8], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, tg_r5[idx],   weights[9], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, tg_r10[idx],  weights[10], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, tg_r20[idx],  weights[11], 0.0, gPb_ori[idx]);
-      addWeighted(gPb_ori[idx], 1.0, sPb[idx], weights[12], 0.0, gPb_ori[idx]);
-    
+      for(size_t ch=0; ch<gradients.size(); ch++)
+	cv::addWeighted(gPb_ori[idx], 1.0, gradients[ch][idx], weights[ch], 0.0, gPb_ori[idx]);
+   
       if(idx == 0)
 	gPb_ori[idx].copyTo(gPb);
       else
@@ -602,19 +475,19 @@ namespace cv
   {
     gPb = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
     cv::Mat mPb_max;
-    vector<cv::Mat> bg_r3, bg_r5, bg_r10, cga_r5, cga_r10, cga_r20; 
-    vector<cv::Mat> cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20, sPb;
+    vector<cv::Mat> sPb;
+    vector<vector<cv::Mat> > gradients;
     double *weights;
     weights = _gPb_Weights(image.channels());
 
     //multiscalePb - mPb
-    multiscalePb(image, mPb_max, bg_r3,bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20);
+    multiscalePb(image, mPb_max, gradients);
     mPb_max.copyTo(gPb);
     
     //spectralPb   - sPb
     sPb_gen(mPb_max, sPb);
     
     //globalPb - gPb
-    gPb_gen(mPb_max, weights, sPb, bg_r3,bg_r5, bg_r10, cga_r5, cga_r10, cga_r20, cgb_r5, cgb_r10, cgb_r20, tg_r5, tg_r10, tg_r20, gPb_ori, gPb_thin, gPb);
+    gPb_gen(mPb_max, weights, sPb, gradients, gPb_ori, gPb_thin, gPb);
   }
 }

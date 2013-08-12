@@ -169,7 +169,7 @@ namespace cv
     //parallel_for_gradients(layers, filters, gradients, n_ori, bins, radii);
 
     for(size_t i=0; i<gradients.size(); i++)
-      parallel_for_gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9], filters[i/3-int(i>5)], gradients[i]);
+      gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9], filters[i/3-int(i>5)], gradients[i]);
   }
   
   void

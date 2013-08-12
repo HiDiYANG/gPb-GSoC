@@ -10,23 +10,25 @@ using namespace cv;
     {
       Mat & src = *src_ptr;
       for (int colIdx = range.begin(); colIdx < range.end(); colIdx++)
-	for (int i = 0; i < src.rows; ++i)
-	  src.at<float>(i, colIdx) = std::pow(src.at<float>(i, colIdx)+1,3);
+	for (int i = 0; i < src.cols; i++)
+	  for(int j =0; j < 50; j++)
+	    src.at<float>(colIdx, i) = std::pow(src.at<float>(colIdx, i)+1,3);
     }
   };
 
 void parallelTestWithFor(Mat & src)//'for' loop
 {
-  for (int x = 0; x < src.cols; ++x)
-    for (int y = 0; y < src.rows; ++y)
-      src.at<float>(y, x) = std::pow(src.at<float>(y, x),3);
+  for (int x = 0; x < src.rows; x++)
+    for (int y = 0; y < src.cols; y++)
+      for(int cont = 0; cont < 50; cont++)
+	src.at<float>(x, y) = std::pow(src.at<float>(x, y)+1,3);
 };
 
 void parallelTestWithParallel_for(Mat & src)//'parallel_for' loop
 {
   parallelTestInvoker parallel;
   parallel.src_ptr = & src;
-  int totalCols = src.cols;
+  int totalCols = src.rows;
   BlockedRange range(0, totalCols);
   parallel_for(range, parallel);
 };

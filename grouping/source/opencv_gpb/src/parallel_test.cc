@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-  Mat testInput = Mat::ones(400000000, 2, CV_32F);
+  Mat testInput = Mat::ones(2, 40000000, CV_32F);
   clock_t start, stop;
 
   start = clock();

@@ -11,7 +11,6 @@
 #include "cv_lib_filters.hh"
 #include "globalPb.hh"
 #include "buildW.hh"
-#include <time.h>
 
 using namespace std;
 using namespace libFilters;
@@ -58,6 +57,46 @@ namespace
 
 namespace cv
 {
+  struct parallelInvoker_gradients{
+    vector<cv::Mat> * layers_ptr;
+    vector<cv::Mat> * filters_ptr; 
+    vector<vector<cv::Mat> > * gradients_ptr;
+    int n_ori;
+    int * bins;
+    int * radii;
+    
+    void operator()(const cv::BlockedRange & range) const
+    {
+      vector<cv::Mat> & layers  = * layers_ptr;
+      vector<cv::Mat> & filters = * filters_ptr; 
+      vector<vector<cv::Mat> > & gradients = * gradients_ptr;
+
+      for(int idx=range.begin(); idx<range.end(); idx++)
+	parallel_for_gradient_hist_2D(layers[idx/3], radii[idx-(idx/3)*3+int(idx>2)], n_ori, bins[idx/9], filters[idx/3-int(idx>5)], gradients[idx]);  
+    }
+  };
+
+  void
+  parallel_for_gradients(vector<cv::Mat> & layers,
+			 vector<cv::Mat> & filters,
+			 vector<vector<cv::Mat> > & gradients,
+			 int n_ori,
+			 int * bins,
+			 int * radii)
+  {
+    parallelInvoker_gradients parallel;
+    parallel.layers_ptr  = & layers;
+    parallel.filters_ptr = & filters;
+    parallel.gradients_ptr = & gradients;
+    parallel.n_ori = n_ori;
+    parallel.bins = bins;
+    parallel.radii = radii;
+
+    int totalCols = gradients.size();
+    cv::BlockedRange range(0, totalCols);
+    cv::parallel_for(range, parallel);
+  }
+
   void
   pb_parts_final_selected(vector<cv::Mat> & layers,
 			  vector<vector<cv::Mat> > & gradients)
@@ -127,12 +166,10 @@ namespace cv
     cout<<"computing ... "<<endl;
     clock_t start, stop;
     gradients.resize(layers.size()*3);
-    for(size_t i=0; i<gradients.size(); i++){
-      start = clock();
+    //parallel_for_gradients(layers, filters, gradients, n_ori, bins, radii);
+
+    for(size_t i=0; i<gradients.size(); i++)
       parallel_for_gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9], filters[i/3-int(i>5)], gradients[i]);
-      stop = clock();
-      cout<<"running time using: "<<(double)(stop-start)/CLOCKS_PER_SEC<<"s"<<endl;
-    }
   }
   
   void
@@ -310,11 +347,7 @@ namespace cv
       for(size_t i=0; i<3; i++)
 	image.copyTo(layers[i]);
     
-    clock_t start, stop;
-    start = clock();
     pb_parts_final_selected(layers, gradients);
-    stop = clock();
-    cout<<"running time using: "<<(double)(stop-start)/CLOCKS_PER_SEC<<"s"<<endl;
     
     cout<<"Cues smoothing ..."<<endl;
     mPb_all.resize(n_ori);

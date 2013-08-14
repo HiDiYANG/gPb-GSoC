@@ -34,9 +34,9 @@ void dsygvx(double **A, double **B, int n, int il, int iu, double *E);
 void dsygvx(double **A, double **B, int n, int il, int iu, double *E, 
 	    double **Evecs);
 
-double *dsygv_ctof(double **in, int rows, int cols);
-void dsygv_ftoc(double *in, double **out, int rows, int cols);
-void dsygv_normalize(double **Evecs, int rows, int cols);
+double *dsygvx_ctof(double **in, int rows, int cols);
+void dsygvx_ftoc(double *in, double **out, int rows, int cols);
+void dsygvx_normalize(double **Evecs, int rows, int cols);
 
 extern "C" void dsygvx_(int *itype, 
 			char *jobz,
@@ -96,8 +96,8 @@ void dsygvx(double **A, double **B, int n, int il, int iu, double *E)
   iwork = new int[5*n];
   ifail = new int[n];
   
-  a = dsygv_ctof(A, n, lda);
-  b = dsygv_ctof(B, n, ldb); /* Here we convert the incoming arrays, assumed
+  a = dsygvx_ctof(A, n, lda);
+  b = dsygvx_ctof(B, n, ldb); /* Here we convert the incoming arrays, assumed
 			  to be in double index C form, to Fortran
 			  style matrices. */
 
@@ -136,20 +136,18 @@ void dsygvx(double **A, double **B, int n, int il, int iu, double *E, double **E
   ifail = new int[n];
   z = new double[(iu-il+1)*ldz];
 
-  a = dsygv_ctof(A, n, lda);
-  b = dsygv_ctof(B, n, ldb);
+  a = dsygvx_ctof(A, n, lda);
+  b = dsygvx_ctof(B, n, ldb);
 
   dsygvx_(&itype, &jobz, &range, &uplo, &n, a, &lda, b, &ldb, &vl, &vu, &il, &iu, &abstol, &m, E, z, &ldz, work, &lwork, iwork, ifail, &info);
-  cout<<"here1"<<endl;
   
   if ((info==0)&&(work[0]>lwork))
     cout << "The pre-set lwork value was sub-optimal for the job that\n"
 	 << "you gave dsygv.  The used value was " << lwork
 	 << " whereas " << work[0] << " is optimal.\n";
 
-  dsygv_ftoc(z, Evecs, ldz, iu-il+1);
-  cout<<"here2"<<endl;
-  dsygv_normalize(Evecs, ldz, iu-il+1);
+  dsygvx_ftoc(z, Evecs, ldz, iu-il+1);
+  dsygvx_normalize(Evecs, ldz, iu-il+1);
 
   delete a;
   delete b;
@@ -158,7 +156,7 @@ void dsygvx(double **A, double **B, int n, int il, int iu, double *E, double **E
 }
 
 
-double* dsygv_ctof(double **in, int rows, int cols)
+double* dsygvx_ctof(double **in, int rows, int cols)
 {
   double *out;
   out = new double[rows*cols];
@@ -169,7 +167,7 @@ double* dsygv_ctof(double **in, int rows, int cols)
 }
 
 
-void dsygv_ftoc(double *in, double **out, int rows, int cols)
+void dsygvx_ftoc(double *in, double **out, int rows, int cols)
 {
   for (size_t i=0; i<rows; i++) 
     for (size_t j=0; j<cols; j++) 
@@ -177,7 +175,7 @@ void dsygv_ftoc(double *in, double **out, int rows, int cols)
 }
 
 
-void dsygv_normalize(double **Evecs, int rows, int cols)
+void dsygvx_normalize(double **Evecs, int rows, int cols)
 {
   int i, j;
   double *norm;

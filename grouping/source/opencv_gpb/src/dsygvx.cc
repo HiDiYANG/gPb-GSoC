@@ -27,7 +27,7 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
-#include "dsygv.h"
+#include "dsygvx.h"
 
 using namespace std;
 
@@ -36,6 +36,8 @@ int main(int nargs, char *args[])
   double **A, **B, *Evals, **Evecs;
   
   int n=4;  
+  int IL = 1;
+  int IU = 4;
   // Generate the matrix for my equation
   
   A = new double*[n];
@@ -57,17 +59,18 @@ int main(int nargs, char *args[])
   Evals = new double[n]; 
   Evecs = new double*[n];
   for(size_t i=0; i<n; i++) 
-    Evecs[i] = new double[n];
+    Evecs[i] = new double[IU-IL+1];
   
-  dsygv(A, B, n, Evals, Evecs);
+  cout<<"computing"<<endl;
+  dsygvx(A, B, n, IL, IU, Evals, Evecs);
   
   // Output the results
 
-  for(size_t i=0; i<n; i++) {
+  for(size_t i=0; i<IU-IL+1; i++){
     cout << "Eigenvalue  " << i << ": " << Evals[i] << endl;
     cout << "Eigenvector " << i << ": [ ";
     for(size_t j=0; j<n; j++){
-      cout<< Evecs[i][j] << " ";
+      cout<< Evecs[j][i] << " ";
     }
     cout<<"]"<<endl;
   }

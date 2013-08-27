@@ -794,26 +794,6 @@ namespace cv
     super_contour(ws_wt8, ws_wt2);
     clean_watersheds(ws_wt2, ws_wt2, labels);
 
-    FILE* pFile1, *pFile2;
-    pFile1 = fopen("ws_wt2.txt", "w+");
-    pFile2 = fopen("labels.txt", "w+");
-    
-    for(size_t i=0; i<ws_wt2.rows; i++){
-      for(size_t j=0; j<ws_wt2.cols; j++){
-	fprintf(pFile1, "%f ", ws_wt2.at<float>(i,j));
-      }
-      fprintf(pFile1, "\n");
-    }
-    
-    for(size_t i=0; i<labels.rows; i++){
-      for(size_t j=0; j<labels.cols; j++){
-	fprintf(pFile2, "%d ", labels.at<int>(i,j));
-      }
-      fprintf(pFile2, "\n");
-    }
-    fclose(pFile1);
-    fclose(pFile2);
-    
     cv::copyMakeBorder(ws_wt2, ws_wt2, 0, 1, 0, 1, cv::BORDER_REFLECT);
     cv::ucm_mean_pb(ws_wt2, labels, ucm, flag);
     pb_normalize(ucm, ucm);

@@ -1,1 +1,0 @@
-g++ -o dsygvx_test dsygvx.cc -L/usr/local/lib -llapack -lrefblas -lgfortran

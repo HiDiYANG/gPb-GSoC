@@ -11,6 +11,7 @@
 #include "cv_lib_filters.hh"
 #include "globalPb.hh"
 #include "buildW.hh"
+#include "normalise_cut.hh"
 
 using namespace std;
 using namespace libFilters;
@@ -170,6 +171,12 @@ namespace cv
 
     for(size_t i=0; i<gradients.size(); i++)
       gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9], filters[i/3-int(i>5)], gradients[i]);
+  
+    //clean up
+    filters.clear();
+    color.release();
+    grey.release();
+    ones.release();
   }
   
   void
@@ -293,7 +300,7 @@ namespace cv
     double x[5] = {0};
     int wr;
     cv::Mat A = cv::Mat::zeros(3, 3, CV_32FC1);
-                  cv::Mat y = cv::Mat::zeros(3, 1, CV_32FC1);
+    cv::Mat y = cv::Mat::zeros(3, 1, CV_32FC1);
     ra = MAX(1.5, double(radii));
     rb = MAX(1.5, double(radii)/4);
     ira2 = 1.0/(pow(ra, 2));
@@ -326,6 +333,10 @@ namespace cv
 	y = A*y;
 	kernel.at<float>(j,i) = y.at<float>(0,0);
       }
+
+    //clean up
+    A.release();
+    y.release();
   }
 
   void
@@ -375,6 +386,11 @@ namespace cv
     }
     nonmax_oriented_2D(mPb_max, angles, temp, M_PI/8.0);
     temp.copyTo(mPb_max);
+
+    //clean up
+    kernel.release();
+    angles.release();
+    temp.release();
   } 
   
   void gPb_gen(const cv::Mat & mPb_max,
@@ -428,34 +444,44 @@ namespace cv
       eroded.copyTo(img_tmp);
     }while(nnz);
     cv::multiply(gPb_thin, bwskel, gPb_thin, 1.0);
+
+    //clean up
+    img_tmp.release();
+    eroded.release();
+    bwskel.release();
   }
 
   void sPb_gen(cv::Mat & mPb_max,
-	   vector<cv::Mat> & sPb)
+	       vector<cv::Mat> & sPb)
   {
-    int n_ori = 8;
+    double **W, *D;
+    int n_ori = 8, nnz;
+    vector<cv::Mat> sPb_test;
     sPb.resize(n_ori);
-    /*cv::Mat ind_x, ind_y, val;
-    cv::buildW(mPb_max, ind_x, ind_y, val);
-    cv::Mat diag = cv::Mat::zeros(mPb_max.rows*mPb_max.cols, 1, CV_32FC1);
+    sPb_test.resize(n_ori);
+  
+    vector<cv::Mat> sPb_raw;
+    cv::buildW(mPb_max, W, nnz, D);
+    cout<<"normalise cuts ... "<<endl;
+    normalise_cut(W, nnz, mPb_max.rows, mPb_max.cols, D, 17, sPb_raw);
     
-    // compute Diagnoal matrix D based on affinity matrix
-    for(size_t i=0; i<ind_y.rows; i++){
-      int idx = ind_y.at<int>(i,1);
-      diag.at<float>(idx,1) += val.at<float>(i,1);
-      }*/
-
-    //Generate inv(D)*(D-W) for computing generalized eigenvalues and eigenvectors
+    vector<cv::Mat> oe_filters;
+    gaussianFilters(n_ori, 1.0, 1.0, HILBRT_OFF, 3.0, oe_filters);
     
-    /*for(size_t i=0; i<ind_x.rows; i++ ){
-      int idx = ind_x.at<int>(i,1);
-      double temp_diag = diag.at<float>(idx, 1);
-      if(idx == ind_y.at<int>(i,1))
-	val.at<float>(i,1) = (temp_diag-val.at<float>(i,1))/temp_diag;
-      else
-	val.at<float>(i,1) = -val.at<float>(i,1)/temp_diag;    
-	}*/
+    for(size_t i=0; i<n_ori; i++){
+      sPb_test[i] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
+      for(size_t j=0; j<sPb_raw.size(); j++){
+	cv::Mat temp_blur;
+	cv::filter2D(sPb_raw[j], temp_blur, CV_32F, oe_filters[i], 
+		     cv::Point(-1,-1), 0.0, CV::BORDER_REFLECT);
+	cv::addWeighted(sPb_test[i], 1.0, temp_blur, 1.0, 0.0, sPb_test[i]);
+      }
+    }
+    
 
+
+
+    //-------------------------------------------
     // sPb eigen decomposition problem will be solved later. This is a cheating code for ucm development. 
     FILE* pFile1, *pFile2, *pFile3, *pFile4, *pFile5, *pFile6, *pFile7, *pFile8;
     pFile1 = fopen("sPb_data/sPb_l1.txt", "r");
@@ -515,12 +541,15 @@ namespace cv
 
     //multiscalePb - mPb
     multiscalePb(image, mPb_max, gradients);
-    mPb_max.copyTo(gPb);
+    //mPb_max.copyTo(gPb);
     
     //spectralPb   - sPb
     sPb_gen(mPb_max, sPb);
     
     //globalPb - gPb
     gPb_gen(mPb_max, weights, sPb, gradients, gPb_ori, gPb_thin, gPb);
+    //clean up
+    mPb_max.release();
+
   }
 }

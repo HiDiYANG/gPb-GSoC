@@ -49,6 +49,10 @@ namespace libFilters
     }
     else
       TempA.copyTo(output);
+
+    //clean up
+    TempA.release();
+    TempB.release();
   }
 
   void
@@ -78,6 +82,10 @@ namespace libFilters
     if(input.cols == 1)
       cv::transpose(temp, temp);
     temp.copyTo(output);
+    
+    //clean up;
+    temp.release();
+    hilbert.release();
   }
 
   /********************************************************************************
@@ -131,6 +139,9 @@ namespace libFilters
       for(size_t j=0; j< output.cols; j++)
 	sumAbs += fabs(output.at<float>(i,j));
     cv::divide(output, ones, output, 1.0/sumAbs);
+    
+    //clean up
+    ones.release();
   }
 
   /********************************************************************************
@@ -139,9 +150,9 @@ namespace libFilters
   
   int
   supportRotated(int x,
-		  int y,
-		  double ori,
-		  bool label)
+		 int y,
+		 double ori,
+		 bool label)
   {
     double sin_ori, cos_ori, mag0, mag1;
     bool flag = label ? X_ORI : Y_ORI;
@@ -187,6 +198,10 @@ namespace libFilters
     int border_cols = (input.cols - len_cols)/2;
     cv::Rect cROI(border_cols, border_rows, len_cols, len_rows);
     output = tmp(cROI);
+
+    //clean up
+    tmp.release();
+    rotate_M.release();
   }
 
   void rotate_2D(const cv::Mat & input,
@@ -232,6 +247,9 @@ namespace libFilters
       normalizeDistr(output, output, ZERO);
     else
       normalizeDistr(output, output, NON_ZERO);
+
+    //clean up
+    ones.release();
   }
 
   void 
@@ -273,6 +291,10 @@ namespace libFilters
       normalizeDistr(output, output, ZERO);
     else
       normalizeDistr(output, output, NON_ZERO);
+
+    //clean up
+    output_x.release();
+    output_y.release();
   }
 
 
@@ -307,6 +329,9 @@ namespace libFilters
     gaussianFilter2D(half_len, 0.0, sigma_x,   sigma_y,   0, HILBRT_OFF, output_sur);
     cv::addWeighted(output_sur, 1.0, output_cen, -1.0, 0.0, output);
     normalizeDistr(output, output, ZERO);
+    //clean up
+    output_cen.release();
+    output_sur.release();
   }
 
   void
@@ -372,6 +397,9 @@ namespace libFilters
       odd_filters[i].copyTo(filters[n_ori+i]);
     }
     f_cs.copyTo(filters[2*n_ori]);
+    //clean up
+    even_filters.clear();
+    odd_filters.clear();
   }
 
   /********************************************************************************
@@ -414,6 +442,10 @@ namespace libFilters
     for(size_t i=0; i<labels.rows; i++)
       output.at<int>(i%output.rows, i/output.rows)=labels.at<int>(i, 0);
     output.convertTo(output, CV_32FC1);
+    //clean up
+    blur.release();
+    labels.release();
+    k_samples.release();
   }
 
   cv::Mat 
@@ -472,9 +504,9 @@ namespace libFilters
       gradients[i] = cv::Mat::zeros(label.rows, label.cols, CV_32FC1);
     cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
     
-    for(int i=r; i<label_exp.rows-r; i++)
-      for(int j=r; j<label_exp.cols-r; j++)
-	for(size_t idx = 0; idx < n_ori; idx++){
+    for(size_t idx = 0; idx < n_ori; idx++)
+      for(int i=r; i<label_exp.rows-r; i++)
+	for(int j=r; j<label_exp.cols-r; j++){
 	  hist_left.setTo(0.0);
 	  hist_right.setTo(0.0);
 	  for(int x= -r; x <= r; x++)
@@ -516,7 +548,14 @@ namespace libFilters
 	    tmp += 4.0*(tmp1*tmp1)/tmp2;
 	  }
 	  gradients[idx].at<float>(i-r,j-r) = tmp;
-	} 
+	}
+
+    //clean up
+    weights.release();
+    slice_map.release();
+    label_exp.release();
+    hist_left.release();
+    hist_right.release();
   }
 
   void

@@ -23,46 +23,52 @@
 
 #include <iostream>
 #include <fstream>
-#include <math.h>
-#include "dsaupd.h"
+#include "dnaupd.h"
 using namespace std;
 
 int main(int argc, char** argv)
 {
-  int n, nev;
+  int n, nev, i, j;
   double **Evecs, *Evals;
   
-  n = 3; // The order of the matrix
+  n = 4; // The order of the matrix
 
-  int tlen = n*n;
-  double** T = new double*[tlen];
-  for (size_t i=0; i<tlen; i++) 
-    T[i] = new double[3];
+  tlen = n*n;
+  T = new double*[tlen];
+  for (i=0; i<tlen; i++) T[i] = new double[3];
 
   tlen = 0;
-  for (size_t i=0; i<n; i++) 
-    for (size_t j=0; j<n; j++) {
+  for (i=0; i<n; i++) 
+    for (j=0; j<n; j++) {
       T[tlen][0] = i;
       T[tlen][1] = j;
-      T[tlen][2] = (pow(i+1, j+1) + pow(j+1, i+1))*pow(0.5, i+j);
+      T[tlen][2] = pow(i+1, j+1) + pow(j+1, i+1);
       tlen++;
     }
 
   nev = 2; // The number of values to calculate
-
   Evals = new double[nev];
   Evecs = new double*[n];
+  
   for (size_t i=0; i<n; i++) 
     Evecs[i] = new double[nev];
 
-  dsaupd(T, tlen, n, nev, Evals, Evecs);
+  dnaupd(n, nev, Evals, Evecs);
 
   // Now we output the results.
   for (size_t i=0; i<nev; i++) {
-    cout << "Eigenvalue  " << i << ": " << Evals[i] << "\n";
-    cout << "Eigenvector " << i << ": ( ";
-    for (size_t j=0; j<n; j++)
-      cout<< Evecs[j][i] << " ";
+    cout << "Eigenvalue  " << i << ": " << Evals[i] << endl;;
+    cout << "Eigenvector " << i << ": (";
+    for(size_t j=0; j<n; j++)
+      cout << Evecs[j][i]<<", ";
     cout<<")"<<endl;
-  }
+    }
+}
+
+void av(int n, double *in, double *out)
+{
+  for (size_t i=0; i<n; i++) 
+    out[i] = 0;
+  for (size_t i=0; i<tlen; i++) 
+    out[(int)T[i][0]] += in[(int)T[i][1]] * T[i][2];
 }

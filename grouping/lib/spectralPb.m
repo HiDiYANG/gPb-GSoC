@@ -23,11 +23,7 @@ l{2} = zeros(size(mPb, 1), size(mPb, 2) + 1);
 l{2}(:, 2:end) = mPb;
 
 % build the pairwise affinity matrix
-%[I,J,val] = buildW(l{1},l{2});
-IJV = dlmread('./source/opencv_gpb/src/W.txt');
-I = IJV(:,1)+1;
-J = IJV(:,2)+1;
-val = IJV(:,3);
+[I,J,val] = buildW(l{1},l{2});
 W = sparse(I,J,val);
 [wx, wy] = size(W);
 x = 1 : wx;
@@ -37,14 +33,14 @@ clear S x;
 
 opts.issym=1;
 opts.isreal = 1;
-opts.disp=2;
+opts.disp=1;
 
 %dD = diag(D);
 %sD = diag(1./sqrt(dD));
 %A = sD*(D-W)*sD;
 
 %[EigVect, EVal] = eigs(D\(D-W),nvec,'sm');
-[EigVect, EVal] = eigs(D-W, D, nvec,'sm');
+[EigVect, EVal] = eigs(D-W, D, nvec,'sm', opts);
 %clear D W opts;
 
 EigVal = diag(EVal);
@@ -75,9 +71,9 @@ dtheta = pi/norient;
 ch_per = [4 3 2 1 8 7 6 5];
 
 sPb = zeros(txo, tyo, norient);
-for v = 1 : nvec
+for v = 2 : nvec
     if EigVal(v) > 0,
-        vec = vect(:,:,v);%/sqrt(EigVal(v));
+        vec = vect(:,:,v)/sqrt(EigVal(v));
         for o = 1 : norient,
             theta = dtheta*o;
             f = oeFilter(sigma, support, theta, deriv, hil);

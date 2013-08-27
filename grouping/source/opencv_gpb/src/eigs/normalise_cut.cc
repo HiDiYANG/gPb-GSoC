@@ -28,24 +28,28 @@ void normalise_cut(double **T, //symmetric sparse matrix - Affinity Matrix
   dsaupd(T, tlen, n, nev, Evals, Evecs);
 
   sPb_raw.resize(nev-1);
+  cv::Mat ones = cv::Mat::ones(rows, cols, CV_32FC1);
   for (size_t i=1; i<nev; i++){
-    for(size_t j=0; j<n; j++)
-      Evecs[i][j] = Evecs[i][j]/D[j]/sqrt(Evals[i]);
-    sPb_raw[i-1] = cv::Mat(cols, rows, CV_32FC1, Evecs[i]).t();
+    double max_p, min_p;
+    for(size_t j=0; j<n; j++){
+      Evecs[i][j] = Evecs[i][j]/D[j];
+      if(j == 0){
+	max_p = Evecs[i][j];
+	min_p = Evecs[i][j];
+      }else{
+	if(max_p < Evecs[i][j])
+	  max_p = Evecs[i][j];
+	if(min_p > Evecs[i][j])
+	  min_p = Evecs[i][j];
+      }
+    }
+    sPb_raw[i-1] = cv::Mat(rows, cols, CV_64FC1, Evecs[i]);
+    sPb_raw[i-1].convertTo(sPb_raw[i-1], CV_32FC1);
+    cv::addWeighted(sPb_raw[i-1], 1.0, ones, -min_p, 0.0, sPb_raw[i-1]);
+    cv::multiply(sPb_raw[i-1], ones, sPb_raw[i-1], 1/(max_p-min_p)/sqrt(Evals[i]));
   }
-
-  // Now we output the results.
-  FILE* pFile;
-  pFile = fopen("EigVects.txt", "w+");
-  for (size_t i=0; i<nev; i++) {
-    //cout << "Eigenvalue  " << i << ": " << Evals[i] << "\n";
-    //cout << "Eigenvector " << i << ": ( ";
-    for (size_t j=0; j<n; j++)
-      fprintf(pFile, "%f ", Evecs[i][j]);
-    fprintf(pFile, "\n");
-    //cout<< Evecs[j][i] << " ";
-    //cout<<")"<<endl;*/
-  }
-  fclose(pFile);
-
+  //clean up
+  delete[] Evecs;
+  delete[] Evals;
+  ones.release();
 }

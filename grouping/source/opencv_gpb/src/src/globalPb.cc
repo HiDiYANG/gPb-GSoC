@@ -456,74 +456,29 @@ namespace cv
   {
     double **W, *D;
     int n_ori = 8, nnz;
-    vector<cv::Mat> sPb_test;
     sPb.resize(n_ori);
-    sPb_test.resize(n_ori);
   
     vector<cv::Mat> sPb_raw;
     cv::buildW(mPb_max, W, nnz, D);
     cout<<"normalise cuts ... "<<endl;
     normalise_cut(W, nnz, mPb_max.rows, mPb_max.cols, D, 17, sPb_raw);
-    
+
     vector<cv::Mat> oe_filters;
-    gaussianFilters(n_ori, 1.0, 1.0, HILBRT_OFF, 3.0, oe_filters);
+    gaussianFilters(n_ori, 1.0, 1, HILBRT_OFF, 3.0, oe_filters);
+    //oeFilters(n_ori, 1.0, oe_filters, OE_EVEN);
     
     for(size_t i=0; i<n_ori; i++){
-      sPb_test[i] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
+      sPb[i] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
       for(size_t j=0; j<sPb_raw.size(); j++){
 	cv::Mat temp_blur;
 	cv::filter2D(sPb_raw[j], temp_blur, CV_32F, oe_filters[i], 
-		     cv::Point(-1,-1), 0.0, CV::BORDER_REFLECT);
-	cv::addWeighted(sPb_test[i], 1.0, temp_blur, 1.0, 0.0, sPb_test[i]);
+		     cv::Point(-1,-1), 0.0, cv::BORDER_REFLECT);
+	cv::addWeighted(sPb[i], 1.0, cv::abs(temp_blur), 1.0, 0.0, sPb[i]);
       }
     }
-    
-
-
-
-    //-------------------------------------------
-    // sPb eigen decomposition problem will be solved later. This is a cheating code for ucm development. 
-    FILE* pFile1, *pFile2, *pFile3, *pFile4, *pFile5, *pFile6, *pFile7, *pFile8;
-    pFile1 = fopen("sPb_data/sPb_l1.txt", "r");
-    pFile2 = fopen("sPb_data/sPb_l2.txt", "r");
-    pFile3 = fopen("sPb_data/sPb_l3.txt", "r");
-    pFile4 = fopen("sPb_data/sPb_l4.txt", "r");
-    pFile5 = fopen("sPb_data/sPb_l5.txt", "r");
-    pFile6 = fopen("sPb_data/sPb_l6.txt", "r");
-    pFile7 = fopen("sPb_data/sPb_l7.txt", "r");
-    pFile8 = fopen("sPb_data/sPb_l8.txt", "r");
-    for(size_t idx=0; idx<n_ori; idx++)
-      sPb[idx] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
-    
-    for(size_t i=0; i<mPb_max.rows; i++)
-      for(size_t j=0; j<mPb_max.cols; j++){
-	float l1, l2, l3, l4, l5, l6, l7, l8;
-	fscanf(pFile1, "%f", &l1);
-	fscanf(pFile2, "%f", &l2);
-	fscanf(pFile3, "%f", &l3);
-	fscanf(pFile4, "%f", &l4);
-	fscanf(pFile5, "%f", &l5);
-	fscanf(pFile6, "%f", &l6);
-	fscanf(pFile7, "%f", &l7);
-	fscanf(pFile8, "%f", &l8);
-	
-	sPb[0].at<float>(i, j) = l1;
-	sPb[1].at<float>(i, j) = l2;
-	sPb[2].at<float>(i, j) = l3;
-	sPb[3].at<float>(i, j) = l4;
-	sPb[4].at<float>(i, j) = l5;
-	sPb[5].at<float>(i, j) = l6;
-	sPb[6].at<float>(i, j) = l7;
-	sPb[7].at<float>(i, j) = l8;
-      } 
-    fclose(pFile1);
-    fclose(pFile2);
-    fclose(pFile3);
-    fclose(pFile4);
-    fclose(pFile5);
-    fclose(pFile6);
-    fclose(pFile7);
-    fclose(pFile8);    
+    //clean up
+    oe_filters.clear();
+    sPb_raw.clear();
   }
 
   void 

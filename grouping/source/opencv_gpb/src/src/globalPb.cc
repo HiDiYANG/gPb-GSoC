@@ -152,7 +152,6 @@ namespace cv
 	    layers[c].at<float>(i,j) = 1.0;
 
 	  //quantize color channels
-	  
 	  float bin = floor(layers[c].at<float>(i,j)*float(bins[0]));
 	  if(bin == float(bins[0])) bin--;
 	  layers[c].at<float>(i,j)=bin;
@@ -165,7 +164,6 @@ namespace cv
     textonRun(grey, layers[3], n_ori, bins[1], sigma_tg_filt_sm, sigma_tg_filt_lg);
 
     cout<<" ---  computing bg cga cgb tg ... "<<endl;
-    clock_t start, stop;
     gradients.resize(layers.size()*3);
     //parallel_for_gradients(layers, filters, gradients, n_ori, bins, radii);
 
@@ -391,6 +389,10 @@ namespace cv
     kernel.release();
     angles.release();
     temp.release();
+    delete[] weights;
+    delete[] ori;
+    layers.clear();
+    mPb_all.clear();
   } 
   
   void gPb_gen(const cv::Mat & mPb_max,
@@ -401,6 +403,7 @@ namespace cv
 	       cv::Mat & gPb_thin,
 	       cv::Mat & gPb)
   {
+    cout<<"gPb computation commencing ... "<<endl;
     cv::Mat img_tmp, eroded, temp, bwskel;
     int n_ori = 8, nnz = 0;
     gradients.push_back(sPb);
@@ -454,15 +457,14 @@ namespace cv
   void sPb_gen(cv::Mat & mPb_max,
 	       vector<cv::Mat> & sPb)
   {
+    cout<<"sPb computation commencing ... "<<endl;
     double **W, *D;
     int n_ori = 8, nnz;
     sPb.resize(n_ori);
   
     vector<cv::Mat> sPb_raw;
     cv::buildW(mPb_max, W, nnz, D);
-    cout<<"sPb computation commencing ... "<<endl;
     normalise_cut(W, nnz, mPb_max.rows, mPb_max.cols, D, 17, sPb_raw);
-
     vector<cv::Mat> oe_filters;
     gaussianFilters(n_ori, 1.0, 1, HILBRT_OFF, 3.0, oe_filters);
     
@@ -473,11 +475,14 @@ namespace cv
 	cv::filter2D(sPb_raw[j], temp_blur, CV_32F, oe_filters[i], 
 		     cv::Point(-1,-1), 0.0, cv::BORDER_REFLECT);
 	cv::addWeighted(sPb[i], 1.0, cv::abs(temp_blur), 1.0, 0.0, sPb[i]);
+	temp_blur.release();
       }
     }
     //clean up
     oe_filters.clear();
     sPb_raw.clear();
+    delete[] W;
+    delete[] D;
   }
 
   void 
@@ -504,6 +509,8 @@ namespace cv
     gPb_gen(mPb_max, weights, sPb, gradients, gPb_ori, gPb_thin, gPb);
     //clean up
     mPb_max.release();
-
+    sPb.clear();
+    gradients.clear();
+    delete[] weights;
   }
 }

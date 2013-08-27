@@ -32,7 +32,7 @@ SMatrix::SMatrix (int n, int* nz, int** col, double** values)
     int nnz = 0;
     for (int i = 0; i < n; i++)
       nnz += nz[i];
-    printf("sparse matrix\n");//TODO what do with std spam?
+    //printf("sparse matrix\n");//TODO what do with std spam?
     //Util::Message::debug(Util::String("creating sparse matrix with %d nonzero entries",nnz));
 }
 

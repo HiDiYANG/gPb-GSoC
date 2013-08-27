@@ -161,10 +161,10 @@ namespace cv
     layers.resize(4);
 
     /********* END OF FILTERS INTIALIZATION ***************/
-    cout<<"computing texton ... "<<endl;
+    cout<<" ---  computing texton ... "<<endl;
     textonRun(grey, layers[3], n_ori, bins[1], sigma_tg_filt_sm, sigma_tg_filt_lg);
 
-    cout<<"computing ... "<<endl;
+    cout<<" ---  computing bg cga cgb tg ... "<<endl;
     clock_t start, stop;
     gradients.resize(layers.size()*3);
     //parallel_for_gradients(layers, filters, gradients, n_ori, bins, radii);
@@ -358,9 +358,9 @@ namespace cv
       for(size_t i=0; i<3; i++)
 	image.copyTo(layers[i]);
     
+    cout<<"mPb computation commencing ..."<<endl;
     pb_parts_final_selected(layers, gradients);
     
-    cout<<"Cues smoothing ..."<<endl;
     mPb_all.resize(n_ori);
     ori = standard_filter_orientations(n_ori, RAD);
     for(size_t idx=0; idx<n_ori; idx++){
@@ -460,12 +460,11 @@ namespace cv
   
     vector<cv::Mat> sPb_raw;
     cv::buildW(mPb_max, W, nnz, D);
-    cout<<"normalise cuts ... "<<endl;
+    cout<<"sPb computation commencing ... "<<endl;
     normalise_cut(W, nnz, mPb_max.rows, mPb_max.cols, D, 17, sPb_raw);
 
     vector<cv::Mat> oe_filters;
     gaussianFilters(n_ori, 1.0, 1, HILBRT_OFF, 3.0, oe_filters);
-    //oeFilters(n_ori, 1.0, oe_filters, OE_EVEN);
     
     for(size_t i=0; i<n_ori; i++){
       sPb[i] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);

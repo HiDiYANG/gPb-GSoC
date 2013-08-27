@@ -44,7 +44,7 @@ namespace Group
     int count = 0;
 
     //Util::Message::startBlock(boundaries.width,"computing support");
-    printf("computing support\n"); //TODO messages where when if any?
+    //printf("computing support\n"); //TODO messages where when if any?
     for (int x = 0; x < boundaries.width; x++)
     {
       //Util::Message::stepBlock();

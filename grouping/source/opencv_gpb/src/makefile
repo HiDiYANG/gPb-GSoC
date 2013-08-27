@@ -10,4 +10,3 @@ program:
 
 clean:
 	rm $(OBJ)
-	rm *.txt

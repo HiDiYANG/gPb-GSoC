@@ -12,7 +12,7 @@
     August 2013   
 */
 
-#include "uvt.hh"
+#include "uvt.h"
 
 using namespace std;
 

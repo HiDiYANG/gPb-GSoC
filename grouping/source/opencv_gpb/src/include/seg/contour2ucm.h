@@ -6,8 +6,8 @@
 #include <opencv/highgui.h>
 #include <opencv2/core/core.hpp>
 #include "watershed.h"
-#include "ucm_mean_pb.hh"
-#include "uvt.hh"
+#include "ucm_mean_pb.h"
+#include "uvt.h"
 
 class contour_vertex;
 class contour_edge;

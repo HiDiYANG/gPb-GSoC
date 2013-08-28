@@ -8,7 +8,7 @@
 //    
 //
 
-#include "contour2ucm.hh"
+#include "contour2ucm.h"
 #define MAX_SIZE 100
 
 using namespace std;

@@ -27,8 +27,8 @@
 #include <ctype.h>
 #include <memory.h>
 
-#include "array.hh"
-#include "ic.hh"
+#include "array.h"
+#include "ic.h"
 
 namespace Group
 {

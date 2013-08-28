@@ -9,12 +9,10 @@
 //    
 //
 
-#include "globalPb.hh"
-#include "cv_lib_filters.hh"
-#include "contour2ucm.hh"
+#include "globalPb.h"
+#include "contour2ucm.h"
 
 using namespace std;
-using namespace libFilters;
 
 cv::Mat markers, ucm2;
 cv::Point prev_pt(-1, -1);
@@ -51,7 +49,7 @@ int main(int argc, char** argv){
   cv::Mat img0, gPb, gPb_thin, ucm;
   vector<cv::Mat> gPb_ori; 
 
-  img0 = cv::imread(argv[1], CV_LOAD_IMAGE_COLOR);
+  img0 = cv::imread(argv[1], -1);
   cv::globalPb(img0, gPb, gPb_thin, gPb_ori);
 
   // if you wanna conduct interactive segmentation later, choose DOUBLE_SIZE, otherwise SINGLE_SIZE will do either.
@@ -97,5 +95,12 @@ int main(int argc, char** argv){
     }
       
   }
-  
+  //clean up
+  img0.release();
+  gPb.release();
+  gPb_thin.release();
+  ucm.release();
+  ucm2.release();
+  markers.release();
+  gPb_ori.clear();
 }

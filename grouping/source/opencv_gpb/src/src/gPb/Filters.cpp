@@ -1,5 +1,5 @@
 //
-//    cv_lib_filters:
+//    Filters:
 //       An extended library of opencv gaussian-based filters.
 //       contents:
 //       1D multi-order gaussian filters (Option: Hilbert Transform)
@@ -15,10 +15,10 @@
 //    
 //
 
-#include "cv_lib_filters.hh"
+#include "Filters.h"
 using namespace std;
 
-namespace libFilters
+namespace cv
 { 
   /********************************************************************************
    * Hilbert Transform
@@ -716,8 +716,4 @@ namespace libFilters
       }
     imshow(name, dispimage); 
   }
-
-
-
-
 }

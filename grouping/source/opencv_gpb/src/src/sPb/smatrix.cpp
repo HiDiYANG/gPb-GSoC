@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "smatrix.hh"
+#include "smatrix.h"
 
 SMatrix::SMatrix (int n, int* nz, int** col, double** values)
 {

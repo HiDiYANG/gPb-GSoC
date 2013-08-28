@@ -6,7 +6,7 @@
 #include <opencv/highgui.h>
 #include <opencv2/core/core.hpp>
 
-
+namespace cv{
 void normalise_cut(double **T, 
 		   int tlen, 
 		   int rows,
@@ -14,3 +14,4 @@ void normalise_cut(double **T,
 		   double *D, 
 		   int nev,
 		   std::vector<cv::Mat> & sPb_raw);
+}

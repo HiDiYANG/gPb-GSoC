@@ -1,4 +1,4 @@
-#include "buildW.hh"
+#include "buildW.h"
 
 using namespace std;
 

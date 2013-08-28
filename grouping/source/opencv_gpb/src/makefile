@@ -1,10 +1,22 @@
 CC = g++
-CFLAGS = `pkg-config --cflags opencv` -I./headers -I./buildW -I./eigs
+CFLAGS = `pkg-config --cflags opencv` -I./include/gPb -I./include/sPb -I./include/seg
 
 LIBS = `pkg-config --libs opencv` -L/opt/local/lib -larpack -lparpack -lgfortran
 
-SRC = 	src/main.cc src/globalPb.cc src/cv_lib_filters.cc src/watershed.cpp src/contour2ucm.cc src/ucm_mean_pb.cpp src/uvt.cpp buildW/buildW.cc buildW/ic.cc buildW/affinity.cc buildW/smatrix.cc eigs/normalise_cut.cc
-OBJ = test
+SRC = 	src/main.cpp 		   \
+	src/gPb/globalPb.cpp       \
+	src/gPb/Filters.cpp \
+	src/sPb/buildW.cpp         \
+	src/sPb/ic.cpp             \
+	src/sPb/affinity.cpp       \
+	src/sPb/smatrix.cpp        \
+	src/sPb/normCut.cpp  \
+	src/seg/watershed.cpp      \
+	src/seg/contour2ucm.cpp    \
+	src/seg/ucm_mean_pb.cpp    \
+	src/seg/uvt.cpp 
+
+OBJ = gPb
 program:
 	$(CC) -o $(OBJ) $(SRC) $(CFLAGS) $(LIBS)
 

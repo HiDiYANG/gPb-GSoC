@@ -22,9 +22,9 @@
 #include <iostream>
 #include <math.h>
 
-#include "smatrix.hh"
-#include "ic.hh"
-#include "affinity.hh"
+#include "smatrix.h"
+#include "ic.h"
+#include "affinity.h"
 
 namespace Group
 {

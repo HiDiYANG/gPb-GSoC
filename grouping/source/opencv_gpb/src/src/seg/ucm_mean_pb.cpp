@@ -12,7 +12,7 @@
     August 2013
 */
 
-#include "ucm_mean_pb.hh"
+#include "ucm_mean_pb.h"
 
 using namespace std;
 

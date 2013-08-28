@@ -1,7 +1,8 @@
-#include "normalise_cut.hh"
+#include "normCut.h"
 #include "dsaupd.h"
 using namespace std;
 
+namespace cv{
 void normalise_cut(double **T, //symmetric sparse matrix - Affinity Matrix
 		   int tlen,   //the number of elements 
 		   int rows,   //matrix order, also the length of diagnal matrix
@@ -52,4 +53,6 @@ void normalise_cut(double **T, //symmetric sparse matrix - Affinity Matrix
   delete[] Evecs;
   delete[] Evals;
   ones.release();
+}
+
 }

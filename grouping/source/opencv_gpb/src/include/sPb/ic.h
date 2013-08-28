@@ -20,7 +20,7 @@
 #ifndef IC_HH
 #define IC_HH
 #include <opencv2/core/core.hpp>
-#include "array.hh"
+#include "array.h"
 
 //
 // intervening contour computation

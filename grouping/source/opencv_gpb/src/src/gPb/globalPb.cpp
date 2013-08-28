@@ -8,13 +8,12 @@
 //    
 //
 
-#include "cv_lib_filters.hh"
-#include "globalPb.hh"
-#include "buildW.hh"
-#include "normalise_cut.hh"
+#include "Filters.h"
+#include "globalPb.h"
+#include "buildW.h"
+#include "normCut.h"
 
 using namespace std;
-using namespace libFilters;
 
 namespace
 { static double* 
@@ -120,8 +119,8 @@ namespace cv
     ones = cv::Mat::ones(color.rows, color.cols, CV_32FC1);
     
     // Histogram filter generation
-    gaussianFilter1D(double(bins[0])*bg_smooth_sigma, 0, false, filters[0]);
-    gaussianFilter1D(double(bins[0])*cg_smooth_sigma, 0, false, filters[1]);
+    cv::gaussianFilter1D(double(bins[0])*bg_smooth_sigma, 0, false, filters[0]);
+    cv::gaussianFilter1D(double(bins[0])*cg_smooth_sigma, 0, false, filters[1]);
     cv::transpose(filters[0], filters[0]);
     cv::transpose(filters[1], filters[1]);
     filters[2] = cv::Mat::zeros(1, length, CV_32FC1);
@@ -161,14 +160,15 @@ namespace cv
 
     /********* END OF FILTERS INTIALIZATION ***************/
     cout<<" ---  computing texton ... "<<endl;
-    textonRun(grey, layers[3], n_ori, bins[1], sigma_tg_filt_sm, sigma_tg_filt_lg);
+    cv::textonRun(grey, layers[3], n_ori, bins[1], sigma_tg_filt_sm, sigma_tg_filt_lg);
 
     cout<<" ---  computing bg cga cgb tg ... "<<endl;
     gradients.resize(layers.size()*3);
     //parallel_for_gradients(layers, filters, gradients, n_ori, bins, radii);
 
     for(size_t i=0; i<gradients.size(); i++)
-      gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9], filters[i/3-int(i>5)], gradients[i]);
+      cv::gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9],
+			   filters[i/3-int(i>5)], gradients[i]);
   
     //clean up
     filters.clear();
@@ -360,7 +360,7 @@ namespace cv
     pb_parts_final_selected(layers, gradients);
     
     mPb_all.resize(n_ori);
-    ori = standard_filter_orientations(n_ori, RAD);
+    ori = cv::standard_filter_orientations(n_ori, RAD);
     for(size_t idx=0; idx<n_ori; idx++){
       mPb_all[idx] = cv::Mat::zeros(image.rows, image.cols, CV_32FC1);
       for(size_t ch = 0; ch<gradients.size(); ch++){
@@ -464,9 +464,10 @@ namespace cv
   
     vector<cv::Mat> sPb_raw;
     cv::buildW(mPb_max, W, nnz, D);
-    normalise_cut(W, nnz, mPb_max.rows, mPb_max.cols, D, 17, sPb_raw);
+    cv::normalise_cut(W, nnz, mPb_max.rows, mPb_max.cols, D, 17, sPb_raw);
+    
     vector<cv::Mat> oe_filters;
-    gaussianFilters(n_ori, 1.0, 1, HILBRT_OFF, 3.0, oe_filters);
+    cv::gaussianFilters(n_ori, 1.0, 1, HILBRT_OFF, 3.0, oe_filters);
     
     for(size_t i=0; i<n_ori; i++){
       sPb[i] = cv::Mat::zeros(mPb_max.rows, mPb_max.cols, CV_32FC1);
@@ -496,6 +497,7 @@ namespace cv
     vector<cv::Mat> sPb;
     vector<vector<cv::Mat> > gradients;
     double *weights;
+    cout<<"channel: "<<image.channels()<<endl;
     weights = _gPb_Weights(image.channels());
 
     //multiscalePb - mPb

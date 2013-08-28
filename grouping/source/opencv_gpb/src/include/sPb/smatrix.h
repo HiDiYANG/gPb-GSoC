@@ -21,7 +21,7 @@
 #define __smatrix_h__
 
 #include <stdio.h>
-#include "array.hh"
+#include "array.h"
 
 class SMatrix
 {

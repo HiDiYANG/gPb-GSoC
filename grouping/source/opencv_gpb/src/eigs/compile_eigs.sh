@@ -1,1 +1,0 @@
-g++ -o eigs_test eigs.cc -L/opt/local/lib -larpack -lparpack -lgfortran

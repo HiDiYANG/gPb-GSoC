@@ -19,8 +19,8 @@
 #ifndef PAIRWISE_H 
 #define PAIRWISE_H 
 
-#include "smatrix.hh"
-#include "ic.hh"
+#include "smatrix.h"
+#include "ic.h"
 
 namespace Group
 {

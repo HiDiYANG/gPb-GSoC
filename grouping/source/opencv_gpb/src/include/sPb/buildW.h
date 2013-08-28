@@ -9,10 +9,10 @@
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <opencv2/core/core.hpp>
-#include "array.hh"
-#include "smatrix.hh"
-#include "affinity.hh"
-#include "ic.hh"
+#include "array.h"
+#include "smatrix.h"
+#include "affinity.h"
+#include "ic.h"
 
 
 namespace cv

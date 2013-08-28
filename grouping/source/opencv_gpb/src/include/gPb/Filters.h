@@ -18,7 +18,7 @@
 #define RAD 1
 #define DEG 0
 
-namespace libFilters
+namespace cv
 {
   /********************************************************************************
    * Hilbert Transform
@@ -178,5 +178,4 @@ namespace libFilters
   Display_EXP(const std::vector<cv::Mat> & images, 
 	      const char* name,
 	      const int w_n);
-
 }

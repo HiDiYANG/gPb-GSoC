@@ -5,8 +5,8 @@ addpath(fullfile(pwd,'lib'));
 %% 1. compute globalPb
 clear all; close all; clc;
 
-imgFile = 'data/101087.jpg';
-outFile = 'data/101087_gPb.mat';
+imgFile = 'data/3063.jpg';
+outFile = 'data/3063_gPb.mat';
 
 [gPb_orient, gPb_thin, textons] = globalPb(imgFile, outFile);
 

@@ -497,7 +497,6 @@ namespace cv
     vector<cv::Mat> sPb;
     vector<vector<cv::Mat> > gradients;
     double *weights;
-    cout<<"channel: "<<image.channels()<<endl;
     weights = _gPb_Weights(image.channels());
 
     //multiscalePb - mPb

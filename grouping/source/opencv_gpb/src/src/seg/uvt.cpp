@@ -148,12 +148,11 @@ void uvt(const cv::Mat & ucm_mtr,
     labels = cv::Mat(int(rows/2), int(cols/2), CV_64FC1);
     cv::Mat temp1 = cv::Mat(cols, rows, CV_64FC1, bdry).t();
     cv::Mat temp2 = cv::Mat(cols, rows, CV_64FC1, lab).t();
-    for(size_t i=0; i<temp1.rows; i++)
-      for(size_t j=0; j<temp2.cols; j++){
-	if(i%2 == 0 && j%2 == 0){
-	  boundary.at<double>(floor(i/2), floor(j/2)) = temp1.at<double>(i,j);
-	  labels.at<double>(floor(i/2), floor(j/2)) = temp2.at<double>(i,j);
-	}
+    
+    for(size_t i=0; i<int(rows/2); i++)
+      for(size_t j=0; j<int(cols/2); j++){
+	boundary.at<double>(i, j) = temp1.at<double>(i*2,j*2);
+	labels.at<double>(i, j) = temp2.at<double>(i*2,j*2);
       }
   }
 

@@ -67,6 +67,7 @@ end
 function [ws_wt] = create_finest_partition(pb_oriented)
 
 pb = max(pb_oriented,[],3);
+pb = (pb-min(pb(:)))./(max(pb(:))-min(pb(:)));
 ws = watershed(pb*255);
 ws_bw = (ws == 0);
 

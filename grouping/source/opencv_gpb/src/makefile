@@ -17,8 +17,9 @@ SRC = 	src/main.cpp 		   \
 	src/seg/uvt.cpp 
 
 OBJ = gPb
+
 program:
-	$(CC) -o $(OBJ) $(SRC) $(CFLAGS) $(LIBS)
+	$(CC) -g -o $(OBJ) $(SRC) $(CFLAGS) $(LIBS)
 
 clean:
 	rm $(OBJ)

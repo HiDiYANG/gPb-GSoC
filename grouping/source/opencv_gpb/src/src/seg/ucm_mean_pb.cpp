@@ -144,8 +144,6 @@ void Region::merge( Region& r, int* labels, const int& label, double* ucm, const
          else ++itrb;
     }
 
-    int coord_contour;
-
     //	Ib. move son's boundary to father
     for( itrb = r.boundary.begin(); itrb != r.boundary.end(); ++itrb )
     {
@@ -237,7 +235,7 @@ void compute_ucm
   Region* R = new Region[totcc];
   priority_queue<Order_node, vector<Order_node>, less<Order_node> > merging_queue;
   double totalPb, totalBdry, dissimilarity;
-  int v,px;
+  int v;
 
    for( p = 0; p < (2*tx+1)*(2*ty+1); p++ ) ucm[p] = 0.0;
   

@@ -1,3 +1,13 @@
+//
+//    Normalise Cut with given affinity matrix (Sparse Mode)
+//
+//    Created by Di Yang, Vicent Rabaud, and Gary Bradski on 31/05/13.
+//    Copyright (c) 2013 The Australian National University. 
+//    and Willow Garage inc.
+//    All rights reserved.
+//    
+//
+
 #include "normCut.h"
 #include "dsaupd.h"
 using namespace std;

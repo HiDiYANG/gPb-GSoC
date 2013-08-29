@@ -151,8 +151,8 @@ void uvt(const cv::Mat & ucm_mtr,
     for(size_t i=0; i<temp1.rows; i++)
       for(size_t j=0; j<temp2.cols; j++){
 	if(i%2 == 0 && j%2 == 0){
-	  boundary.at<double>(i/2, j/2) = temp1.at<double>(i,j);
-	  labels.at<double>(i/2, j/2) = temp2.at<double>(i,j);
+	  boundary.at<double>(floor(i/2), floor(j/2)) = temp1.at<double>(i,j);
+	  labels.at<double>(floor(i/2), floor(j/2)) = temp2.at<double>(i,j);
 	}
       }
   }

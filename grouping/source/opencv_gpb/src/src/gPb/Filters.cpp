@@ -60,7 +60,6 @@ namespace cv
 		     cv::Mat & output,
 		     bool label)
   {
-    bool flag = label? SAME_SIZE : EXPAND_SIZE;
     cv::Mat temp;
     input.copyTo(temp);
     if(temp.cols != 1 && temp.rows != 1){
@@ -227,7 +226,6 @@ namespace cv
     bool hlbrt = label? HILBRT_ON : HILBRT_OFF; 
     int len = 2*half_len+1;
     cv::Mat ones = cv::Mat::ones(len, 1, CV_32F);
-    double sum_abs;
     output  = cv::getGaussianKernel(len, sigma, CV_32F);
     if(deriv == 1){
       for(int i=0; i<len; i++){
@@ -277,7 +275,6 @@ namespace cv
     int half_len_rotate_x = supportRotated(half_len, half_len, ori, X_ORI);
     int half_len_rotate_y = supportRotated(half_len, half_len, ori, Y_ORI);
     int half_rotate_len = (half_len_rotate_x > half_len_rotate_y)? half_len_rotate_x : half_len_rotate_y;
-    int len_rotate= 2*half_rotate_len+1;    
     cv::Mat output_x, output_y;
 
     /*   Conduct Compution */    
@@ -306,7 +303,6 @@ namespace cv
 		   bool hlbrt,
 		   cv::Mat & output)
   {
-    bool flag = hlbrt? HILBRT_ON : HILBRT_OFF; 
     /* actual size of kernel */
     int half_len_x = int(sigma_x*3.0);
     int half_len_y = int(sigma_y*3.0);
@@ -668,52 +664,5 @@ namespace cv
     int totalCols = n_ori;
     cv::BlockedRange range(0, totalCols);
     cv::parallel_for(range, parallel);
-  }
-
-
-  //------------------ DisPlay ---------------------------
-
-  void
-  Display_EXP(const cv::Mat & images,
-	      const char* name)
-  {
-    vector<cv::Mat> imgs;
-    imgs.resize(1);
-    images.copyTo(imgs[0]);
-    Display_EXP(imgs, name, 1);
-  }
-
-  void
-  Display_EXP(const vector<cv::Mat> & images, 
-	      const char* name,
-	      const int w_n)
-  {
-    int Depth = images.size();
-    int sub_c = images[0].cols;
-    int sub_r = images[0].rows;
-    int h_n = int(double(Depth)/double(w_n)+0.5);
-    cv::Mat dispimage(h_n*sub_r, w_n*sub_c, CV_32FC1);
-    cv::Mat zeros = cv::Mat::zeros(sub_r, sub_c, CV_32FC1);
-    double temp_mx, temp_mn;
-
-    for(size_t n=0; n<Depth; n++){
-      temp_mx = 0.0; temp_mn=0.0;
-      for(size_t i=0; i<sub_r; i++)
-	for(size_t j=0; j<sub_c; j++){
-	  temp_mx = MAX(temp_mx, images[n].at<float>(i, j));
-	  temp_mn = MIN(temp_mn, images[n].at<float>(i, j));
-	}
-      cv::addWeighted(zeros, 0.0, images[n], 1.0/(temp_mx-temp_mn), -temp_mn/(temp_mx-temp_mn), images[n]);
-    }
-
-    int c = 0;
-    for(size_t i=0; i<h_n; i++)
-      for(size_t j=0; j<w_n; j++){
-	for(size_t x=0; x<sub_r; x++)
-	  for(size_t y=0; y<sub_c; y++)
-	    dispimage.at<float>(i*sub_r+x, j*sub_c+y) = images[c].at<float>(x, y);
-	c++;
-      }
-    imshow(name, dispimage); 
   }
 }

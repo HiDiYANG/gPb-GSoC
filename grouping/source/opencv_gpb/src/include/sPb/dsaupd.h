@@ -40,6 +40,11 @@
 
   Scot Shaw
   30 August 1999
+  
+  I changed the structure of av function.
+
+  Di Yang
+  29 August 2013
 */
 
 using namespace std;

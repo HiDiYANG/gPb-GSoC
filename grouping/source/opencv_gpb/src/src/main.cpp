@@ -50,6 +50,9 @@ int main(int argc, char** argv){
   vector<cv::Mat> gPb_ori; 
 
   img0 = cv::imread(argv[1], -1);
+  //debugging
+  //img0 = cv::imread("test_imgs/388016.jpg", -1);
+
   cv::globalPb(img0, gPb, gPb_thin, gPb_ori);
 
   // if you wanna conduct interactive segmentation later, choose DOUBLE_SIZE, otherwise SINGLE_SIZE will do either.

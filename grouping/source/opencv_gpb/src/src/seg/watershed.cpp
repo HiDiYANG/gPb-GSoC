@@ -35,10 +35,9 @@
 
 #include <iostream>
 #include <list>
-
 #include <opencv2/imgproc/imgproc.hpp>
-
 #include "watershed.h"
+#include "VisWatershed.h"
 
 namespace
 {
@@ -134,7 +133,12 @@ namespace cv
       image3 = imageu;
     }
 
+    // conventional watershed:
     cv::watershed(image3, regions);
+
+    //viscous forced watershed:
+    //cv::viswatershed(image3, regions, 2, 0.01);
+    
     // OpenCV convention: -1 for boundaries, zone index start a 0
     // Matlab convention: 0 for boundaries, zone index start a 1
     regions = regions + 1;

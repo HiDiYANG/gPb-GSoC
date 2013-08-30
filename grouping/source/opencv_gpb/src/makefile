@@ -12,6 +12,7 @@ SRC = 	src/main.cpp 		   \
 	src/sPb/smatrix.cpp        \
 	src/sPb/normCut.cpp        \
 	src/seg/watershed.cpp      \
+	src/seg/VisWatershed.cpp   \
 	src/seg/contour2ucm.cpp    \
 	src/seg/ucm_mean_pb.cpp    \
 	src/seg/uvt.cpp 

@@ -392,10 +392,9 @@ void ucm_mean_pb(const cv::Mat & input1,
   else{
     output = cv::Mat::zeros(input2.rows, input2.cols, CV_64FC1);
     cv::Mat ucm2 = cv::Mat(input2.cols*2+1, input2.rows*2+1, CV_64FC1, ucm).t();
-    for(size_t i=0; i<ucm2.rows; i++)
-      for(size_t j=0; j<ucm2.cols; j++)
-	if(i%2 == 0 && j%2 == 0)
-	  output.at<double>(i/2,j/2) = ucm2.at<double>(i,j);
+    for(size_t i=0; i<input2.rows; i++)
+      for(size_t j=0; j<input2.cols; j++)
+	output.at<double>(i,j) = ucm2.at<double>(i*2,j*2);
   }
   output.convertTo(output, CV_32FC1);
   delete[] ucm;

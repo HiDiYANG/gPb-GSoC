@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = `pkg-config --cflags opencv` -I./include/gPb -I./include/sPb -I./include/seg
 
-LIBS = `pkg-config --libs opencv` -L/opt/local/lib -larpack -lparpack -lgfortran
+LIBS = `pkg-config --libs opencv` -L/opt/local/lib -larpack -lparpack -L/opt/local/lib/gcc47 -lgfortran
 
 SRC = 	src/main.cpp 		   \
 	src/gPb/globalPb.cpp       \
@@ -20,7 +20,7 @@ SRC = 	src/main.cpp 		   \
 OBJ = gPb
 
 program:
-	$(CC) -g -o $(OBJ) $(SRC) $(CFLAGS) $(LIBS)
+	$(CC) -o $(OBJ) $(SRC) $(CFLAGS) $(LIBS)
 
 clean:
 	rm $(OBJ)

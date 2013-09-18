@@ -52,6 +52,12 @@ namespace cv
   void contour2ucm(const cv::Mat & gPb,
 		   const vector<cv::Mat> & gPb_ori,
 		   cv::Mat & ucm,
+		   bool label,
+		   int win_sz,
+		   double C);
+   
+  void contour2ucm(const cv::Mat & gPb,
+		   const vector<cv::Mat> & gPb_ori,
+		   cv::Mat & ucm,
 		   bool label);
- 
 }

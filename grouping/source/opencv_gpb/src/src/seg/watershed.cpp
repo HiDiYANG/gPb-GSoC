@@ -105,7 +105,11 @@ namespace
 namespace cv
 {
   void
-  watershedFull(const cv::Mat & image, int window_size, cv::Mat & regions)
+  watershedFull(const cv::Mat & image, 
+		int window_size, 
+		cv::Mat & regions,
+		int win_sz,
+		double C)
   {
     // Find the local minima
     switch (image.depth())
@@ -133,11 +137,11 @@ namespace cv
       image3 = imageu;
     }
 
-    // conventional watershed:
-    cv::watershed(image3, regions);
+    //conventional watershed:
+    //cv::watershed(image3, regions);
 
     //viscous forced watershed:
-    //cv::viswatershed(image3, regions, 3, 0.02);
+    cv::viswatershed(image3, regions, win_sz, C);
     
     // OpenCV convention: -1 for boundaries, zone index start a 0
     // Matlab convention: 0 for boundaries, zone index start a 1

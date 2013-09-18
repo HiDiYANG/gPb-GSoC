@@ -38,5 +38,9 @@
 namespace cv
 {
   void
-  watershedFull(const cv::Mat & image, int window_size, cv::Mat & regions);
+  watershedFull(const cv::Mat & image, 
+		int window_size, 
+		cv::Mat & regions,
+		int win_sz,
+		double C);
 }

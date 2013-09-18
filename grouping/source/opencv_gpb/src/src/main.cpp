@@ -16,6 +16,7 @@ using namespace std;
 
 cv::Mat markers, ucm2;
 cv::Point prev_pt(-1, -1);
+
 void on_mouse( int event, int x, int y, int flags, void* param )
 {
   if( ucm2.empty() )
@@ -46,17 +47,15 @@ int main(int argc, char** argv){
   cout<<"Press 'w' or 'ENTER' - conduct interactive segmentation"<<endl;
   cout<<"Press 'ESC' - exit the program"<<endl<<endl<<endl;
 
-  cv::Mat img0, gPb, gPb_thin, ucm;
-  vector<cv::Mat> gPb_ori; 
+  cv::Mat img0, gPb_thin, gPb, ucm;
+  vector<cv::Mat> gPb_ori;
 
   img0 = cv::imread(argv[1], -1);
-  //debugging
-  //img0 = cv::imread("test_imgs/388016.jpg", -1);
 
   cv::globalPb(img0, gPb, gPb_thin, gPb_ori);
 
   // if you wanna conduct interactive segmentation later, choose DOUBLE_SIZE, otherwise SINGLE_SIZE will do either.
-  cv::contour2ucm(gPb, gPb_ori, ucm, DOUBLE_SIZE);
+  cv::contour2ucm(gPb, gPb_ori, ucm, DOUBLE_SIZE, 3, 0.02);
   
   //back up
   ucm.copyTo(ucm2);
@@ -95,15 +94,6 @@ int main(int argc, char** argv){
       cv::uvt(ucm, seeds, boundary, labels, SINGLE_SIZE);
       cv::imshow("boundary", boundary*255);
       cv::imshow("labels", labels*int(255/num_seed));
-    }
-      
+    }   
   }
-  //clean up
-  img0.release();
-  gPb.release();
-  gPb_thin.release();
-  ucm.release();
-  ucm2.release();
-  markers.release();
-  gPb_ori.clear();
 }

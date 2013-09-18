@@ -13,7 +13,6 @@
 
 using namespace std;
 
-
 static contour_vertex* create_contour_vertex(int x, int y)
 {
   contour_vertex* v = new contour_vertex[1];
@@ -208,9 +207,6 @@ namespace cv
 	if(i == output.rows)
 	  output.at<float>(i,j) = output.at<float>(i-1,j);
       }
-    //clean up
-    H.release();
-    V.release();
   }
 
   void clean_watersheds(const cv::Mat & input,
@@ -316,10 +312,6 @@ namespace cv
       for(size_t j=0; j<c.cols; j++){
 	if(output.at<float>(i, j) == 0)
 	  c.at<int>(i, j) = -1;
-	/*if(i==0 || i==output.rows-1)
-	  c.at<int>(i,j) = 0;
-	if(j==0 || j==output.cols-1)
-	c.at<int>(i,j) = 0;*/
       }
        
     int index = 1;
@@ -371,10 +363,6 @@ namespace cv
 	labels.at<int>(pos[0], pos[1]) = max_labels;
       }
     }
-    //clean up
-
-    c.release();
-    mask.release(); 
   }
 
   void rot90(const cv::Mat & input,
@@ -391,8 +379,6 @@ namespace cv
 	output.at<float>(i, j) = temp.at<float>(output.rows-i-1, j);
     if(flag == -1)
       output.t();
-    //clean up
-    temp.release();
   }
 
   void to_8(const cv::Mat & input,
@@ -474,13 +460,10 @@ namespace cv
 
     cv::Mat mask, mask_cmp;
     vector< vector<contour_edge> > _edges_equiv;
-    //vector<contour_vertex> _vertices;
-    //vector<contour_edge> _edges;
     
     _assignment = cv::Mat::zeros(rows, cols, CV_32SC1);
     _is_vertex = cv::Mat::zeros(rows, cols, CV_32SC1);
     _is_edge   = cv::Mat::zeros(rows, cols, CV_32SC1);
-    //ws_bw.copyTo(_is_edge);
 
     //--------------------- Vertex Assignment ----------------
 
@@ -698,9 +681,6 @@ namespace cv
 	_vertices.push_back(v);
       }
     }
-    //clean up
-    mask.release();
-    mask_cmp.release();
   }
   
   void fit_contour(const cv::Mat & ws_bw,
@@ -721,13 +701,13 @@ namespace cv
       edges_endpoints.at<int>(i,1) = _edges[i].vertex_start->id;
       edges_endpoints.at<int>(i,2) = _edges[i].vertex_end->id;
     }
-    //clean up
-    _assignment.release();
   }
 
   void creat_finest_partition(const cv::Mat & gPb,
 			      const vector<cv::Mat> & gPb_ori,
-			      cv::Mat & ws_wt)
+			      cv::Mat & ws_wt,
+			      int win_sz,
+			      double C)
   {
     cv::Mat edges_endpoints, _is_vertex, _is_edge, labels;
     vector<contour_vertex> _vertices;
@@ -741,7 +721,7 @@ namespace cv
     cv::addWeighted(gPb, 1.0, ws_bw, -minVal, 0.0, temp);
     cv::multiply(temp, ws_bw, temp, 255.0/(maxVal-minVal));
     temp.convertTo(temp, CV_64FC1);
-    cv::watershedFull(temp, 1, ws_wt);
+    cv::watershedFull(temp, 1, ws_wt, win_sz, C);
     
     for(size_t i=0; i<ws_wt.rows; i++)
       for(size_t j=0; j<ws_wt.cols; j++)
@@ -794,24 +774,24 @@ namespace cv
     }
 
     //clean up
-    edges_endpoints.release();
-    _is_vertex.release();
-    _is_edge.release();
-    labels.release();
     _vertices.clear();
     _edges.clear();
-    temp.release();
-    ws_bw.release();
   }
 
   void contour2ucm(const cv::Mat & gPb,
 		   const vector<cv::Mat> & gPb_ori,
 		   cv::Mat & ucm,
-		   bool label)
+		   bool label,
+		   int win_sz,
+		   double C)
   { 
     bool flag = label ? DOUBLE_SIZE : SINGLE_SIZE;
     cv::Mat ws_wt8, ws_wt2, labels, ws_wt;
-    creat_finest_partition(gPb, gPb_ori, ws_wt);
+    if(win_sz <= 0)
+      win_sz = 0;
+    if(C<=0.0)
+      C = 1.0;
+    creat_finest_partition(gPb, gPb_ori, ws_wt, win_sz, C);
     
     rot90(ws_wt, ws_wt8, 1);
     to_8(ws_wt8, ws_wt8);
@@ -823,11 +803,16 @@ namespace cv
     cv::copyMakeBorder(ws_wt2, ws_wt2, 0, 1, 0, 1, cv::BORDER_REFLECT);
     cv::ucm_mean_pb(ws_wt2, labels, ucm, flag);
     pb_normalize(ucm, ucm);
-
-    //clean up
-    ws_wt8.release();
-    ws_wt2.release();
-    labels.release();
-    ws_wt.release();
   }
+
+  void contour2ucm(const cv::Mat & gPb,
+		   const vector<cv::Mat> & gPb_ori,
+		   cv::Mat & ucm,
+		   bool label)
+  {
+    int win_sz = 1;
+    double C = 10.0;
+    contour2ucm(gPb, gPb_ori, ucm, label, win_sz, C);
+  }
+  
 }

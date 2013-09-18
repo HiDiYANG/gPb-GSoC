@@ -18,11 +18,35 @@
 #include "Filters.h"
 using namespace std;
 
+class DFTconvolver{
+public:
+  cv::Mat hist;
+  void DFTconv(const cv::Mat & gaussian)
+  {
+    cv::Mat TempA, TempB; 
+    int r=hist.rows, c=hist.cols;
+    hist.copyTo(TempA);
+    gaussian.copyTo(TempB);
+
+    int width = cv::getOptimalDFTSize(hist.cols+gaussian.cols-1);
+    cv::copyMakeBorder(TempA, TempA, 0, 0, 0, width-TempA.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::copyMakeBorder(TempB, TempB, 0, 0, 0, width-TempB.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::dft(TempA, TempA, cv::DFT_ROWS, TempA.rows);
+    cv::dft(TempB, TempB, cv::DFT_ROWS, TempB.rows);
+    cv::mulSpectrums(TempA, TempB, TempA, cv::DFT_ROWS, false);
+    cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, TempA.rows);
+    
+    int W_o = (TempA.cols-c)/2;
+    TempA(cv::Rect(W_o, 0, c, r)).copyTo(hist);
+  }
+};
+
 namespace cv
 { 
   /********************************************************************************
    * Hilbert Transform
-   ********************************************************************************/
+   *******************************************************************************/
+
   void
   convolveDFT(const cv::Mat & inputA,
 	      const cv::Mat & inputB,
@@ -41,7 +65,7 @@ namespace cv
     cv::dft(TempA, TempA, cv::DFT_ROWS, TempA.rows);
     cv::dft(TempB, TempB, cv::DFT_ROWS, TempB.rows);
     cv::mulSpectrums(TempA, TempB, TempA, cv::DFT_ROWS, false);
-    cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, output.rows); 
+    cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, TempA.rows); 
     
     if(flag){
       int W_o = (TempA.cols-c)/2;
@@ -197,10 +221,6 @@ namespace cv
     int border_cols = (input.cols - len_cols)/2;
     cv::Rect cROI(border_cols, border_rows, len_cols, len_rows);
     output = tmp(cROI);
-
-    //clean up
-    tmp.release();
-    rotate_M.release();
   }
 
   void rotate_2D(const cv::Mat & input,
@@ -245,9 +265,6 @@ namespace cv
       normalizeDistr(output, output, ZERO);
     else
       normalizeDistr(output, output, NON_ZERO);
-
-    //clean up
-    ones.release();
   }
 
   void 
@@ -288,10 +305,6 @@ namespace cv
       normalizeDistr(output, output, ZERO);
     else
       normalizeDistr(output, output, NON_ZERO);
-
-    //clean up
-    output_x.release();
-    output_y.release();
   }
 
 
@@ -325,9 +338,6 @@ namespace cv
     gaussianFilter2D(half_len, 0.0, sigma_x,   sigma_y,   0, HILBRT_OFF, output_sur);
     cv::addWeighted(output_sur, 1.0, output_cen, -1.0, 0.0, output);
     normalizeDistr(output, output, ZERO);
-    //clean up
-    output_cen.release();
-    output_sur.release();
   }
 
   void
@@ -438,10 +448,6 @@ namespace cv
     for(size_t i=0; i<labels.rows; i++)
       output.at<int>(i%output.rows, i/output.rows)=labels.at<int>(i, 0);
     output.convertTo(output, CV_32FC1);
-    //clean up
-    blur.release();
-    labels.release();
-    k_samples.release();
   }
 
   cv::Mat 
@@ -490,6 +496,11 @@ namespace cv
   {
     double *oris;
     cv::Mat weights, slice_map, label_exp;
+    DFTconvolver hist_left2;
+    DFTconvolver hist_right2;
+    hist_left2.hist = cv::Mat::zeros(1,num_bins,CV_32FC1);
+    hist_right2.hist = cv::Mat::zeros(1,num_bins,CV_32FC1);
+
     cv::Mat hist_left  = cv::Mat::zeros(1, num_bins, CV_32FC1);
     cv::Mat hist_right = cv::Mat::zeros(1, num_bins, CV_32FC1);    
     weights = weight_matrix_disc(r);
@@ -505,19 +516,33 @@ namespace cv
 	for(int j=r; j<label_exp.cols-r; j++){
 	  hist_left.setTo(0.0);
 	  hist_right.setTo(0.0);
+
+	  hist_left2.hist.setTo(0.0);
+	  hist_right2.hist.setTo(0.0);
+	  
 	  for(int x= -r; x <= r; x++)
 	    for(int y= -r; y <= r; y++){
 	      int bin = int(label_exp.at<float>(i+x, j+y));
 	      if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 && 
-		 slice_map.at<float>(x+r, y+r) <= oris[idx])
+		 slice_map.at<float>(x+r, y+r) <= oris[idx]){
 		hist_right.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
-	      else
+		hist_right2.hist.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+	      }
+	      else{
 		hist_left.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+		hist_left2.hist.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+	      }
 	    }
 	  
-	  convolveDFT(hist_right, gaussian_kernel, hist_right, SAME_SIZE);
-	  convolveDFT(hist_left, gaussian_kernel, hist_left, SAME_SIZE);
-	  
+	  //convolveDFT(hist_right, gaussian_kernel, hist_right, SAME_SIZE);
+	  //convolveDFT(hist_left, gaussian_kernel, hist_left, SAME_SIZE);
+
+	  hist_right2.DFTconv(gaussian_kernel);
+	  hist_left2.DFTconv(gaussian_kernel);
+      
+	  hist_right2.hist.copyTo(hist_right);
+	  hist_left2.hist.copyTo(hist_left);
+
 	  double sum_l = 0.0, sum_r =0.0; 
 	  for(size_t nn = 0; nn<num_bins; nn++){
 	    sum_l += hist_left.at<float>(0, nn);
@@ -545,13 +570,6 @@ namespace cv
 	  }
 	  gradients[idx].at<float>(i-r,j-r) = tmp;
 	}
-
-    //clean up
-    weights.release();
-    slice_map.release();
-    label_exp.release();
-    hist_left.release();
-    hist_right.release();
   }
 
   void
@@ -568,11 +586,7 @@ namespace cv
   }
 
 
-  //-------------------------------------------------------------------
-  //---------------------------------------------------
-  //---------------------------------------------------
-  //---------------------------------------------------
-  //---------------------------------------------------
+  //-------------------- Parallel Computation attempt ------------------------
 
   struct parallelInvoker{
     const cv::Mat * label_ptr;

@@ -18,27 +18,33 @@
 #include "Filters.h"
 using namespace std;
 
-class DFTconvolver{
+class DFTconvolver {
 public:
-  cv::Mat hist;
-  void DFTconv(const cv::Mat & gaussian)
-  {
-    cv::Mat TempA, TempB; 
-    int r=hist.rows, c=hist.cols;
-    hist.copyTo(TempA);
-    gaussian.copyTo(TempB);
+  DFTconvolver(int num_bins, const cv::Mat &gaussian_filter) : num_bins_(num_bins) {
+    width_ = cv::getOptimalDFTSize(num_bins + gaussian_filter.cols - 1);
+    cv::Mat TempB;
+    cv::copyMakeBorder(gaussian_filter, TempB, 0, 0, 0, width_ - gaussian_filter.cols - 1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::dft(TempB, filter_dft_, cv::DFT_ROWS, TempB.rows);
+  }
 
-    int width = cv::getOptimalDFTSize(hist.cols+gaussian.cols-1);
-    cv::copyMakeBorder(TempA, TempA, 0, 0, 0, width-TempA.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-    cv::copyMakeBorder(TempB, TempB, 0, 0, 0, width-TempB.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+  void conv(cv::Mat & hist)
+  {
+    cv::Mat TempA;
+    int r=hist.rows, c=hist.cols;
+
+    cv::copyMakeBorder(hist, TempA, 0, 0, 0, width_ - hist.cols - 1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
     cv::dft(TempA, TempA, cv::DFT_ROWS, TempA.rows);
-    cv::dft(TempB, TempB, cv::DFT_ROWS, TempB.rows);
-    cv::mulSpectrums(TempA, TempB, TempA, cv::DFT_ROWS, false);
+    cv::mulSpectrums(TempA, filter_dft_, TempA, cv::DFT_ROWS, false);
     cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, TempA.rows);
     
     int W_o = (TempA.cols-c)/2;
     TempA(cv::Rect(W_o, 0, c, r)).copyTo(hist);
   }
+
+private:
+  int num_bins_;
+  int width_;
+  cv::Mat filter_dft_;
 };
 
 namespace cv
@@ -73,10 +79,6 @@ namespace cv
     }
     else
       TempA.copyTo(output);
-
-    //clean up
-    TempA.release();
-    TempB.release();
   }
 
   void
@@ -143,28 +145,12 @@ namespace cv
 		 bool label)
   {
     bool flag = label ? ZERO : NON_ZERO;
-    input.copyTo(output);
-    output.convertTo(output, CV_32FC1);
-    cv::Mat ones = cv::Mat::ones(output.rows, output.cols, output.type());
-    double sumAbs = 0.0;
-    double mean = 0.0;
+    input.convertTo(output, CV_32FC1);
     /* If required, zero-mean shift*/
-    if(flag){
-      for(size_t i=0; i<output.rows; i++)
-	for(size_t j=0; j< output.cols; j++)
-	  if(flag)
-	    mean += output.at<float>(i,j);
-      mean = mean/(double(output.rows*output.cols));
-      cv::addWeighted(output, 1.0, ones, -mean, 0.0, output);
-    }
+    if(flag)
+      output = output - float(mean(output)[0]);
     /* Distribution Normalized */
-    for(size_t i=0; i<output.rows; i++)
-      for(size_t j=0; j< output.cols; j++)
-	sumAbs += fabs(output.at<float>(i,j));
-    cv::divide(output, ones, output, 1.0/sumAbs);
-    
-    //clean up
-    ones.release();
+    output = output / cv::norm(output, NORM_L1);
   }
 
   /********************************************************************************
@@ -450,20 +436,20 @@ namespace cv
     output.convertTo(output, CV_32FC1);
   }
 
-  cv::Mat 
-  weight_matrix_disc(int r) 
+  cv::Mat_<int>
+  weight_matrix_disc(int r)
   {
     int size = 2*r + 1;
     int r_sq = r*r;
-    cv::Mat weights = cv::Mat::zeros(size, size, CV_32SC1);
+    cv::Mat_<int> weights = cv::Mat_<int>::zeros(size, size);
     for (int i = 0; i< weights.rows; i++)
       for (int j = 0; j< weights.cols; j++) {
 	int x_sq = (i-r)*(i-r);
 	int y_sq = (j-r)*(j-r);
         if ((x_sq + y_sq) <= r_sq)
-	  weights.at<int>(i, j) = 1;
+	  weights(i, j) = 1;
       }
-    weights.at<int>(r, r) = 0;
+    weights(r, r) = 0;
     return weights;
   }
 
@@ -495,14 +481,13 @@ namespace cv
 		   vector<cv::Mat> & gradients)
   {
     double *oris;
-    cv::Mat weights, slice_map, label_exp;
-    DFTconvolver hist_left2;
-    DFTconvolver hist_right2;
-    hist_left2.hist = cv::Mat::zeros(1,num_bins,CV_32FC1);
-    hist_right2.hist = cv::Mat::zeros(1,num_bins,CV_32FC1);
+    cv::Mat_<int> weights;
+    cv::Mat slice_map, label_exp;
+    DFTconvolver convolver_left(num_bins, gaussian_kernel);
+    DFTconvolver convolver_right(num_bins, gaussian_kernel);
 
-    cv::Mat hist_left  = cv::Mat::zeros(1, num_bins, CV_32FC1);
-    cv::Mat hist_right = cv::Mat::zeros(1, num_bins, CV_32FC1);    
+    cv::Mat_<float> hist_left  = cv::Mat_<float>::zeros(1, num_bins);
+    cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(1, num_bins);
     weights = weight_matrix_disc(r);
     slice_map = orientation_slice_map(r, n_ori);
     oris = standard_filter_orientations(n_ori, DEG);
@@ -516,50 +501,35 @@ namespace cv
 	for(int j=r; j<label_exp.cols-r; j++){
 	  hist_left.setTo(0.0);
 	  hist_right.setTo(0.0);
-
-	  hist_left2.hist.setTo(0.0);
-	  hist_right2.hist.setTo(0.0);
 	  
 	  for(int x= -r; x <= r; x++)
 	    for(int y= -r; y <= r; y++){
 	      int bin = int(label_exp.at<float>(i+x, j+y));
 	      if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 && 
 		 slice_map.at<float>(x+r, y+r) <= oris[idx]){
-		hist_right.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
-		hist_right2.hist.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+		hist_right(0, bin) += double(weights(x+r, y+r));
 	      }
 	      else{
-		hist_left.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
-		hist_left2.hist.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+		hist_left(0, bin) += double(weights(x+r, y+r));
 	      }
 	    }
-	  
-	  //convolveDFT(hist_right, gaussian_kernel, hist_right, SAME_SIZE);
-	  //convolveDFT(hist_left, gaussian_kernel, hist_left, SAME_SIZE);
 
-	  hist_right2.DFTconv(gaussian_kernel);
-	  hist_left2.DFTconv(gaussian_kernel);
-      
-	  hist_right2.hist.copyTo(hist_right);
-	  hist_left2.hist.copyTo(hist_left);
+	  convolver_right.conv(hist_right);
+	  convolver_left.conv(hist_left);
 
-	  double sum_l = 0.0, sum_r =0.0; 
-	  for(size_t nn = 0; nn<num_bins; nn++){
-	    sum_l += hist_left.at<float>(0, nn);
-	    sum_r += hist_right.at<float>(0, nn);
-	  }
+	  double sum_l = sum(hist_left)[0], sum_r = sum(hist_right)[0];
 	  
 	  double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
 	  for(size_t nn = 0; nn<num_bins; nn++){
 	    if(sum_r == 0)
-	      hist_r = hist_right.at<float>(0,nn);
+	      hist_r = hist_right(0,nn);
 	    else
-	      hist_r = hist_right.at<float>(0,nn)/sum_r;
+	      hist_r = hist_right(0,nn)/sum_r;
 	    
 	    if(sum_l == 0)
-	      hist_l = hist_left.at<float>(0,nn);
+	      hist_l = hist_left(0,nn);
 	    else
-	      hist_l = hist_left.at<float>(0,nn)/sum_l;
+	      hist_l = hist_left(0,nn)/sum_l;
 	      
 	    tmp1 = hist_r-hist_l;
 	    tmp2 = hist_r+hist_l;
@@ -602,9 +572,14 @@ namespace cv
       vector<cv::Mat> & gradients = * gradients_ptr;
       
       double *oris;
-      cv::Mat weights, slice_map, label_exp;
-      cv::Mat hist_left  = cv::Mat::zeros(1, num_bins, CV_32FC1);
-      cv::Mat hist_right = cv::Mat::zeros(1, num_bins, CV_32FC1);    
+      cv::Mat_<int> weights;
+      cv::Mat slice_map, label_exp;
+      DFTconvolver convolver_left(num_bins, gaussian_kernel);
+      DFTconvolver convolver_right(num_bins, gaussian_kernel);
+
+      cv::Mat_<float> hist_left  = cv::Mat_<float>::zeros(1, num_bins);
+      cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(1, num_bins);
+
       weights = weight_matrix_disc(r);
       slice_map = orientation_slice_map(r, range.end());
       oris = standard_filter_orientations(range.end(), DEG);
@@ -623,31 +598,27 @@ namespace cv
 		int bin = int(label_exp.at<float>(i+x, j+y));
 		if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 && 
 		   slice_map.at<float>(x+r, y+r) <= oris[idx])
-		  hist_right.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+		  hist_right(0, bin) += double(weights(x+r, y+r));
 		else
-		  hist_left.at<float>(0, bin) += double(weights.at<int>(x+r, y+r));
+		  hist_left(0, bin) += double(weights(x+r, y+r));
 	      }
 	    
-	    convolveDFT(hist_right, gaussian_kernel, hist_right, SAME_SIZE);
-	    convolveDFT(hist_left, gaussian_kernel, hist_left, SAME_SIZE);
-	  
-	    double sum_l = 0.0, sum_r =0.0; 
-	    for(size_t nn = 0; nn<num_bins; nn++){
-	      sum_l += hist_left.at<float>(0, nn);
-	      sum_r += hist_right.at<float>(0, nn);
-	    }
-	  
+	    convolver_right.conv(hist_right);
+	    convolver_left.conv(hist_left);
+
+	    double sum_l = sum(hist_left)[0], sum_r = sum(hist_right)[0];
+
 	    double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
 	    for(size_t nn = 0; nn<num_bins; nn++){
 	      if(sum_r == 0)
-		hist_r = hist_right.at<float>(0,nn);
+		hist_r = hist_right(0,nn);
 	      else
-		hist_r = hist_right.at<float>(0,nn)/sum_r;
+		hist_r = hist_right(0,nn)/sum_r;
 	    
 	      if(sum_l == 0)
-		hist_l = hist_left.at<float>(0,nn);
+		hist_l = hist_left(0,nn);
 	      else
-		hist_l = hist_left.at<float>(0,nn)/sum_l;
+		hist_l = hist_left(0,nn)/sum_l;
 	      
 	      tmp1 = hist_r-hist_l;
 	      tmp2 = hist_r+hist_l;

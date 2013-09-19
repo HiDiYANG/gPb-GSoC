@@ -136,13 +136,6 @@ namespace cv
 	    double sigma_sm,
 	    double sigma_lg); 
 
-  cv::Mat 
-  weight_matrix_disc(int r);
-  
-  cv::Mat 
-  orientation_slice_map(int r, 
-			int n_ori);
-
   //-----------------------------------------------
   void
   gradient_hist_2D(const cv::Mat & label,

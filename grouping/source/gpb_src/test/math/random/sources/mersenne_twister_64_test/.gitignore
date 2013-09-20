@@ -1,7 +1,0 @@
-Makefile
-Rules.make
-results
-*.d
-*.do
-*.o
-mersenne_twister_64_test

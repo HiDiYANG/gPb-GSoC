@@ -790,7 +790,7 @@ namespace cv
     if(win_sz <= 0)
       win_sz = 0;
     if(C<=0.0)
-      C = 1.0;
+      C = 0.015;
     creat_finest_partition(gPb, gPb_ori, ws_wt, win_sz, C);
     
     rot90(ws_wt, ws_wt8, 1);

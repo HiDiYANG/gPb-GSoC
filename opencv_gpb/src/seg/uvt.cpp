@@ -152,8 +152,8 @@ namespace cv{
 	       cv::Mat & labels,
 	       double thres)
   {
-    boundary = cv::Mat::zeros(ucm_mtr.rows, ucm_mtr.cols, CV_32SC1);
-    labels   = cv::Mat::zeros(ucm_mtr.rows, ucm_mtr.cols, CV_32SC1);
+    boundary = cv::Mat(ucm_mtr.rows, ucm_mtr.cols, CV_8UC1);
+    labels   = cv::Mat(ucm_mtr.rows, ucm_mtr.cols, CV_8UC1);
     
     cv::Mat_<uchar> bdry = cv::Mat_<uchar>(ucm_mtr.rows, ucm_mtr.cols);
     cv::Mat_<uchar> labs = cv::Mat_<uchar>(ucm_mtr.rows, ucm_mtr.cols);
@@ -161,19 +161,19 @@ namespace cv{
     for(size_t i=0; i<ucm_mtr.rows; i++)
       for(size_t j=0; j<ucm_mtr.cols; j++){
 	if(ucm_mtr.at<float>(i,j) >= thres)
-	  boundary.at<int>(i,j)=255; //bdry(i,j) = 1;
+	  bdry(i,j) = 255;
 	else
-	  labels.at<int>(i,j) = 255; //labs(i,j) = 1;
+	  labs(i,j) = 1;
       }
-    /*
+    
     int index = 1;
-    for(size_t i=0; i<labels.rows; i++)
-      for(size_t j=0; j<labels.cols; j++){
-	if(labels.at<uchar>(i,j) == 1){
+    for(size_t i=0; i<labs.rows; i++)
+      for(size_t j=0; j<labs.cols; j++){
+	if(labs(i,j) == 1){
 	  cv::Point seed;
 	  seed.x = i;
 	  seed.y = j;
-	  cv::floodFill(labels, seed, cv::Scalar(index), 0, cv::Scalar(8));
+	  cv::floodFill(labs, seed, cv::Scalar(index), 0, cv::Scalar(8));
 	  index++;
 	}
       }
@@ -182,8 +182,7 @@ namespace cv{
       for(size_t j=0; j<boundary.rows; j++){
 	boundary.at<uchar>(i,j) = bdry(i*2, j*2);
 	labels.at<uchar>(i,j)   = labs(i*2, j*2);
-	}*/
-    boundary.convertTo(boundary, CV_8UC1);
+      }
     cv::imshow("example", boundary);
   }
 }

@@ -56,7 +56,7 @@ int main(int argc, char** argv){
   cv::globalPb(img0, gPb, gPb_thin, gPb_ori);
 
   // if you wanna conduct interactive segmentation later, choose DOUBLE_SIZE, otherwise SINGLE_SIZE will do either.
-  cv::contour2ucm(gPb, gPb_ori, ucm, SINGLE_SIZE);
+  cv::contour2ucm(gPb, gPb_ori, ucm, DOUBLE_SIZE);
   
   //back up
   markers = cv::Mat::zeros(ucm.size(), CV_8UC1);

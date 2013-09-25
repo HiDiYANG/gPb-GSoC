@@ -357,6 +357,7 @@ void compute_ucm
 }
 
 /*************************************************************************************************/
+
 void ucm_mean_pb(const cv::Mat & input1,
 		 const cv::Mat & input2,
 		 cv::Mat & output,

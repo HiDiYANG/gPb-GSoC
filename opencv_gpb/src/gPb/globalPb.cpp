@@ -24,7 +24,7 @@ namespace
       weights[0] = 0.0;    weights[1] = 0.0;    weights[2] = 0.0039;
       weights[3] = 0.0050; weights[4] = 0.0058; weights[5] = 0.0069;
       weights[6] = 0.0040; weights[7] = 0.0044; weights[8] = 0.0049;
-      weights[9] = 0.0024; weights[10]= 0.0027; weights[11]= 0.0170;
+      weights[9] = 0.0024; weights[10]= 0.0027; weights[11]= 0.0200;
       weights[12]= 0.0074;
     }else{
       weights[0] = 0.0;    weights[1] = 0.0;    weights[2] = 0.0054;

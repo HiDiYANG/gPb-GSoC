@@ -24,4 +24,10 @@ namespace cv{
 	   cv::Mat & boundary,
 	   cv::Mat & labels,
 	   bool sz);
+  
+  void ucm2seg(const cv::Mat & ucm_mtr,
+	       cv::Mat & boundary,
+	       cv::Mat & labels,
+	       double thres);
+  
 }

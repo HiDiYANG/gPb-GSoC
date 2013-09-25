@@ -74,7 +74,7 @@ namespace cv
 	  temp = 0;
 	if(temp > 1)
 	  temp = 1;
-	output.at<float>(i,j) = 1.0-temp;
+	output.at<float>(i,j) = temp;
       }
   }
   
@@ -321,7 +321,7 @@ namespace cv
 	  cv::Point seed;
 	  seed.x = j;
 	  seed.y = i;
-	  cv::floodFill(c, seed, cv::Scalar(index));
+	  cv::floodFill(c, seed, cv::Scalar(index), 0, cv::Scalar(8));
 	  index++;
 	}
       }
@@ -705,9 +705,7 @@ namespace cv
 
   void creat_finest_partition(const cv::Mat & gPb,
 			      const vector<cv::Mat> & gPb_ori,
-			      cv::Mat & ws_wt,
-			      int win_sz,
-			      double C)
+			      cv::Mat & ws_wt)
   {
     cv::Mat edges_endpoints, _is_vertex, _is_edge, labels;
     vector<contour_vertex> _vertices;
@@ -721,7 +719,7 @@ namespace cv
     cv::addWeighted(gPb, 1.0, ws_bw, -minVal, 0.0, temp);
     cv::multiply(temp, ws_bw, temp, 255.0/(maxVal-minVal));
     temp.convertTo(temp, CV_64FC1);
-    cv::watershedFull(temp, 1, ws_wt, win_sz, C);
+    cv::watershedFull(temp, 1, ws_wt);
     
     for(size_t i=0; i<ws_wt.rows; i++)
       for(size_t j=0; j<ws_wt.cols; j++)
@@ -781,17 +779,11 @@ namespace cv
   void contour2ucm(const cv::Mat & gPb,
 		   const vector<cv::Mat> & gPb_ori,
 		   cv::Mat & ucm,
-		   bool label,
-		   int win_sz,
-		   double C)
+		   bool label)
   { 
     bool flag = label ? DOUBLE_SIZE : SINGLE_SIZE;
     cv::Mat ws_wt8, ws_wt2, labels, ws_wt;
-    if(win_sz <= 0)
-      win_sz = 0;
-    if(C<=0.0)
-      C = 0.015;
-    creat_finest_partition(gPb, gPb_ori, ws_wt, win_sz, C);
+    creat_finest_partition(gPb, gPb_ori, ws_wt);
     
     rot90(ws_wt, ws_wt8, 1);
     to_8(ws_wt8, ws_wt8);
@@ -804,15 +796,4 @@ namespace cv
     cv::ucm_mean_pb(ws_wt2, labels, ucm, flag);
     pb_normalize(ucm, ucm);
   }
-
-  void contour2ucm(const cv::Mat & gPb,
-		   const vector<cv::Mat> & gPb_ori,
-		   cv::Mat & ucm,
-		   bool label)
-  {
-    int win_sz = 1;
-    double C = 10.0;
-    contour2ucm(gPb, gPb_ori, ucm, label, win_sz, C);
-  }
-  
 }

@@ -14,10 +14,8 @@
 
 using namespace std;
 
-cv::Mat markers, ucm2, ucm, gPb;
-vector<cv::Mat> gPb_ori;
+cv::Mat markers, ucm2;
 cv::Point prev_pt(-1, -1);
-int C, Deg;
 
 void on_mouse( int event, int x, int y, int flags, void* param )
 {
@@ -40,14 +38,6 @@ void on_mouse( int event, int x, int y, int flags, void* param )
   }
 }
 
-void on_trackbar(int, void* )
-{
-  double deg_f = double(50-Deg)/50.0f;
-  cv::contour2ucm(gPb, gPb_ori, ucm, DOUBLE_SIZE, C, deg_f);
-  ucm.copyTo(ucm2);
-  cv::imshow("ucm", ucm2);
-}
-
 int main(int argc, char** argv){
 
   //info block
@@ -58,32 +48,26 @@ int main(int argc, char** argv){
   cout<<"Press 'ESC' - exit the program"<<endl<<endl<<endl;
 
   cv::Mat img0, gPb_thin;
-  //cv::Mat gPb, ucm;
-  //vector<cv::Mat> gPb_ori;
+  cv::Mat gPb, ucm;
+  vector<cv::Mat> gPb_ori;
 
   img0 = cv::imread(argv[1], -1);
 
   cv::globalPb(img0, gPb, gPb_thin, gPb_ori);
 
   // if you wanna conduct interactive segmentation later, choose DOUBLE_SIZE, otherwise SINGLE_SIZE will do either.
-  cv::namedWindow("ucm", 1);
-
-  C = 3;
-  Deg = 50;
-  cv::createTrackbar("Neighbor size:", "ucm", &C,   10, on_trackbar );
-  cv::createTrackbar("Force Degree :", "ucm", &Deg, 50, on_trackbar );
-  on_trackbar(C, 0);
-  on_trackbar(Deg, 0);
-
-  //cv::contour2ucm(gPb, gPb_ori, ucm, DOUBLE_SIZE, 3, 0.02);
+  cv::contour2ucm(gPb, gPb_ori, ucm, SINGLE_SIZE);
   
   //back up
   markers = cv::Mat::zeros(ucm.size(), CV_8UC1);
+  ucm.copyTo(ucm2);
+  cv::Mat bdry, labs;
+  cv::ucm2seg(ucm, bdry, labs, 0.6);
   
   cv::imshow("Original", img0);
   cv::imshow("gPb",  gPb);
   cv::imshow("gPb_thin", gPb_thin);
-  //cv::imshow("ucm", ucm2);
+  cv::imshow("ucm", ucm2);
   cv::setMouseCallback("ucm", on_mouse, 0);
 
   while(true){

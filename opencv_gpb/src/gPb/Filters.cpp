@@ -49,9 +49,9 @@ private:
 
 namespace cv
 {
-    /********************************************************************************
+    /************************************
      * Hilbert Transform
-     *******************************************************************************/
+     ************************************/
     
     void
     convolveDFT(const cv::Mat & inputA,
@@ -74,11 +74,11 @@ namespace cv
         cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, TempA.rows);
         
         if(flag){
-            int W_o = (TempA.cols-c)/2;
-            TempA(cv::Rect(W_o, 0, c, r)).copyTo(output);
+	  int W_o = (TempA.cols-c)/2;
+	  TempA(cv::Rect(W_o, 0, c, r)).copyTo(output);
         }
         else
-            TempA.copyTo(output);
+	  TempA.copyTo(output);
     }
     
     void
@@ -113,9 +113,9 @@ namespace cv
         hilbert.release();
     }
     
-    /********************************************************************************
+    /***************************************
      * Standard orientation generation
-     ********************************************************************************/
+     ***************************************/
     double*
     standard_filter_orientations(int n_ori,
                                  bool label)
@@ -136,9 +136,9 @@ namespace cv
         return oris;
     }
     
-    /********************************************************************************
+    /****************************************************
      * Distribution Normalize and Mean value shifting
-     ********************************************************************************/
+     ****************************************************/
     void
     normalizeDistr(const cv::Mat & input,
                    cv::Mat & output,
@@ -153,9 +153,9 @@ namespace cv
         output = output / cv::norm(output, NORM_L1);
     }
     
-    /********************************************************************************
+    /*******************************
      * Matrix Rotation
-     ********************************************************************************/
+     *******************************/
     
     int
     supportRotated(int x,
@@ -217,9 +217,9 @@ namespace cv
         rotate_2D_crop(input, output, ori, input.cols, input.rows, label);
     }
     
-    /********************************************************************************
+    /***********************
      * Filters Generation
-     ********************************************************************************/
+     ***********************/
     
     /* 1D multi-order gaussian filter generation */
     void
@@ -394,9 +394,9 @@ namespace cv
         odd_filters.clear();
     }
     
-    /********************************************************************************
+    /*******************************
      * Texton Filters Executation
-     ********************************************************************************/
+     *******************************/
     
     void
     textonRun(const cv::Mat & input,
@@ -456,9 +456,8 @@ namespace cv
     /*
      * Construct orientation slice lookup map.
      */
-    cv::Mat
-    orientation_slice_map(int r,
-                          int n_ori)
+    cv::Mat orientation_slice_map(int r,
+				  int n_ori)
     {
         /* initialize map */
         int size = 2*r+1;
@@ -497,49 +496,44 @@ namespace cv
         cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
         
         for(size_t idx = 0; idx < n_ori; idx++)
-            for(int i=r; i<label_exp.rows-r; i++)
-                for(int j=r; j<label_exp.cols-r; j++){
-                    hist_left.setTo(0.0);
-                    hist_right.setTo(0.0);
+	  for(int i=r; i<label_exp.rows-r; i++)
+	    for(int j=r; j<label_exp.cols-r; j++){
+	      hist_left.setTo(0.0);
+	      hist_right.setTo(0.0);
+                   
+	      for(int x= -r; x <= r; x++)
+		for(int y= -r; y <= r; y++){
+		  int bin = int(label_exp.at<float>(i+x, j+y));
+		  if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 &&
+		     slice_map.at<float>(x+r, y+r) <= oris[idx]){
+		    hist_right(0, bin) += double(weights(x+r, y+r));
+		  }else
+		    hist_left(0, bin) += double(weights(x+r, y+r));
+		}
                     
-                    for(int x= -r; x <= r; x++)
-                        for(int y= -r; y <= r; y++){
-                            int bin = int(label_exp.at<float>(i+x, j+y));
-                            if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 &&
-                               slice_map.at<float>(x+r, y+r) <= oris[idx]){
-                                hist_right(0, bin) += double(weights(x+r, y+r));
-                            }
-                            else{
-                                hist_left(0, bin) += double(weights(x+r, y+r));
-                            }
-                        }
+	      convolver_right.conv(hist_right);
+	      convolver_left.conv(hist_left);
                     
-                    convolver_right.conv(hist_right);
-                    convolver_left.conv(hist_left);
-                    
-                    double sum_l = sum(hist_left)[0], sum_r = sum(hist_right)[0];
-                    
-                    double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
-                    for(size_t nn = 0; nn<num_bins; nn++){
-                        if(sum_r == 0)
-                            hist_r = hist_right(0,nn);
-                        else
-                            hist_r = hist_right(0,nn)/sum_r;
-                        
-                        if(sum_l == 0)
-                            hist_l = hist_left(0,nn);
-                        else
-                            hist_l = hist_left(0,nn)/sum_l;
-                        
-                        tmp1 = hist_r-hist_l;
-                        tmp2 = hist_r+hist_l;
-                        if(tmp2 < 0.00001)
-                            tmp2 = 1.0;
-                        
-                        tmp += 4.0*(tmp1*tmp1)/tmp2;
-                    }
-                    gradients[idx].at<float>(i-r,j-r) = tmp;
-                }
+	      double sum_l = sum(hist_left)[0], sum_r = sum(hist_right)[0];      
+	      double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
+	      for(size_t nn = 0; nn<num_bins; nn++){
+		if(sum_r == 0)
+		  hist_r = hist_right(0,nn);
+		else
+		  hist_r = hist_right(0,nn)/sum_r;      
+                
+		if(sum_l == 0)
+		  hist_l = hist_left(0,nn);
+		else
+		  hist_l = hist_left(0,nn)/sum_l;      
+                tmp1 = hist_r-hist_l;
+		tmp2 = hist_r+hist_l;
+		if(tmp2 < 0.00001)
+		  tmp2 = 1.0; 
+		tmp += 4.0*(tmp1*tmp1)/tmp2;
+	      }
+	      gradients[idx].at<float>(i-r,j-r) = tmp;
+	    }
     }
     
     void
@@ -549,10 +543,10 @@ namespace cv
                      int num_bins,
                      vector<cv::Mat> & gradients)
     {
-        int length = 7;
-        cv::Mat impulse_resp = cv::Mat::zeros(1, length, CV_32FC1);
-        impulse_resp.at<float>(0, (length-1)/2) = 1.0;
-        gradient_hist_2D(label, r, n_ori, num_bins, impulse_resp, gradients);
+      int length = 7;
+      cv::Mat impulse_resp = cv::Mat::zeros(1, length, CV_32FC1);
+      impulse_resp.at<float>(0, (length-1)/2) = 1.0;
+      gradient_hist_2D(label, r, n_ori, num_bins, impulse_resp, gradients);
     }
     
     

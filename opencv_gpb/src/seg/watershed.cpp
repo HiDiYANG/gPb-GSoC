@@ -138,10 +138,10 @@ namespace cv
     }
 
     //conventional watershed:
-    //cv::watershed(image3, regions);
+    cv::watershed(image3, regions);
 
     //viscous forced watershed:
-    cv::viswatershed(image3, regions, win_sz, C);
+    //cv::viswatershed(image3, regions, win_sz, C);
     
     // OpenCV convention: -1 for boundaries, zone index start a 0
     // Matlab convention: 0 for boundaries, zone index start a 1

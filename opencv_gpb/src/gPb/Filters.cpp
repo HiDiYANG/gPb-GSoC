@@ -469,8 +469,88 @@ namespace cv
             }
         return slice_map;
     }
-    
-    
+
+    /** Unit of computation used
+     */
+    class ParallelInvokerUnit {
+    private:
+        double *oris_;
+        DFTconvolver *convolver_left_;
+        DFTconvolver *convolver_right_;
+        int num_bins_;
+        cv::Mat_<int> weights_;
+        cv::Mat label_exp_;
+        cv::Mat slice_map_;
+        cv::Mat gaussian_kernel_;
+        cv::Size label_size_;
+        int r_;
+    public:
+        ParallelInvokerUnit(int num_bins, size_t n_ori, int r, const cv::Mat & label, const cv::Mat &gaussian_kernel) : 
+num_bins_(num_bins), r_(r) {
+            label_size_ = label.size();
+            convolver_left_ = new DFTconvolver(num_bins, gaussian_kernel);
+            convolver_right_ = new DFTconvolver(num_bins, gaussian_kernel);
+
+            oris_ = standard_filter_orientations(n_ori, DEG);
+
+            slice_map_ = orientation_slice_map(r, n_ori);
+
+            weights_ = weight_matrix_disc(r);
+            gaussian_kernel.copyTo(gaussian_kernel_);
+            cv::copyMakeBorder(label, label_exp_, r, r, r, r, cv::BORDER_REFLECT);
+        }
+
+        cv::Mat_<float>
+        operator() (const size_t &idx) {
+            cv::Mat_<float> gradients = cv::Mat_<float>::zeros(label_size_);
+
+            cv::Mat_<float> hist_left  = cv::Mat_<float>::zeros(1, num_bins_);
+            cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(1, num_bins_);
+
+            for(int i=r_; i<label_exp_.rows-r_; i++)
+                for(int j=r_; j<label_exp_.cols-r_; j++){
+                    hist_left.setTo(0.0);
+                    hist_right.setTo(0.0);
+                    for(int x= -r_; x <= r_; x++)
+                        for(int y= -r_; y <= r_; y++){
+                            int bin = int(label_exp_.at<float>(i+x, j+y));
+                            if(slice_map_.at<float>(x+r_, y+r_) > oris_[idx]-180.0 && 
+                                slice_map_.at<float>(x+r_, y+r_) <= oris_[idx])
+                                hist_right(0, bin) += double(weights_(x+r_, y+r_));
+                            else
+                                hist_left(0, bin) += double(weights_(x+r_, y+r_));
+                        }
+                    
+                    convolver_right_->conv(hist_right);
+                    convolver_left_->conv(hist_left);
+                    
+                    double sum_l = sum(hist_left)[0], sum_r = sum(hist_right)[0];
+                    
+                    double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
+                    for(size_t nn = 0; nn<num_bins_; nn++){
+                        if(sum_r == 0)
+                            hist_r = hist_right(0,nn);
+                        else
+                            hist_r = hist_right(0,nn)/sum_r;
+                        
+                        if(sum_l == 0)
+                            hist_l = hist_left(0,nn);
+                        else
+                            hist_l = hist_left(0,nn)/sum_l;
+                        
+                        tmp1 = hist_r-hist_l;
+                        tmp2 = hist_r+hist_l;
+                        if(tmp2 < 0.00001)
+                            tmp2 = 1.0;
+                        
+                        tmp += 4.0*(tmp1*tmp1)/tmp2;
+                    }
+                    gradients.at<float>(i-r_,j-r_) = tmp;
+                }
+            return gradients;
+        }
+    };
+
     void
     gradient_hist_2D(const cv::Mat & label,
                      int r,
@@ -479,61 +559,11 @@ namespace cv
                      cv::Mat & gaussian_kernel,
                      vector<cv::Mat> & gradients)
     {
-        double *oris;
-        cv::Mat_<int> weights;
-        cv::Mat slice_map, label_exp;
-        DFTconvolver convolver_left(num_bins, gaussian_kernel);
-        DFTconvolver convolver_right(num_bins, gaussian_kernel);
-        
-        cv::Mat_<float> hist_left  = cv::Mat_<float>::zeros(1, num_bins);
-        cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(1, num_bins);
-        weights = weight_matrix_disc(r);
-        slice_map = orientation_slice_map(r, n_ori);
-        oris = standard_filter_orientations(n_ori, DEG);
-        gradients.resize(n_ori);
-        for(size_t i=0; i<n_ori; i++)
-            gradients[i] = cv::Mat::zeros(label.rows, label.cols, CV_32FC1);
-        cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
-        
-        for(size_t idx = 0; idx < n_ori; idx++)
-	  for(int i=r; i<label_exp.rows-r; i++)
-	    for(int j=r; j<label_exp.cols-r; j++){
-	      hist_left.setTo(0.0);
-	      hist_right.setTo(0.0);
-                   
-	      for(int x= -r; x <= r; x++)
-		for(int y= -r; y <= r; y++){
-		  int bin = int(label_exp.at<float>(i+x, j+y));
-		  if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 &&
-		     slice_map.at<float>(x+r, y+r) <= oris[idx]){
-		    hist_right(0, bin) += double(weights(x+r, y+r));
-		  }else
-		    hist_left(0, bin) += double(weights(x+r, y+r));
-		}
+        ParallelInvokerUnit parallel_invoker_unit(num_bins, n_ori, r, label, gaussian_kernel);
 
-	      convolver_right.conv(hist_right);
-	      convolver_left.conv(hist_left);
-                    
-	      double sum_l = sum(hist_left)[0], sum_r = sum(hist_right)[0];      
-	      double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
-	      for(size_t nn = 0; nn<num_bins; nn++){
-		if(sum_r == 0)
-		  hist_r = hist_right(0,nn);
-		else
-		  hist_r = hist_right(0,nn)/sum_r;      
-                
-		if(sum_l == 0)
-		  hist_l = hist_left(0,nn);
-		else
-		  hist_l = hist_left(0,nn)/sum_l;      
-                tmp1 = hist_r-hist_l;
-		tmp2 = hist_r+hist_l;
-		if(tmp2 < 0.00001)
-		  tmp2 = 1.0; 
-		tmp += 4.0*(tmp1*tmp1)/tmp2;
-	      }
-	      gradients[idx].at<float>(i-r,j-r) = tmp;
-	    }
+        gradients.resize(n_ori);
+        for(size_t idx = 0; idx < n_ori; idx++)
+            gradients[idx] = parallel_invoker_unit(idx);
     }
     
     void
@@ -565,64 +595,11 @@ namespace cv
             cv::Mat & gaussian_kernel = * gaussian_kernel_ptr;
             vector<cv::Mat> & gradients = * gradients_ptr;
             
-            double *oris;
-            cv::Mat_<int> weights;
-            cv::Mat slice_map, label_exp;
-            DFTconvolver convolver_left(num_bins, gaussian_kernel);
-            DFTconvolver convolver_right(num_bins, gaussian_kernel);
-            
-            cv::Mat_<float> hist_left  = cv::Mat_<float>::zeros(1, num_bins);
-            cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(1, num_bins);
-            
-            weights = weight_matrix_disc(r);
-            slice_map = orientation_slice_map(r, range.end());
-            oris = standard_filter_orientations(range.end(), DEG);
             gradients.resize(range.end());
-            for(size_t i=0; i<range.end(); i++)
-                gradients[i] = cv::Mat::zeros(label.rows, label.cols, CV_32FC1);
-            cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
             
+            ParallelInvokerUnit parallel_invoker_unit(num_bins, range.end(), r, label, gaussian_kernel);
             for(size_t idx = range.begin(); idx < range.end(); idx++)
-                for(int i=r; i<label_exp.rows-r; i++)
-                    for(int j=r; j<label_exp.cols-r; j++){
-                        hist_left.setTo(0.0);
-                        hist_right.setTo(0.0);
-                        for(int x= -r; x <= r; x++)
-                            for(int y= -r; y <= r; y++){
-                                int bin = int(label_exp.at<float>(i+x, j+y));
-                                if(slice_map.at<float>(x+r, y+r) > oris[idx]-180.0 && 
-                                   slice_map.at<float>(x+r, y+r) <= oris[idx])
-                                    hist_right(0, bin) += double(weights(x+r, y+r));
-                                else
-                                    hist_left(0, bin) += double(weights(x+r, y+r));
-                            }
-                        
-                        convolver_right.conv(hist_right);
-                        convolver_left.conv(hist_left);
-                        
-                        double sum_l = sum(hist_left)[0], sum_r = sum(hist_right)[0];
-                        
-                        double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
-                        for(size_t nn = 0; nn<num_bins; nn++){
-                            if(sum_r == 0)
-                                hist_r = hist_right(0,nn);
-                            else
-                                hist_r = hist_right(0,nn)/sum_r;
-                            
-                            if(sum_l == 0)
-                                hist_l = hist_left(0,nn);
-                            else
-                                hist_l = hist_left(0,nn)/sum_l;
-                            
-                            tmp1 = hist_r-hist_l;
-                            tmp2 = hist_r+hist_l;
-                            if(tmp2 < 0.00001)
-                                tmp2 = 1.0;
-                            
-                            tmp += 4.0*(tmp1*tmp1)/tmp2;
-                        }
-                        gradients[idx].at<float>(i-r,j-r) = tmp;
-                    }
+                gradients[idx] = parallel_invoker_unit(idx);
         }
     };
     

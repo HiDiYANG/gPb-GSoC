@@ -448,7 +448,7 @@ namespace cv
         double *oris_;
         int num_bins_;
         cv::Mat_<int> weights_;
-        cv::Mat label_exp_;
+        cv::Mat_<int> label_exp_;
         cv::Mat slice_map_;
         cv::Mat gaussian_kernel_;
         cv::Size label_size_;
@@ -464,31 +464,49 @@ num_bins_(num_bins), r_(r) {
 
             weights_ = weight_matrix_disc(r);
             gaussian_kernel.copyTo(gaussian_kernel_);
-            cv::copyMakeBorder(label, label_exp_, r, r, r, r, cv::BORDER_REFLECT);
+            cv::Mat label_exp;
+            cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
+            label_exp.convertTo(label_exp_, CV_32S);
         }
 
         cv::Mat_<float>
         operator() (const size_t &idx) {
-            cv::Mat_<float> gradients = cv::Mat_<float>::zeros(label_size_);
-
             cv::Mat_<float> hist_left = cv::Mat_<float>::zeros(label_size_.height*label_size_.width, 
 num_bins_);
-            cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(label_size_.height*label_size_.width, 
-num_bins_);
+            cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(hist_left.size());
 
-            for(int i=r_, k=0; i<label_exp_.rows-r_; i++)
-                for(int j=r_; j<label_exp_.cols-r_; j++, ++k){
-                    for(int x= -r_; x <= r_; x++)
-                        for(int y= -r_; y <= r_; y++){
-                            int bin = int(label_exp_.at<float>(i+x, j+y));
-                            if(slice_map_.at<float>(x+r_, y+r_) > oris_[idx]-180.0 && 
-                                slice_map_.at<float>(x+r_, y+r_) <= oris_[idx])
-                                hist_right(k, bin) += weights_(x+r_, y+r_);
+            // Define the mask for the slice_map_mask
+            cv::Mat_<uchar> slice_map_mask(slice_map_.size());
+            const float *slice_map_ptr = slice_map_.ptr<float>(0), *slice_map_ptr_end = slice_map_ptr + 
+                slice_map_.total();
+            uchar *slice_map_mask_ptr = slice_map_mask.ptr<uchar>(0);
+            for(; slice_map_ptr != slice_map_ptr_end; ++slice_map_ptr, ++slice_map_mask_ptr)
+                *slice_map_mask_ptr = (*slice_map_ptr > oris_[idx]-180.0 && *slice_map_ptr <= oris_[idx]);
+
+            // Define all the histograms
+            for(int j=r_, k=0; j<label_exp_.rows-r_; ++j)
+                for(int i=r_; i<label_exp_.cols-r_; ++i, ++k) {
+                    float *hist_right_ptr = hist_right.ptr<float>(k, 0);
+                    float *hist_left_ptr = hist_left.ptr<float>(k, 0);
+                    uchar *slice_map_mask_ptr = slice_map_mask.ptr<uchar>(0);
+                    float *weight = weights_.ptr<float>(0);
+                    int *label_exp_ptr_start = label_exp_.ptr<int>(j-r_, i-r_);
+                    int *label_exp_ptr_end = label_exp_.ptr<int>(j-r_, i+r_) + 1;
+                    int *label_exp_ptr_start_end = label_exp_.ptr<int>(j+r_, i-r_) + label_exp_.cols;
+                    // Build a histogram for specific coordinates
+                    for(; label_exp_ptr_start != label_exp_ptr_start_end; label_exp_ptr_start+=label_exp_.cols, 
+                            label_exp_ptr_end+=label_exp_.cols) {
+                        for(int *label_exp_ptr = label_exp_ptr_start; label_exp_ptr != label_exp_ptr_end; 
+                                ++label_exp_ptr, ++slice_map_mask_ptr, ++weight) {
+                            if (*slice_map_mask_ptr)
+                                hist_right_ptr[*label_exp_ptr] += *weight;
                             else
-                                hist_left(k, bin) += weights_(x+r_, y+r_);
+                                hist_left_ptr[*label_exp_ptr] += *weight;
                         }
+                    }
                 }
 
+            // Smooth all the histograms
             cv::filter2D(hist_right, hist_right, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, 
 cv::BORDER_CONSTANT);
             cv::filter2D(hist_left, hist_left, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, 
@@ -497,29 +515,34 @@ cv::BORDER_CONSTANT);
             cv::Mat_<float> sum_r, sum_l;
             cv::reduce(hist_right, sum_r, 1, CV_REDUCE_SUM);
             cv::reduce(hist_left, sum_l, 1, CV_REDUCE_SUM);
-            float *gradient = gradients.ptr<float>(0);
-            for(int k=0; k<hist_right.rows; ++k, ++gradient) {
-                    double tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
-                    for(size_t nn = 0; nn<num_bins_; nn++){
-                        if(sum_r(k) == 0)
-                            hist_r = hist_right(k,nn);
-                        else
-                            hist_r = hist_right(k,nn)/sum_r(k);
-                        
-                        if(sum_l(k) == 0)
-                            hist_l = hist_left(k,nn);
-                        else
-                            hist_l = hist_left(k,nn)/sum_l(k);
-                        
-                        tmp1 = hist_r-hist_l;
-                        tmp2 = hist_r+hist_l;
-                        if(tmp2 < 0.00001)
-                            tmp2 = 1.0;
-                        
-                        tmp += 4.0*(tmp1*tmp1)/tmp2;
-                    }
-                    *gradient = tmp;
+
+            cv::Mat_<float> gradients(label_size_);
+            float *gradient = gradients.ptr<float>(0), *gradient_end = gradient + gradients.total();
+            float *hist_right_ptr = hist_right.ptr<float>(0), *hist_left_ptr = hist_left.ptr<float>(0);
+            float *sum_r_ptr = sum_r.ptr<float>(0), *sum_l_ptr = sum_l.ptr<float>(0);
+            for(; gradient != gradient_end; ++gradient, ++sum_r_ptr, ++sum_l_ptr) {
+                float tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
+                float *hist_right_ptr_row_end = hist_right_ptr + hist_right.cols;
+                for(; hist_right_ptr != hist_right_ptr_row_end; ++hist_right_ptr, ++hist_left_ptr) {
+                    if(*sum_r_ptr == 0)
+                        hist_r = *hist_right_ptr;
+                    else
+                        hist_r = *hist_right_ptr/ *sum_r_ptr;
+
+                    if(*sum_l_ptr == 0)
+                        hist_l = *hist_left_ptr;
+                    else
+                        hist_l = *hist_left_ptr/ *sum_l_ptr;
+
+                    tmp1 = hist_r-hist_l;
+                    tmp2 = hist_r+hist_l;
+                    if(tmp2 < 0.00001)
+                        tmp2 = 1.0;
+
+                    tmp += 4.0*(tmp1*tmp1)/tmp2;
                 }
+                *gradient = tmp;
+            }
             return gradients;
         }
     };

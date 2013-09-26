@@ -150,11 +150,18 @@ namespace cv{
   void ucm2seg(const cv::Mat & ucm_mtr,
 	       cv::Mat & boundary,
 	       cv::Mat & labels,
-	       double thres)
+	       double thres,
+	       bool sz)
   {
-    boundary = cv::Mat(ucm_mtr.rows, ucm_mtr.cols, CV_8UC1);
-    labels   = cv::Mat(ucm_mtr.rows, ucm_mtr.cols, CV_8UC1);
+    bool flag = sz ? DOUBLE_SIZE : SINGLE_SIZE;
     
+    if(flag){
+      boundary = cv::Mat(ucm_mtr.rows/2, ucm_mtr.cols/2, CV_8UC1);
+      labels   = cv::Mat(ucm_mtr.rows/2, ucm_mtr.cols/2, CV_8UC1);
+    }else{
+      boundary = cv::Mat(ucm_mtr.rows, ucm_mtr.cols, CV_8UC1);
+      labels   = cv::Mat(ucm_mtr.rows, ucm_mtr.cols, CV_8UC1);
+    }
     cv::Mat_<uchar> bdry = cv::Mat_<uchar>(ucm_mtr.rows, ucm_mtr.cols);
     cv::Mat_<uchar> labs = cv::Mat_<uchar>(ucm_mtr.rows, ucm_mtr.cols);
 
@@ -165,7 +172,7 @@ namespace cv{
 	else
 	  labs(i,j) = 1;
       }
-    
+    /*
     int index = 1;
     for(size_t i=0; i<labs.rows; i++)
       for(size_t j=0; j<labs.cols; j++){
@@ -177,12 +184,16 @@ namespace cv{
 	  index++;
 	}
       }
-  
-    for(size_t i=0; i<boundary.rows; i++)
-      for(size_t j=0; j<boundary.rows; j++){
-	boundary.at<uchar>(i,j) = bdry(i*2, j*2);
-	labels.at<uchar>(i,j)   = labs(i*2, j*2);
-      }
-    cv::imshow("example", boundary);
+    */
+    if(flag){
+      for(size_t i=0; i<boundary.rows; i++)
+	for(size_t j=0; j<boundary.rows; j++){
+	  boundary.at<uchar>(i,j) = bdry(i*2, j*2);
+	  labels.at<uchar>(i,j)   = labs(i*2, j*2);
+	}
+    }else{
+      bdry.copyTo(boundary);
+      labs.copyTo(labels);
+    }
   }
 }

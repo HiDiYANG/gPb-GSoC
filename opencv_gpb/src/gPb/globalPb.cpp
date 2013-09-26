@@ -24,7 +24,7 @@ namespace
       weights[0] = 0.0;    weights[1] = 0.0;    weights[2] = 0.0039;
       weights[3] = 0.0050; weights[4] = 0.0058; weights[5] = 0.0069;
       weights[6] = 0.0040; weights[7] = 0.0044; weights[8] = 0.0049;
-      weights[9] = 0.0024; weights[10]= 0.0027; weights[11]= 0.0200;
+      weights[9] = 0.0024; weights[10]= 0.0027; weights[11]= 0.0180;
       weights[12]= 0.0074;
     }else{
       weights[0] = 0.0;    weights[1] = 0.0;    weights[2] = 0.0054;
@@ -112,6 +112,7 @@ namespace cv
     int radii[4] = {3, 5, 10, 20};
     
     vector<cv::Mat> filters;
+        
     filters.resize(3);
     cv::Mat color, grey, ones;
     cv::merge(layers, color);
@@ -167,8 +168,8 @@ namespace cv
     //parallel_for_gradients(layers, filters, gradients, n_ori, bins, radii);
 
     for(size_t i=0; i<gradients.size(); i++)
-      cv::gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, bins[i/9],
-			   filters[i/3-int(i>5)], gradients[i]);
+      cv::gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, 
+			   bins[i/9], filters[i/3-int(i>5)], gradients[i]);
   
     //clean up
     filters.clear();

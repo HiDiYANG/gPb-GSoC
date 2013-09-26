@@ -510,7 +510,7 @@ namespace cv
 		  }else
 		    hist_left(0, bin) += double(weights(x+r, y+r));
 		}
-                    
+
 	      convolver_right.conv(hist_right);
 	      convolver_left.conv(hist_left);
                     

@@ -28,6 +28,7 @@ namespace cv{
   void ucm2seg(const cv::Mat & ucm_mtr,
 	       cv::Mat & boundary,
 	       cv::Mat & labels,
-	       double thres);
+	       double thres,
+	       bool sz);
   
 }

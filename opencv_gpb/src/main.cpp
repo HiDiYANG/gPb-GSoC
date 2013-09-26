@@ -14,8 +14,10 @@
 
 using namespace std;
 
-cv::Mat markers, ucm2;
+cv::Mat markers, ucm2, bd, ll;
 cv::Point prev_pt(-1, -1);
+int thres;
+double c;
 
 void on_mouse( int event, int x, int y, int flags, void* param )
 {
@@ -38,6 +40,14 @@ void on_mouse( int event, int x, int y, int flags, void* param )
   }
 }
 
+void on_trackbar(int, void* )
+{
+  c = (double)thres/100-0.005;
+  if(c<0.0) c=0.0;
+  cv::ucm2seg(ucm2, bd, ll, c, SINGLE_SIZE);
+  cv::imshow("example", bd);
+}
+
 int main(int argc, char** argv){
 
   //info block
@@ -56,14 +66,17 @@ int main(int argc, char** argv){
   cv::globalPb(img0, gPb, gPb_thin, gPb_ori);
 
   // if you wanna conduct interactive segmentation later, choose DOUBLE_SIZE, otherwise SINGLE_SIZE will do either.
-  cv::contour2ucm(gPb, gPb_ori, ucm, DOUBLE_SIZE);
+  cv::contour2ucm(gPb, gPb_ori, ucm, SINGLE_SIZE);
   
   //back up
   markers = cv::Mat::zeros(ucm.size(), CV_8UC1);
   ucm.copyTo(ucm2);
-  cv::Mat bdry, labs;
-  cv::ucm2seg(ucm, bdry, labs, 0.6);
   
+  thres = 74;
+  cv::namedWindow("example", 1);
+  cv::createTrackbar("Precision :", "example", &thres, 100, on_trackbar);
+  on_trackbar(thres, 0 );
+
   cv::imshow("Original", img0);
   cv::imshow("gPb",  gPb);
   cv::imshow("gPb_thin", gPb_thin);

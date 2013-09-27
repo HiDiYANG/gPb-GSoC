@@ -18,6 +18,47 @@
 #include "Filters.h"
 using namespace std;
 
+// Define some classes for loop unrolling using template meta-programming
+// (that loop really is done a lot ...)
+template<int n>
+void histRow(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,
+          int *label_exp_ptr) {
+    if (*(slice_map_mask_ptr+n))
+        hist_right_ptr[*(label_exp_ptr+n)] += *(weight+n);
+    else
+        hist_left_ptr[*(label_exp_ptr+n)] += *(weight+n);
+    histRow<n-1>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
+}
+
+template<>
+void histRow<1>(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,
+             int *label_exp_ptr) {
+    if (*slice_map_mask_ptr)
+        hist_right_ptr[*label_exp_ptr] += *weight;
+    else
+        hist_left_ptr[*label_exp_ptr] += *weight;
+}
+
+template<int n, int k>
+class HistComputer {
+public:
+    static void compute(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,
+              int *label_exp_ptr, int label_cols) {
+        histRow<n>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
+        HistComputer<n,k-1>::compute(hist_right_ptr, hist_left_ptr, weight+n, slice_map_mask_ptr+n,
+              label_exp_ptr+label_cols, label_cols);
+    }
+};
+
+template<int n>
+class HistComputer<n,1> {
+public:
+    static void compute(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,
+                int *label_exp_ptr, int label_cols) {
+        histRow<n>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
+    }
+};
+
 namespace cv
 {
     /************************************
@@ -475,43 +516,69 @@ num_bins_(num_bins), r_(r) {
 num_bins_);
             cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(hist_left.size());
 
-            // Define the mask for the slice_map_mask
-            cv::Mat_<uchar> slice_map_mask(slice_map_.size());
-            const float *slice_map_ptr = slice_map_.ptr<float>(0), *slice_map_ptr_end = slice_map_ptr + 
-                slice_map_.total();
-            uchar *slice_map_mask_ptr = slice_map_mask.ptr<uchar>(0);
-            for(; slice_map_ptr != slice_map_ptr_end; ++slice_map_ptr, ++slice_map_mask_ptr)
-                *slice_map_mask_ptr = (*slice_map_ptr > oris_[idx]-180.0 && *slice_map_ptr <= oris_[idx]);
+            // Define the mask for the slice_map
+            cv::Mat_<uchar> slice_map_mask = slice_map_ > oris_[idx]-180.0 & slice_map_ <= oris_[idx];
 
             // Define all the histograms
+            uchar *slice_map_mask_ptr_start = slice_map_mask.ptr<uchar>(0);
+            float *weight_ptr_start = weights_.ptr<float>(0);
             for(int j=r_, k=0; j<label_exp_.rows-r_; ++j)
                 for(int i=r_; i<label_exp_.cols-r_; ++i, ++k) {
                     float *hist_right_ptr = hist_right.ptr<float>(k, 0);
                     float *hist_left_ptr = hist_left.ptr<float>(k, 0);
-                    uchar *slice_map_mask_ptr = slice_map_mask.ptr<uchar>(0);
-                    float *weight = weights_.ptr<float>(0);
                     int *label_exp_ptr_start = label_exp_.ptr<int>(j-r_, i-r_);
-                    int *label_exp_ptr_end = label_exp_.ptr<int>(j-r_, i+r_) + 1;
-                    int *label_exp_ptr_start_end = label_exp_.ptr<int>(j+r_, i-r_) + label_exp_.cols;
-                    // Build a histogram for specific coordinates
-                    for(; label_exp_ptr_start != label_exp_ptr_start_end; label_exp_ptr_start+=label_exp_.cols, 
-                            label_exp_ptr_end+=label_exp_.cols) {
-                        for(int *label_exp_ptr = label_exp_ptr_start; label_exp_ptr != label_exp_ptr_end; 
-                                ++label_exp_ptr, ++slice_map_mask_ptr, ++weight) {
-                            if (*slice_map_mask_ptr)
-                                hist_right_ptr[*label_exp_ptr] += *weight;
-                            else
-                                hist_left_ptr[*label_exp_ptr] += *weight;
+                    // Build a histogram for a given point
+                    switch(r_) {
+                        case 1:
+                            HistComputer<3,3>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
+                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+                            break;
+                        case 2:
+                            HistComputer<5,5>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
+                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+                            break;
+                        case 3:
+                            HistComputer<7,7>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
+                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+                            break;
+                        case 4:
+                            HistComputer<9,9>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
+                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+                            break;
+                        case 5:
+                            HistComputer<11,11>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
+                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+                            break;
+                        case 6:
+                            HistComputer<13,13>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
+                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+                            break;
+                        default:
+                        {
+                            // Generic less optimized case
+                            uchar *slice_map_mask_ptr = slice_map_mask_ptr_start;
+                            float *weight_ptr = weight_ptr_start;
+                            int *label_exp_ptr_end = label_exp_.ptr<int>(j-r_, i+r_) + 1;
+                            int *label_exp_ptr_start_end = label_exp_.ptr<int>(j+r_, i-r_) + label_exp_.cols;
+                            for(; label_exp_ptr_start != label_exp_ptr_start_end; label_exp_ptr_start+=label_exp_.cols, 
+                                    label_exp_ptr_end+=label_exp_.cols) {
+                                for(int *label_exp_ptr = label_exp_ptr_start; label_exp_ptr != label_exp_ptr_end; 
+                                        ++label_exp_ptr, ++slice_map_mask_ptr, ++weight_ptr)
+                                    if (*slice_map_mask_ptr)
+                                        hist_right_ptr[*label_exp_ptr] += *weight_ptr;
+                                    else
+                                        hist_left_ptr[*label_exp_ptr] += *weight_ptr;
+                                }
+                            break;
                         }
                     }
                 }
 
             // Smooth all the histograms
-            cv::filter2D(hist_right, hist_right, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, 
-cv::BORDER_CONSTANT);
-            cv::filter2D(hist_left, hist_left, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, 
-cv::BORDER_CONSTANT);
+            cv::filter2D(hist_right, hist_right, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
+            cv::filter2D(hist_left, hist_left, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
 
+            // Compute the distance between the histograms
             cv::Mat_<float> sum_r, sum_l;
             cv::reduce(hist_right, sum_r, 1, CV_REDUCE_SUM);
             cv::reduce(hist_left, sum_l, 1, CV_REDUCE_SUM);
@@ -520,6 +587,7 @@ cv::BORDER_CONSTANT);
             float *gradient = gradients.ptr<float>(0), *gradient_end = gradient + gradients.total();
             float *hist_right_ptr = hist_right.ptr<float>(0), *hist_left_ptr = hist_left.ptr<float>(0);
             float *sum_r_ptr = sum_r.ptr<float>(0), *sum_l_ptr = sum_l.ptr<float>(0);
+
             for(; gradient != gradient_end; ++gradient, ++sum_r_ptr, ++sum_l_ptr) {
                 float tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
                 float *hist_right_ptr_row_end = hist_right_ptr + hist_right.cols;

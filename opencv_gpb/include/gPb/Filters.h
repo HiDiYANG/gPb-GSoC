@@ -152,12 +152,4 @@ namespace cv
 		   int num_bins,
 		   std::vector<cv::Mat> & gradients);
 
-  //-----------------------------------------------
-  void 
-  parallel_for_gradient_hist_2D(const cv::Mat & label,
-				int r,
-				int n_ori,
-				int num_bins,
-				cv::Mat & gaussian_kernel,
-				std::vector<cv::Mat> & gradients);
 }

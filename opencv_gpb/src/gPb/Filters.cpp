@@ -31,32 +31,28 @@ void histRow(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *
 }
 
 template<>
-void histRow<1>(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,
-             int *label_exp_ptr) {
-    if (*slice_map_mask_ptr)
-        hist_right_ptr[*label_exp_ptr] += *weight;
-    else
-        hist_left_ptr[*label_exp_ptr] += *weight;
+void histRow<1>(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr, int *label_exp_ptr) {
+  if (*slice_map_mask_ptr)
+    hist_right_ptr[*label_exp_ptr] += *weight;
+  else
+    hist_left_ptr[*label_exp_ptr] += *weight;
 }
 
 template<int n, int k>
 class HistComputer {
 public:
-    static void compute(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,
-              int *label_exp_ptr, int label_cols) {
-        histRow<n>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
-        HistComputer<n,k-1>::compute(hist_right_ptr, hist_left_ptr, weight+n, slice_map_mask_ptr+n,
-              label_exp_ptr+label_cols, label_cols);
-    }
+  static void compute(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr, int *label_exp_ptr, int label_cols) {
+    histRow<n>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
+    HistComputer<n,k-1>::compute(hist_right_ptr, hist_left_ptr, weight+n, slice_map_mask_ptr+n, label_exp_ptr+label_cols, label_cols);
+  }
 };
 
 template<int n>
 class HistComputer<n,1> {
 public:
-    static void compute(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,
-                int *label_exp_ptr, int label_cols) {
-        histRow<n>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
-    }
+  static void compute(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,int *label_exp_ptr, int label_cols) {
+    histRow<n>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
+  }
 };
 
 namespace cv
@@ -475,10 +471,10 @@ namespace cv
         int size = 2*r+1;
         cv::Mat slice_map = cv::Mat::zeros(size, size, CV_32FC1);
         for (int i = 0, y = size/2; i < size; i++, y--)
-            for (int j = 0, x = -size/2; j < size; j++, x++) {
-                double ori = atan2(double(y), double(x));
-                slice_map.at<float>(i, j) = ori/M_PI*180.0;
-            }
+	  for (int j = 0, x = -size/2; j < size; j++, x++) {
+	    double ori = atan2(double(y), double(x));
+            slice_map.at<float>(i, j) = ori/M_PI*180.0;
+	  }
         return slice_map;
     }
 
@@ -486,133 +482,124 @@ namespace cv
      */
     class ParallelInvokerUnit {
     private:
-        double *oris_;
-        int num_bins_;
-        cv::Mat_<int> weights_;
-        cv::Mat_<int> label_exp_;
-        cv::Mat slice_map_;
-        cv::Mat gaussian_kernel_;
-        cv::Size label_size_;
-        int r_;
+      double *oris_;
+      int num_bins_;
+      cv::Mat_<int> weights_;
+      cv::Mat_<int> label_exp_;
+      cv::Mat slice_map_;
+      cv::Mat gaussian_kernel_;
+      cv::Size label_size_;
+      int r_;
     public:
-        ParallelInvokerUnit(int num_bins, size_t n_ori, int r, const cv::Mat & label, const cv::Mat &gaussian_kernel) : 
-num_bins_(num_bins), r_(r) {
-            label_size_ = label.size();
+      ParallelInvokerUnit(int num_bins, 
+			  size_t n_ori, 
+			  int r, 
+			  const cv::Mat & label, 
+			  const cv::Mat & gaussian_kernel) : 
+	num_bins_(num_bins), r_(r) 
+      {
+	label_size_ = label.size();
+	oris_ = standard_filter_orientations(n_ori, DEG);
+	slice_map_ = orientation_slice_map(r, n_ori);
 
-            oris_ = standard_filter_orientations(n_ori, DEG);
+        weights_ = weight_matrix_disc(r);
+	gaussian_kernel.copyTo(gaussian_kernel_);
+	cv::Mat label_exp;
+	cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
+	label_exp.convertTo(label_exp_, CV_32S);
+      }
 
-            slice_map_ = orientation_slice_map(r, n_ori);
+      cv::Mat_<float> operator() (const size_t &idx) {
+	cv::Mat_<float> hist_left = cv::Mat_<float>::zeros(label_size_.height*label_size_.width, num_bins_);
+	cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(hist_left.size());
 
-            weights_ = weight_matrix_disc(r);
-            gaussian_kernel.copyTo(gaussian_kernel_);
-            cv::Mat label_exp;
-            cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
-            label_exp.convertTo(label_exp_, CV_32S);
-        }
+	// Define the mask for the slice_map
+	cv::Mat_<uchar> slice_map_mask = slice_map_ > oris_[idx]-180.0 & slice_map_ <= oris_[idx];
 
-        cv::Mat_<float>
-        operator() (const size_t &idx) {
-            cv::Mat_<float> hist_left = cv::Mat_<float>::zeros(label_size_.height*label_size_.width, 
-num_bins_);
-            cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(hist_left.size());
+	// Define all the histograms
+	uchar *slice_map_mask_ptr_start = slice_map_mask.ptr<uchar>(0);
+	float *weight_ptr_start = weights_.ptr<float>(0);
+	for(int j=r_, k=0; j<label_exp_.rows-r_; ++j)
+	  for(int i=r_; i<label_exp_.cols-r_; ++i, ++k) {
+	    float *hist_right_ptr = hist_right.ptr<float>(k, 0);
+	    float *hist_left_ptr = hist_left.ptr<float>(k, 0);
+	    int *label_exp_ptr_start = label_exp_.ptr<int>(j-r_, i-r_);
+	    // Build a histogram for a given point
+	    switch(r_) {
+	    case 1:
+	      HistComputer<3,3>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+	      break;
+	    case 2:
+	      HistComputer<5,5>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+	      break;
+	    case 3:
+	      HistComputer<7,7>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+	      break;
+	    case 4:
+	      HistComputer<9,9>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+	      break;
+            case 5:
+	      HistComputer<11,11>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+	      break;
+	    case 6:
+	      HistComputer<13,13>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+	      break;
+	    default:
+	      {
+		// Generic less optimized case
+		uchar *slice_map_mask_ptr = slice_map_mask_ptr_start;
+		float *weight_ptr = weight_ptr_start;
+		int *label_exp_ptr_end = label_exp_.ptr<int>(j-r_, i+r_) + 1;
+		int *label_exp_ptr_start_end = label_exp_.ptr<int>(j+r_, i-r_) + label_exp_.cols;
+		for(; label_exp_ptr_start != label_exp_ptr_start_end; label_exp_ptr_start+=label_exp_.cols, label_exp_ptr_end+=label_exp_.cols) {
+		  for(int *label_exp_ptr = label_exp_ptr_start; label_exp_ptr != label_exp_ptr_end; ++label_exp_ptr, ++slice_map_mask_ptr, ++weight_ptr)
+		    if (*slice_map_mask_ptr)
+		      hist_right_ptr[*label_exp_ptr] += *weight_ptr;
+		    else
+		      hist_left_ptr[*label_exp_ptr] += *weight_ptr;
+		}
+		break;
+	      }
+	    }
+	  }
+	// Smooth all the histograms
+	cv::filter2D(hist_right, hist_right, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
+	cv::filter2D(hist_left, hist_left, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
 
-            // Define the mask for the slice_map
-            cv::Mat_<uchar> slice_map_mask = slice_map_ > oris_[idx]-180.0 & slice_map_ <= oris_[idx];
+	// Compute the distance between the histograms
+	cv::Mat_<float> sum_r, sum_l;
+	cv::reduce(hist_right, sum_r, 1, CV_REDUCE_SUM);
+        cv::reduce(hist_left, sum_l, 1, CV_REDUCE_SUM);
 
-            // Define all the histograms
-            uchar *slice_map_mask_ptr_start = slice_map_mask.ptr<uchar>(0);
-            float *weight_ptr_start = weights_.ptr<float>(0);
-            for(int j=r_, k=0; j<label_exp_.rows-r_; ++j)
-                for(int i=r_; i<label_exp_.cols-r_; ++i, ++k) {
-                    float *hist_right_ptr = hist_right.ptr<float>(k, 0);
-                    float *hist_left_ptr = hist_left.ptr<float>(k, 0);
-                    int *label_exp_ptr_start = label_exp_.ptr<int>(j-r_, i-r_);
-                    // Build a histogram for a given point
-                    switch(r_) {
-                        case 1:
-                            HistComputer<3,3>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
-                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-                            break;
-                        case 2:
-                            HistComputer<5,5>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
-                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-                            break;
-                        case 3:
-                            HistComputer<7,7>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
-                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-                            break;
-                        case 4:
-                            HistComputer<9,9>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
-                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-                            break;
-                        case 5:
-                            HistComputer<11,11>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
-                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-                            break;
-                        case 6:
-                            HistComputer<13,13>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start,
-                                                       slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-                            break;
-                        default:
-                        {
-                            // Generic less optimized case
-                            uchar *slice_map_mask_ptr = slice_map_mask_ptr_start;
-                            float *weight_ptr = weight_ptr_start;
-                            int *label_exp_ptr_end = label_exp_.ptr<int>(j-r_, i+r_) + 1;
-                            int *label_exp_ptr_start_end = label_exp_.ptr<int>(j+r_, i-r_) + label_exp_.cols;
-                            for(; label_exp_ptr_start != label_exp_ptr_start_end; label_exp_ptr_start+=label_exp_.cols, 
-                                    label_exp_ptr_end+=label_exp_.cols) {
-                                for(int *label_exp_ptr = label_exp_ptr_start; label_exp_ptr != label_exp_ptr_end; 
-                                        ++label_exp_ptr, ++slice_map_mask_ptr, ++weight_ptr)
-                                    if (*slice_map_mask_ptr)
-                                        hist_right_ptr[*label_exp_ptr] += *weight_ptr;
-                                    else
-                                        hist_left_ptr[*label_exp_ptr] += *weight_ptr;
-                                }
-                            break;
-                        }
-                    }
-                }
+	cv::Mat_<float> gradients(label_size_);
+	float *gradient = gradients.ptr<float>(0), *gradient_end = gradient + gradients.total();
+	float *hist_right_ptr = hist_right.ptr<float>(0), *hist_left_ptr = hist_left.ptr<float>(0);
+	float *sum_r_ptr = sum_r.ptr<float>(0), *sum_l_ptr = sum_l.ptr<float>(0);
 
-            // Smooth all the histograms
-            cv::filter2D(hist_right, hist_right, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
-            cv::filter2D(hist_left, hist_left, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
+	for(; gradient != gradient_end; ++gradient, ++sum_r_ptr, ++sum_l_ptr) {
+	  float tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
+	  float *hist_right_ptr_row_end = hist_right_ptr + hist_right.cols;
+	  for(; hist_right_ptr != hist_right_ptr_row_end; ++hist_right_ptr, ++hist_left_ptr) {
+	    if(*sum_r_ptr == 0)
+	      hist_r = *hist_right_ptr;
+	    else
+	      hist_r = *hist_right_ptr/ *sum_r_ptr;
 
-            // Compute the distance between the histograms
-            cv::Mat_<float> sum_r, sum_l;
-            cv::reduce(hist_right, sum_r, 1, CV_REDUCE_SUM);
-            cv::reduce(hist_left, sum_l, 1, CV_REDUCE_SUM);
+	    if(*sum_l_ptr == 0)
+	      hist_l = *hist_left_ptr;
+	    else
+	      hist_l = *hist_left_ptr/ *sum_l_ptr;
 
-            cv::Mat_<float> gradients(label_size_);
-            float *gradient = gradients.ptr<float>(0), *gradient_end = gradient + gradients.total();
-            float *hist_right_ptr = hist_right.ptr<float>(0), *hist_left_ptr = hist_left.ptr<float>(0);
-            float *sum_r_ptr = sum_r.ptr<float>(0), *sum_l_ptr = sum_l.ptr<float>(0);
-
-            for(; gradient != gradient_end; ++gradient, ++sum_r_ptr, ++sum_l_ptr) {
-                float tmp = 0.0, tmp1 = 0.0, tmp2 = 0.0, hist_r, hist_l;
-                float *hist_right_ptr_row_end = hist_right_ptr + hist_right.cols;
-                for(; hist_right_ptr != hist_right_ptr_row_end; ++hist_right_ptr, ++hist_left_ptr) {
-                    if(*sum_r_ptr == 0)
-                        hist_r = *hist_right_ptr;
-                    else
-                        hist_r = *hist_right_ptr/ *sum_r_ptr;
-
-                    if(*sum_l_ptr == 0)
-                        hist_l = *hist_left_ptr;
-                    else
-                        hist_l = *hist_left_ptr/ *sum_l_ptr;
-
-                    tmp1 = hist_r-hist_l;
-                    tmp2 = hist_r+hist_l;
-                    if(tmp2 < 0.00001)
-                        tmp2 = 1.0;
-
-                    tmp += 4.0*(tmp1*tmp1)/tmp2;
-                }
-                *gradient = tmp;
-            }
-            return gradients;
-        }
+            tmp1 = hist_r-hist_l;
+            tmp2 = hist_r+hist_l;
+	    if(tmp2 < 0.00001)
+	      tmp2 = 1.0;
+	    tmp += 4.0*(tmp1*tmp1)/tmp2;
+	  }
+          *gradient = tmp;
+	}
+	return gradients;
+      }
     };
 
     void
@@ -623,11 +610,11 @@ num_bins_);
                      cv::Mat & gaussian_kernel,
                      vector<cv::Mat> & gradients)
     {
-        ParallelInvokerUnit parallel_invoker_unit(num_bins, n_ori, r, label, gaussian_kernel);
+      ParallelInvokerUnit parallel_invoker_unit(num_bins, n_ori, r, label, gaussian_kernel);
 
-        gradients.resize(n_ori);
-        for(size_t idx = 0; idx < n_ori; idx++)
-            gradients[idx] = parallel_invoker_unit(idx);
+      gradients.resize(n_ori);
+      for(size_t idx = 0; idx < n_ori; idx++)
+	gradients[idx] = parallel_invoker_unit(idx);
     }
     
     void
@@ -641,48 +628,5 @@ num_bins_);
       cv::Mat impulse_resp = cv::Mat::zeros(1, length, CV_32FC1);
       impulse_resp.at<float>(0, (length-1)/2) = 1.0;
       gradient_hist_2D(label, r, n_ori, num_bins, impulse_resp, gradients);
-    }
-    
-    
-    //-------------------- Parallel Computation attempt ------------------------
-    
-    struct parallelInvoker{
-        const cv::Mat * label_ptr;
-        int r;
-        int num_bins;
-        cv::Mat * gaussian_kernel_ptr;
-        vector<cv::Mat> * gradients_ptr;
-        
-        void operator()(const cv::BlockedRange & range) const
-        {  
-            const cv::Mat & label = * label_ptr;
-            cv::Mat & gaussian_kernel = * gaussian_kernel_ptr;
-            vector<cv::Mat> & gradients = * gradients_ptr;
-            
-            gradients.resize(range.end());
-            
-            ParallelInvokerUnit parallel_invoker_unit(num_bins, range.end(), r, label, gaussian_kernel);
-            for(size_t idx = range.begin(); idx < range.end(); idx++)
-                gradients[idx] = parallel_invoker_unit(idx);
-        }
-    };
-    
-    void 
-    parallel_for_gradient_hist_2D(const cv::Mat & label,
-                                  int r,
-                                  int n_ori,
-                                  int num_bins,
-                                  cv::Mat & gaussian_kernel,
-                                  std::vector<cv::Mat> & gradients)
-    {
-        parallelInvoker parallel;
-        parallel.label_ptr = & label;
-        parallel.r = r;
-        parallel.num_bins = num_bins;
-        parallel.gaussian_kernel_ptr = & gaussian_kernel; 
-        parallel.gradients_ptr = & gradients;
-        int totalCols = n_ori;
-        cv::BlockedRange range(0, totalCols);
-        cv::parallel_for(range, parallel);
     }
 }

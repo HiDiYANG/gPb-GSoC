@@ -24,7 +24,7 @@ namespace
       weights[0] = 0.0;    weights[1] = 0.0;    weights[2] = 0.0039;
       weights[3] = 0.0050; weights[4] = 0.0058; weights[5] = 0.0069;
       weights[6] = 0.0040; weights[7] = 0.0044; weights[8] = 0.0049;
-      weights[9] = 0.0024; weights[10]= 0.0027; weights[11]= 0.0170;
+      weights[9] = 0.0024; weights[10]= 0.0027; weights[11]= 0.0185;
       weights[12]= 0.0074;
     }else{
       weights[0] = 0.0;    weights[1] = 0.0;    weights[2] = 0.0054;
@@ -57,46 +57,6 @@ namespace
 
 namespace cv
 {
-  struct parallelInvoker_gradients{
-    vector<cv::Mat> * layers_ptr;
-    vector<cv::Mat> * filters_ptr; 
-    vector<vector<cv::Mat> > * gradients_ptr;
-    int n_ori;
-    int * bins;
-    int * radii;
-    
-    void operator()(const cv::BlockedRange & range) const
-    {
-      vector<cv::Mat> & layers  = * layers_ptr;
-      vector<cv::Mat> & filters = * filters_ptr; 
-      vector<vector<cv::Mat> > & gradients = * gradients_ptr;
-
-      for(int idx=range.begin(); idx<range.end(); idx++)
-	parallel_for_gradient_hist_2D(layers[idx/3], radii[idx-(idx/3)*3+int(idx>2)], n_ori, bins[idx/9], filters[idx/3-int(idx>5)], gradients[idx]);  
-    }
-  };
-
-  void
-  parallel_for_gradients(vector<cv::Mat> & layers,
-			 vector<cv::Mat> & filters,
-			 vector<vector<cv::Mat> > & gradients,
-			 int n_ori,
-			 int * bins,
-			 int * radii)
-  {
-    parallelInvoker_gradients parallel;
-    parallel.layers_ptr  = & layers;
-    parallel.filters_ptr = & filters;
-    parallel.gradients_ptr = & gradients;
-    parallel.n_ori = n_ori;
-    parallel.bins = bins;
-    parallel.radii = radii;
-
-    int totalCols = gradients.size();
-    cv::BlockedRange range(0, totalCols);
-    cv::parallel_for(range, parallel);
-  }
-
   void
   pb_parts_final_selected(vector<cv::Mat> & layers,
 			  vector<vector<cv::Mat> > & gradients)

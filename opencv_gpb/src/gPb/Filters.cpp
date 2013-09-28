@@ -414,16 +414,16 @@ namespace cv
         textonFilters(n_ori, sigma_lg, filters_large);
         
         for(size_t i=0; i<2*n_ori+1; i++){
-            filters_small[i].copyTo(filters[i]);
-            filters_large[i].copyTo(filters[2*n_ori+1+i]);
+	  filters_small[i].copyTo(filters[i]);
+	  filters_large[i].copyTo(filters[2*n_ori+1+i]);
         }
         
         k_samples = cv::Mat::zeros(input.rows*input.cols, 4*n_ori+2, CV_32FC1);
         
         for(size_t idx=0; idx< 4*n_ori+2; idx++){
-            cv::filter2D(input, blur, CV_32F, filters[idx], cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
-            for(size_t i = 0; i<k_samples.rows; i++)
-                k_samples.at<float>(i, idx) = blur.at<float>(i%blur.rows, i/blur.rows);
+	  cv::filter2D(input, blur, CV_32F, filters[idx], cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+	  for(size_t i = 0; i<k_samples.rows; i++)
+	    k_samples.at<float>(i, idx) = blur.at<float>(i%blur.rows, i/blur.rows);
         }
         
         cv::kmeans(k_samples, Kmean_num, labels,
@@ -432,7 +432,7 @@ namespace cv
         
         output = cv::Mat::zeros(blur.rows, blur.cols, CV_32SC1);
         for(size_t i=0; i<labels.rows; i++)
-            output.at<int>(i%output.rows, i/output.rows)=labels.at<int>(i, 0);
+	  output.at<int>(i%output.rows, i/output.rows)=labels.at<int>(i, 0);
         output.convertTo(output, CV_32FC1);
     }
     

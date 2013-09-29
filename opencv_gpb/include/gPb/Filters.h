@@ -17,12 +17,14 @@
 #define OE_ODD 0
 #define RAD 1
 #define DEG 0
+#define TEXTON_FAST_ON 1
+#define TEXTON_FAST_OFF 0
 
 namespace cv
 {
-  /********************************************************************************
+  /*************************************
    * Hilbert Transform
-   ********************************************************************************/
+   *************************************/
   void
   convolveDFT(const cv::Mat & inputA,
 	      const cv::Mat & inputB,
@@ -131,10 +133,19 @@ namespace cv
   void
   textonRun(const cv::Mat & input,
 	    cv::Mat & output,
+            int n_ori,
+	    int Kmean_num,
+	    double sigma_sm,
+	    double sigma_lg);
+
+  void
+  textonRun(const cv::Mat & input,
+	    cv::Mat & output,
 	    int n_ori,
 	    int Kmean_num,
 	    double sigma_sm,
-	    double sigma_lg); 
+	    double sigma_lg,
+	    bool label); 
 
   //-----------------------------------------------
   void

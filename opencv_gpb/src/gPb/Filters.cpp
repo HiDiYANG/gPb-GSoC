@@ -414,8 +414,21 @@ namespace cv
               double sigma_sm,
               double sigma_lg)
     {
+      textonRun(input, output, n_ori, Kmean_num, sigma_sm, sigma_lg, TEXTON_FAST_OFF); 
+    }
+
+    void
+    textonRun(const cv::Mat & input,
+              cv::Mat & output,
+              int n_ori,
+              int Kmean_num,
+              double sigma_sm,
+              double sigma_lg,
+	      bool label)
+    {
+        bool flag = label ? TEXTON_FAST_ON : TEXTON_FAST_OFF;
         vector<cv::Mat> filters_small, filters_large, filters;
-        cv::Mat blur, labels, k_samples;
+        cv::Mat blur, temp, temp_dz, labels, k_samples;
         
         filters.resize(4*n_ori+2);
         textonFilters(n_ori, sigma_sm, filters_small);
@@ -426,10 +439,24 @@ namespace cv
 	  filters_large[i].copyTo(filters[2*n_ori+1+i]);
         }
         
-        k_samples = cv::Mat::zeros(input.rows*input.cols, 4*n_ori+2, CV_32FC1);
+	if(input.rows%2 == 1 && input.cols%2 == 0)
+	  cv::copyMakeBorder(input, temp, 0, 1, 0, 0, cv::BORDER_REFLECT);
+	else if(input.rows%2 == 0 && input.cols%2 == 1)
+	  cv::copyMakeBorder(input, temp, 0, 0, 0, 1, cv::BORDER_REFLECT);
+	else if(input.rows%2 == 1 && input.cols%2 == 1)
+	  cv::copyMakeBorder(input, temp, 0, 1, 0, 1, cv::BORDER_REFLECT);
+	else
+	  input.copyTo(temp);
+	
+	if(flag)
+	  cv::pyrDown(temp, temp_dz, cv::Size(temp.cols/2, temp.rows/2 ) );
+	else
+	  temp.copyTo(temp_dz);
+
+        k_samples = cv::Mat::zeros(temp_dz.rows*temp_dz.cols, 4*n_ori+2, CV_32FC1);
         
         for(size_t idx=0; idx< 4*n_ori+2; idx++){
-	  cv::filter2D(input, blur, CV_32F, filters[idx], cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
+	  cv::filter2D(temp_dz, blur, CV_32F, filters[idx], cv::Point(-1, -1), 0.0, cv::BORDER_REFLECT);
 	  for(size_t i = 0; i<k_samples.rows; i++)
 	    k_samples.at<float>(i, idx) = blur.at<float>(i%blur.rows, i/blur.rows);
         }
@@ -438,10 +465,24 @@ namespace cv
                    cv::TermCriteria(cv::TermCriteria::EPS, 10, 0.0001),
                    3, cv::KMEANS_PP_CENTERS);
         
-        output = cv::Mat::zeros(blur.rows, blur.cols, CV_32SC1);
+	temp_dz.convertTo(temp_dz, CV_32SC1);
+	
+	//temp_dz = cv::Mat::zeros(blur.rows, blur.cols, CV_32SC1);
+	//temp    = cv::Mat::zeros(temp_dz.rows*2, temp_dz.cols*2, CV_32SC1);
+        //output = cv::Mat::zeros(blur.rows, blur.cols, CV_32SC1);
         for(size_t i=0; i<labels.rows; i++)
-	  output.at<int>(i%output.rows, i/output.rows)=labels.at<int>(i, 0);
-        output.convertTo(output, CV_32FC1);
+	  temp_dz.at<int>(i%temp_dz.rows, i/temp_dz.rows)=labels.at<int>(i, 0);
+	temp_dz.convertTo(temp_dz, CV_32FC1);
+
+	if(flag)
+	  cv::pyrUp(temp_dz, temp, cv::Size(temp_dz.cols*2, temp_dz.rows*2));
+	else
+	  temp_dz.copyTo(temp);
+	
+	output = cv::Mat::zeros(input.rows, input.cols, CV_32FC1);
+	for(size_t i=0; i<input.rows; i++)
+	  for(size_t j=0; j<input.cols; j++)
+	    output.at<float>(i,j)=temp.at<float>(i,j);
     }
     
     cv::Mat_<int>
@@ -478,8 +519,8 @@ namespace cv
         return slice_map;
     }
 
-    /** Unit of computation used
-     */
+  /* Unit of computation used */
+
     class ParallelInvokerUnit {
     private:
       double *oris_;

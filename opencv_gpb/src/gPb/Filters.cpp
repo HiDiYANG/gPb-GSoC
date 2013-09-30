@@ -18,6 +18,38 @@
 #include "Filters.h"
 using namespace std;
 
+//Line histgram up and apply convolution to it once and for all.
+
+class DFTconvolver {
+public:
+    DFTconvolver(){};
+    DFTconvolver(int num_bins, const cv::Mat &gaussian_filter) : num_bins_(num_bins) {
+        width_ = cv::getOptimalDFTSize(num_bins + gaussian_filter.cols - 1);
+        cv::Mat TempB;
+        cv::copyMakeBorder(gaussian_filter, TempB, 0, 0, 0, width_ - gaussian_filter.cols - 1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+        cv::dft(TempB, filter_dft_, cv::DFT_ROWS, TempB.rows);
+    }
+    
+    void conv(cv::Mat & hist)
+    {
+        cv::Mat TempA;
+        int r=hist.rows, c=hist.cols;
+        
+        cv::copyMakeBorder(hist, TempA, 0, 0, 0, width_ - hist.cols - 1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+        cv::dft(TempA, TempA, cv::DFT_ROWS, TempA.rows);
+        cv::mulSpectrums(TempA, filter_dft_, TempA, cv::DFT_ROWS, false);
+        cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, TempA.rows);
+        
+        int W_o = (TempA.cols-c)/2;
+        TempA(cv::Rect(W_o, 0, c, r)).copyTo(hist);
+    }
+    
+private:
+    int num_bins_;
+    int width_;
+    cv::Mat filter_dft_;
+};
+
 // Define some classes for loop unrolling using template meta-programming
 // (that loop really is done a lot ...)
 template<int n>
@@ -44,7 +76,7 @@ public:
   static void compute(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr, int *label_exp_ptr, int label_cols) {
     histRow<n>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
     HistComputer<n,k-1>::compute(hist_right_ptr, hist_left_ptr, weight+n, slice_map_mask_ptr+n, label_exp_ptr+label_cols, label_cols);
-  }
+  } 
 };
 
 template<int n>
@@ -111,7 +143,9 @@ namespace cv
             else
                 hilbert.at<float>(0, i) = 1.0/(M_PI*double(m));
         }
-        convolveDFT(temp, hilbert, temp, label);
+	DFTconvolver hiltrans(temp.cols, hilbert);
+	hiltrans.conv(temp);
+        //convolveDFT(temp, hilbert, temp, label);
         if(input.cols == 1)
             cv::transpose(temp, temp);
         temp.copyTo(output);
@@ -414,7 +448,7 @@ namespace cv
               double sigma_sm,
               double sigma_lg)
     {
-      textonRun(input, output, n_ori, Kmean_num, sigma_sm, sigma_lg, TEXTON_FAST_OFF); 
+      textonRun(input, output, n_ori, Kmean_num, sigma_sm, sigma_lg, TEXTON_FAST_OFF);
     }
 
     void
@@ -531,6 +565,7 @@ namespace cv
       cv::Mat gaussian_kernel_;
       cv::Size label_size_;
       int r_;
+      DFTconvolver convolver;
     public:
       ParallelInvokerUnit(int num_bins, 
 			  size_t n_ori, 
@@ -548,6 +583,7 @@ namespace cv
 	cv::Mat label_exp;
 	cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
 	label_exp.convertTo(label_exp_, CV_32S);
+	convolver = DFTconvolver(num_bins_, gaussian_kernel_);
       }
 
       cv::Mat_<float> operator() (const size_t &idx) {
@@ -566,24 +602,28 @@ namespace cv
 	    float *hist_left_ptr = hist_left.ptr<float>(k, 0);
 	    int *label_exp_ptr_start = label_exp_.ptr<int>(j-r_, i-r_);
 	    // Build a histogram for a given point
+	      
 	    switch(r_) {
-	    case 1:
+	      /*case 1:
 	      HistComputer<3,3>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
 	      break;
 	    case 2:
 	      HistComputer<5,5>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-	      break;
+	      break;*/
 	    case 3:
 	      HistComputer<7,7>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
 	      break;
-	    case 4:
+	      /*case 4:
 	      HistComputer<9,9>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-	      break;
+	      break;*/
             case 5:
 	      HistComputer<11,11>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
 	      break;
-	    case 6:
-	      HistComputer<13,13>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+	    case 10:
+	      HistComputer<21,21>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
+	      break;
+	    case 20:
+	      HistComputer<41,41>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
 	      break;
 	    default:
 	      {
@@ -597,15 +637,25 @@ namespace cv
 		    if (*slice_map_mask_ptr)
 		      hist_right_ptr[*label_exp_ptr] += *weight_ptr;
 		    else
-		      hist_left_ptr[*label_exp_ptr] += *weight_ptr;
+		      hist_left_ptr[*label_exp_ptr]  += *weight_ptr;
 		}
 		break;
 	      }
 	    }
 	  }
 	// Smooth all the histograms
-	cv::filter2D(hist_right, hist_right, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
-	cv::filter2D(hist_left, hist_left, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
+	cv::Mat tempA, tempB;
+	for(size_t i=0; i<hist_right.rows; i++){
+	  hist_right.row(i).copyTo(tempA);
+	  hist_left.row(i).copyTo(tempB);
+	  convolver.conv(tempA);
+	  convolver.conv(tempB);
+	  tempA.copyTo(hist_right.row(i));
+	  tempB.copyTo(hist_left.row(i));
+	}
+	
+	//cv::filter2D(hist_right, hist_right, CV_32F, gaussian_full, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
+	//cv::filter2D(hist_left,  hist_left,  CV_32F, gaussian_full, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
 
 	// Compute the distance between the histograms
 	cv::Mat_<float> sum_r, sum_l;

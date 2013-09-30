@@ -122,7 +122,6 @@ namespace cv
     /********* END OF FILTERS INTIALIZATION ***************/
     cout<<" ---  computing texton ... "<<endl;
     cv::textonRun(grey, layers[3], n_ori, bins[1], sigma_tg_filt_sm, sigma_tg_filt_lg);
-
     cout<<" ---  computing bg cga cgb tg ... "<<endl;
     gradients.resize(layers.size()*3);
     //parallel_for_gradients(layers, filters, gradients, n_ori, bins, radii);

@@ -63,8 +63,8 @@ namespace cv
   {
     int n_ori  = 8;                           // number of orientations
     int length = 7;
-    double bg_smooth_sigma = 0.1;             // bg histogram smoothing sigma
-    double cg_smooth_sigma = 0.05;            // cg histogram smoothing sigma
+    double bg_smooth_sigma = 0.06;             // bg histogram smoothing sigma
+    double cg_smooth_sigma = 0.03;            // cg histogram smoothing sigma
     double sigma_tg_filt_sm = 2.0;            // sigma for small tg filters
     double sigma_tg_filt_lg = sqrt(2.0)*2.0;  // sigma for large tg filters
  

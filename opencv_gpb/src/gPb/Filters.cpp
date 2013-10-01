@@ -21,45 +21,44 @@ using namespace std;
 //Line histgram up and apply convolution to it once and for all.
 
 class DFTconvolver {
-public:
-    DFTconvolver(){};
-    DFTconvolver(int num_bins, const cv::Mat &gaussian_filter) : num_bins_(num_bins) {
-        width_ = cv::getOptimalDFTSize(num_bins + gaussian_filter.cols - 1);
-        cv::Mat TempB;
-        cv::copyMakeBorder(gaussian_filter, TempB, 0, 0, 0, width_ - gaussian_filter.cols - 1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-        cv::dft(TempB, filter_dft_, cv::DFT_ROWS, TempB.rows);
-    }
-    
-    void conv(cv::Mat & hist)
-    {
-        cv::Mat TempA;
-        int r=hist.rows, c=hist.cols;
-        
-        cv::copyMakeBorder(hist, TempA, 0, 0, 0, width_ - hist.cols - 1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-        cv::dft(TempA, TempA, cv::DFT_ROWS, TempA.rows);
-        cv::mulSpectrums(TempA, filter_dft_, TempA, cv::DFT_ROWS, false);
-        cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, TempA.rows);
-        
-        int W_o = (TempA.cols-c)/2;
-        TempA(cv::Rect(W_o, 0, c, r)).copyTo(hist);
-    }
-    
 private:
-    int num_bins_;
-    int width_;
-    cv::Mat filter_dft_;
+  int num_bins_;
+  int width_;
+  cv::Mat filter_dft_;
+
+public:
+  DFTconvolver(){};
+  DFTconvolver(int num_bins, const cv::Mat &gaussian_filter) : num_bins_(num_bins) {
+    width_ = cv::getOptimalDFTSize(num_bins + gaussian_filter.cols - 1);
+    cv::Mat TempB;
+    cv::copyMakeBorder(gaussian_filter, TempB, 0, 0, 0, width_ - gaussian_filter.cols - 1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::dft(TempB, filter_dft_, cv::DFT_ROWS, TempB.rows);
+  }
+    
+  void conv(cv::Mat & hist)
+  {
+    cv::Mat TempA;
+    int r=hist.rows, c=hist.cols;
+        
+    cv::copyMakeBorder(hist, TempA, 0, 0, 0, width_ - hist.cols - 1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+    cv::dft(TempA, TempA, cv::DFT_ROWS, TempA.rows);
+    cv::mulSpectrums(TempA, filter_dft_, TempA, cv::DFT_ROWS, false);
+    cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, TempA.rows);
+        
+    int W_o = (TempA.cols-c)/2;
+    TempA(cv::Rect(W_o, 0, c, r)).copyTo(hist);
+  }
 };
 
 // Define some classes for loop unrolling using template meta-programming
 // (that loop really is done a lot ...)
 template<int n>
-void histRow(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr,
-          int *label_exp_ptr) {
-    if (*(slice_map_mask_ptr+n))
-        hist_right_ptr[*(label_exp_ptr+n)] += *(weight+n);
-    else
-        hist_left_ptr[*(label_exp_ptr+n)] += *(weight+n);
-    histRow<n-1>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
+void histRow(float *hist_right_ptr, float *hist_left_ptr, float *weight, uchar *slice_map_mask_ptr, int *label_exp_ptr) {
+  if (*(slice_map_mask_ptr+n))
+    hist_right_ptr[*(label_exp_ptr+n-1)] += *(weight+n-1);
+  else
+    hist_left_ptr[*(label_exp_ptr+n-1)] += *(weight+n-1);
+  histRow<n-1>(hist_right_ptr, hist_left_ptr, weight, slice_map_mask_ptr, label_exp_ptr);
 }
 
 template<>
@@ -92,34 +91,6 @@ namespace cv
     /************************************
      * Hilbert Transform
      ************************************/
-    
-    void
-    convolveDFT(const cv::Mat & inputA,
-                const cv::Mat & inputB,
-                cv::Mat & output,
-                bool label)
-    {
-        bool flag = label? SAME_SIZE : EXPAND_SIZE;
-        cv::Mat TempA, TempB;
-        int r=inputA.rows, c=inputA.cols;
-        inputA.copyTo(TempA);
-        inputB.copyTo(TempB);
-        
-        int width = cv::getOptimalDFTSize(inputA.cols+inputB.cols-1);
-        cv::copyMakeBorder(TempA, TempA, 0, 0, 0, width-TempA.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-        cv::copyMakeBorder(TempB, TempB, 0, 0, 0, width-TempB.cols-1, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-        cv::dft(TempA, TempA, cv::DFT_ROWS, TempA.rows);
-        cv::dft(TempB, TempB, cv::DFT_ROWS, TempB.rows);
-        cv::mulSpectrums(TempA, TempB, TempA, cv::DFT_ROWS, false);
-        cv::dft(TempA, TempA, cv::DFT_INVERSE+cv::DFT_SCALE, TempA.rows);
-        
-        if(flag){
-	  int W_o = (TempA.cols-c)/2;
-	  TempA(cv::Rect(W_o, 0, c, r)).copyTo(output);
-        }
-        else
-	  TempA.copyTo(output);
-    }
     
     void
     hilbertTransform1D(const cv::Mat & input,
@@ -604,18 +575,18 @@ namespace cv
 	    // Build a histogram for a given point
 	      
 	    switch(r_) {
-	      /*case 1:
+	    case 1:
 	      HistComputer<3,3>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
 	      break;
 	    case 2:
 	      HistComputer<5,5>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-	      break;*/
+	      break;
 	    case 3:
 	      HistComputer<7,7>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
 	      break;
-	      /*case 4:
+	    case 4:
 	      HistComputer<9,9>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
-	      break;*/
+	      break;
             case 5:
 	      HistComputer<11,11>::compute(hist_right_ptr, hist_left_ptr, weight_ptr_start, slice_map_mask_ptr_start, label_exp_ptr_start, label_exp_.cols);
 	      break;
@@ -644,7 +615,7 @@ namespace cv
 	    }
 	  }
 	// Smooth all the histograms
-	cv::Mat tempA, tempB;
+	/*cv::Mat tempA, tempB;
 	for(size_t i=0; i<hist_right.rows; i++){
 	  hist_right.row(i).copyTo(tempA);
 	  hist_left.row(i).copyTo(tempB);
@@ -652,10 +623,10 @@ namespace cv
 	  convolver.conv(tempB);
 	  tempA.copyTo(hist_right.row(i));
 	  tempB.copyTo(hist_left.row(i));
-	}
+         }*/
 	
-	//cv::filter2D(hist_right, hist_right, CV_32F, gaussian_full, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
-	//cv::filter2D(hist_left,  hist_left,  CV_32F, gaussian_full, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
+	cv::filter2D(hist_right, hist_right, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
+	cv::filter2D(hist_left,  hist_left,  CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
 
 	// Compute the distance between the histograms
 	cv::Mat_<float> sum_r, sum_l;
@@ -702,7 +673,6 @@ namespace cv
                      vector<cv::Mat> & gradients)
     {
       ParallelInvokerUnit parallel_invoker_unit(num_bins, n_ori, r, label, gaussian_kernel);
-
       gradients.resize(n_ori);
       for(size_t idx = 0; idx < n_ori; idx++)
 	gradients[idx] = parallel_invoker_unit(idx);

@@ -16,20 +16,20 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA, or see http://www.gnu.org/copyleft/gpl.html.
 
-#ifndef PAIRWISE_H 
-#define PAIRWISE_H 
+#ifndef PAIRWISE_H
+#define PAIRWISE_H
 
 #include "smatrix.h"
 #include "ic.h"
 
 namespace Group
 {
-    //
-    // compute similarities for a subset of an image given by mask
-    //
-    void computeAffinities2(const SupportMap& ic, const float sigma, const float dthresh, SMatrix** affinity);
+//
+// compute similarities for a subset of an image given by mask
+//
+void computeAffinities2(const SupportMap& ic, const float sigma, const float dthresh, SMatrix** affinity);
 
 } //namespace Group
 
-#endif 
+#endif
 

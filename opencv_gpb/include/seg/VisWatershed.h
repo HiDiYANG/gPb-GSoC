@@ -12,28 +12,28 @@
 
 typedef struct CvWSNode
 {
-	struct CvWSNode* next;
-	int mask_ofs;
-	int img_ofs;
+    struct CvWSNode* next;
+    int mask_ofs;
+    int img_ofs;
 }
 CvWSNode;
 
 typedef struct CvWSQueue
 {
-	CvWSNode* first;
-	CvWSNode* last;
+    CvWSNode* first;
+    CvWSNode* last;
 }
 CvWSQueue;
 
 static CvWSNode* icvAllocWSNodes( CvMemStorage* storage );
- 
+
 void VisWatershed( const CvArr* srcarr,
-                         CvArr* dstarr,
+                   CvArr* dstarr,
                    int sz,
                    double C );
-namespace cv{
-  void viswatershed( InputArray _src, 
-		     InputOutputArray markers, 
-		     int sz, 
-		     double C);
+namespace cv {
+void viswatershed( InputArray _src,
+                   InputOutputArray markers,
+                   int sz,
+                   double C);
 }

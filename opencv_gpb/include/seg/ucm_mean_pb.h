@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>                                       
+#include <math.h>
 #include <float.h>
 #include <iostream>
 #include <deque>
@@ -16,9 +16,9 @@
 #define DOUBLE_SIZE 1
 #define SINGLE_SIZE 0
 
-namespace cv{
-  void ucm_mean_pb(const cv::Mat & input1,
-		   const cv::Mat & input2,
-		   cv::Mat & output,
-		   bool label);
+namespace cv {
+void ucm_mean_pb(const cv::Mat & input1,
+                 const cv::Mat & input2,
+                 cv::Mat & output,
+                 bool label);
 }

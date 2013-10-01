@@ -27,52 +27,52 @@
 //
 namespace Group
 {
-  // data types for storing sparse ic info
-  struct DualLattice
-  {
+// data types for storing sparse ic info
+struct DualLattice
+{
     cv::Mat H;
     cv::Mat V;
     int width;
     int height;
-  };
- 
+};
 
 
-  //
-  // the (1-ic) to a given point
-  //
-  struct PointIC
-  {
+
+//
+// the (1-ic) to a given point
+//
+struct PointIC
+{
     int x, y;
     float sim;
-  };
+};
 
-  //
-  // (1-ic) from each pixel to some set of neighbors
-  //
-  typedef Util::Array2D< Util::Array1D<PointIC> > SupportMap;
+//
+// (1-ic) from each pixel to some set of neighbors
+//
+typedef Util::Array2D< Util::Array1D<PointIC> > SupportMap;
 
-  //
-  // given a pb image and window radius, computes a support map (1-ic) for each
-  // pixel out to the given radius.
-  //
-  void computeSupport(const DualLattice& boundaries, const int wr, const float thresh, SupportMap& support);
- 
-  //
-  // given a pb image, a pixel (x0,y0), and a pb threshold, compute the intervening-contour
-  // weight to all pixels inside a given box of radius "wr" subject to the threshold "thresh".
-  // pb is max-accumulated along bresenham lines.  the result is stored in scanline order as
-  // an array of <PointIC>.
-  //
-  void interveningContour(const DualLattice& boundaries, const float thresh,
-                          const int x0, const int y0, const int wr,
-                          Util::Array1D<PointIC> &adj, int &count);
+//
+// given a pb image and window radius, computes a support map (1-ic) for each
+// pixel out to the given radius.
+//
+void computeSupport(const DualLattice& boundaries, const int wr, const float thresh, SupportMap& support);
 
-  //
-  // compute (1 - max over lattice energies on a straightline path connecting p1 and p2)
-  //
-  void interveningContour (const DualLattice& boundaries, const int x1, const int y1, 
-                           const int x2, const int y2, float& icsim);
+//
+// given a pb image, a pixel (x0,y0), and a pb threshold, compute the intervening-contour
+// weight to all pixels inside a given box of radius "wr" subject to the threshold "thresh".
+// pb is max-accumulated along bresenham lines.  the result is stored in scanline order as
+// an array of <PointIC>.
+//
+void interveningContour(const DualLattice& boundaries, const float thresh,
+                        const int x0, const int y0, const int wr,
+                        Util::Array1D<PointIC> &adj, int &count);
+
+//
+// compute (1 - max over lattice energies on a straightline path connecting p1 and p2)
+//
+void interveningContour (const DualLattice& boundaries, const int x1, const int y1,
+                         const int x2, const int y2, float& icsim);
 
 } //namespace Group
 

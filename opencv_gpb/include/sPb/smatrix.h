@@ -25,7 +25,7 @@
 
 class SMatrix
 {
-  public:
+public:
     SMatrix(int n, int* nz, int** col, double** values);
     ~SMatrix();
 

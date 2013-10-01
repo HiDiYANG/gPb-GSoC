@@ -31,44 +31,44 @@ SMatrix::SMatrix (int n, int* nz, int** col, double** values)
     this->values = values;
     int nnz = 0;
     for (int i = 0; i < n; i++)
-      nnz += nz[i];
+        nnz += nz[i];
     //printf("sparse matrix\n");//TODO what do with std spam?
     //Util::Message::debug(Util::String("creating sparse matrix with %d nonzero entries",nnz));
 }
 
 SMatrix::~SMatrix ()
 {
-  for (int i = 0; i < n; i++)
-  {
-    delete[] col[i];
-    delete[] values[i];
-  }
-  delete col;
-  delete values;
-  delete nz;
+    for (int i = 0; i < n; i++)
+    {
+        delete[] col[i];
+        delete[] values[i];
+    }
+    delete col;
+    delete values;
+    delete nz;
 }
 
 void SMatrix::symmetrize()
 {
-  int* tail = new int[n];  
-  memset(tail,0,n*sizeof(int));
-  for (int r = 0; r < n; r++) 
-  {
-    int offset = 0;
-    while ((offset < nz[r]) && (col[r][offset] < r+1))
+    int* tail = new int[n];
+    memset(tail,0,n*sizeof(int));
+    for (int r = 0; r < n; r++)
     {
-      offset++;
+        int offset = 0;
+        while ((offset < nz[r]) && (col[r][offset] < r+1))
+        {
+            offset++;
+        }
+        for (int i = offset; i < nz[r]; i++)
+        {
+            int c = col[r][i];
+            assert( col[c][tail[c]] == r );
+            double v_rc = values[r][i];
+            double v_cr = values[c][tail[c]];
+            values[r][i] = 0.5*(v_rc+v_cr);
+            values[c][tail[c]] = 0.5*(v_rc+v_cr);
+            tail[c]++;
+        }
     }
-    for (int i = offset; i < nz[r]; i++) 
-    {
-      int c = col[r][i];
-      assert( col[c][tail[c]] == r ); 
-      double v_rc = values[r][i];
-      double v_cr = values[c][tail[c]];
-      values[r][i] = 0.5*(v_rc+v_cr);
-      values[c][tail[c]] = 0.5*(v_rc+v_cr);
-      tail[c]++;
-    }
-  }  
 }
 

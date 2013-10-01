@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>                                       
+#include <math.h>
 #include <float.h>
 #include <assert.h>
 #include <string.h>
@@ -17,5 +17,5 @@
 
 namespace cv
 {
-  void buildW(const cv::Mat & input, double** &T, int & wz, double* &D);
+void buildW(const cv::Mat & input, double** &T, int & wz, double* &D);
 }

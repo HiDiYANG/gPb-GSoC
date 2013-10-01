@@ -15,10 +15,8 @@
 //
 //
 
-#include "Filters.h"
+#include "filters.h"
 using namespace std;
-
-//Line histgram up and apply convolution to it once and for all.
 
 class DFTconvolver {
 private:
@@ -615,6 +613,14 @@ namespace cv
 	    }
 	  }
 	// Smooth all the histograms
+	
+	cv::Mat tempA, tempB;
+	cv::copyMakeBorder(hist_left,  hist_left, 0, 0, 0, gaussian_kernel_.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+	cv::copyMakeBorder(hist_right, hist_right, 0, 0, 0, gaussian_kernel_.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+	tempA = hist_left.reshape(0,1);
+	tempB = hist_right.reshape(0,1);
+	cout<<"tempA: "<<tempA.rows<<", width: "<<tempA.cols<<endl;
+
 	/*cv::Mat tempA, tempB;
 	for(size_t i=0; i<hist_right.rows; i++){
 	  hist_right.row(i).copyTo(tempA);
@@ -676,18 +682,5 @@ namespace cv
       gradients.resize(n_ori);
       for(size_t idx = 0; idx < n_ori; idx++)
 	gradients[idx] = parallel_invoker_unit(idx);
-    }
-    
-    void
-    gradient_hist_2D(const cv::Mat & label,
-                     int r,
-                     int n_ori,
-                     int num_bins,
-                     vector<cv::Mat> & gradients)
-    {
-      int length = 7;
-      cv::Mat impulse_resp = cv::Mat::zeros(1, length, CV_32FC1);
-      impulse_resp.at<float>(0, (length-1)/2) = 1.0;
-      gradient_hist_2D(label, r, n_ori, num_bins, impulse_resp, gradients);
     }
 }

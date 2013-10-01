@@ -8,7 +8,7 @@
 //    
 //   
 
-#include "Filters.h"
+#include "filters.h"
 #include "globalPb.h"
 #include "buildW.h"
 #include "normCut.h"
@@ -24,7 +24,7 @@ namespace
       weights[0] = 0.0;    weights[1] = 0.0;    weights[2] = 0.0039;
       weights[3] = 0.0050; weights[4] = 0.0058; weights[5] = 0.0069;
       weights[6] = 0.0040; weights[7] = 0.0044; weights[8] = 0.0049;
-      weights[9] = 0.0024; weights[10]= 0.0027; weights[11]= 0.0185;
+      weights[9] = 0.0024; weights[10]= 0.0027; weights[11]= 0.0170;
       weights[12]= 0.0074;
     }else{
       weights[0] = 0.0;    weights[1] = 0.0;    weights[2] = 0.0054;
@@ -63,8 +63,8 @@ namespace cv
   {
     int n_ori  = 8;                           // number of orientations
     int length = 7;
-    double bg_smooth_sigma = 0.06;             // bg histogram smoothing sigma
-    double cg_smooth_sigma = 0.03;            // cg histogram smoothing sigma
+    double bg_smooth_sigma = 0.07;             // bg histogram smoothing sigma
+    double cg_smooth_sigma = 0.04;            // cg histogram smoothing sigma
     double sigma_tg_filt_sm = 2.0;            // sigma for small tg filters
     double sigma_tg_filt_lg = sqrt(2.0)*2.0;  // sigma for large tg filters
  
@@ -84,6 +84,7 @@ namespace cv
     cv::gaussianFilter1D(double(bins[0])*cg_smooth_sigma, 0, false, filters[1]);
     cv::transpose(filters[0], filters[0]);
     cv::transpose(filters[1], filters[1]);
+    // impluse filter
     filters[2] = cv::Mat::zeros(1, length, CV_32FC1);
     filters[2].at<float>(0, (length-1)/2) = 1.0;
     
@@ -120,21 +121,15 @@ namespace cv
     layers.resize(4);
 
     /********* END OF FILTERS INTIALIZATION ***************/
-    cout<<" ---  computing texton ... "<<endl;
+    cout<<" --->  computing texton ... "<<endl;
     cv::textonRun(grey, layers[3], n_ori, bins[1], sigma_tg_filt_sm, sigma_tg_filt_lg);
-    cout<<" ---  computing bg cga cgb tg ... "<<endl;
+    cout<<" --->  computing bg cga cgb tg ... "<<endl;
     gradients.resize(layers.size()*3);
     //parallel_for_gradients(layers, filters, gradients, n_ori, bins, radii);
 
     for(size_t i=0; i<gradients.size(); i++)
       cv::gradient_hist_2D(layers[i/3], radii[i-((i/3)*3-int(i>2))], n_ori, 
 			   bins[i/9], filters[i/3-int(i>5)], gradients[i]);
-  
-    //clean up
-    filters.clear();
-    color.release();
-    grey.release();
-    ones.release();
   }
   
   void
@@ -291,10 +286,6 @@ namespace cv
 	y = A*y;
 	kernel.at<float>(j,i) = y.at<float>(0,0);
       }
-
-    //clean up
-    A.release();
-    y.release();
   }
 
   void
@@ -346,9 +337,6 @@ namespace cv
     temp.copyTo(mPb_max);
 
     //clean up
-    kernel.release();
-    angles.release();
-    temp.release();
     delete[] weights;
     delete[] ori;
     layers.clear();
@@ -407,11 +395,6 @@ namespace cv
       eroded.copyTo(img_tmp);
     }while(nnz);
     cv::multiply(gPb_thin, bwskel, gPb_thin, 1.0);
-
-    //clean up
-    img_tmp.release();
-    eroded.release();
-    bwskel.release();
   }
 
   void sPb_gen(cv::Mat & mPb_max,
@@ -469,7 +452,6 @@ namespace cv
     //globalPb - gPb
     gPb_gen(mPb_max, weights, sPb, gradients, gPb_ori, gPb_thin, gPb);
     //clean up
-    mPb_max.release();
     sPb.clear();
     gradients.clear();
     delete[] weights;

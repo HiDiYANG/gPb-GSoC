@@ -32,7 +32,7 @@ _gPb_Weights(int nChannels)
         weights[9] = 0.0024;
         weights[10]= 0.0027;
         weights[11]= 0.0170;
-        weights[12]= 0.0174;
+        weights[12]= 0.0094;
     } else {
         weights[0] = 0.0;
         weights[1] = 0.0;

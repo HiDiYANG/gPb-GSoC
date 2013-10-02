@@ -534,7 +534,6 @@ private:
     cv::Mat gaussian_kernel_;
     cv::Size label_size_;
     int r_;
-    DFTconvolver convolver;
 public:
     ParallelInvokerUnit(int num_bins,
                         size_t n_ori,
@@ -552,11 +551,10 @@ public:
         cv::Mat label_exp;
         cv::copyMakeBorder(label, label_exp, r, r, r, r, cv::BORDER_REFLECT);
         label_exp.convertTo(label_exp_, CV_32S);
-        //convolver = DFTconvolver((num_bins_+gaussian_kernel_.cols)*label_size_.height*label_size_.width, gaussian_kernel_);
     }
 
     cv::Mat_<float> operator() (const size_t &idx) {
-        cv::Mat_<float> hist_left = cv::Mat_<float>::zeros(label_size_.height*label_size_.width, num_bins_+gaussian_kernel_.cols);
+        cv::Mat_<float> hist_left = cv::Mat_<float>::zeros(label_size_.height*label_size_.width, num_bins_);
         cv::Mat_<float> hist_right = cv::Mat_<float>::zeros(hist_left.size());
 
         // Define the mask for the slice_map
@@ -613,30 +611,6 @@ public:
                 }
             }
         // Smooth all the histograms
-
-        /*cv::Mat tempA, tempB, tempAA, tempBB;
-        int hist_H = hist_right.rows;
-        cout<<gaussian_kernel_.cols<<endl;
-        cv::copyMakeBorder(hist_right, tempA, 0, 0, 0, gaussian_kernel_.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-            cv::copyMakeBorder(hist_left, tempB, 0, 0, 0, gaussian_kernel_.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-        tempAA = tempA.reshape(0, 1);
-        tempBB = tempB.reshape(0, 1);*/
-        //convolver.conv(tempAA);
-        //convolver.conv(tempBB);
-        //tempA = tempAA.reshape(0, hist_H);
-        //tempB  = tempBB.reshape(0, hist_H);
-        //cout<<"rows: "<<tempA.rows<<", cols: "<<tempA.cols<<endl;
-
-        /*cv::Mat tempA, tempB;
-        for(size_t i=0; i<hist_right.rows; i++){
-          hist_right.row(i).copyTo(tempA);
-          hist_left.row(i).copyTo(tempB);
-          convolver.conv(tempA);
-          convolver.conv(tempB);
-          tempA.copyTo(hist_right.row(i));
-          tempB.copyTo(hist_left.row(i));
-             }*/
-
         cv::filter2D(hist_right, hist_right, CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
         cv::filter2D(hist_left,  hist_left,  CV_32F, gaussian_kernel_, cv::Point(-1,-1), 0, cv::BORDER_CONSTANT);
 

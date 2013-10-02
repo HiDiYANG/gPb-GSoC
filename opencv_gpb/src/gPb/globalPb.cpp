@@ -6,7 +6,6 @@
 //    and Willow Garage inc.
 //    All rights reserved.
 //
-//
 
 #include "filters.h"
 #include "globalPb.h"
@@ -33,7 +32,7 @@ _gPb_Weights(int nChannels)
         weights[9] = 0.0024;
         weights[10]= 0.0027;
         weights[11]= 0.0170;
-        weights[12]= 0.0074;
+        weights[12]= 0.0174;
     } else {
         weights[0] = 0.0;
         weights[1] = 0.0;
@@ -95,7 +94,7 @@ pb_parts_final_selected(vector<cv::Mat> & layers,
 {
     int n_ori  = 8;                           // number of orientations
     int length = 7;
-    double bg_smooth_sigma = 0.06;             // bg histogram smoothing sigma
+    double bg_smooth_sigma = 0.07;             // bg histogram smoothing sigma
     double cg_smooth_sigma = 0.04;            // cg histogram smoothing sigma
     double sigma_tg_filt_sm = 2.0;            // sigma for small tg filters
     double sigma_tg_filt_lg = sqrt(2.0)*2.0;  // sigma for large tg filters

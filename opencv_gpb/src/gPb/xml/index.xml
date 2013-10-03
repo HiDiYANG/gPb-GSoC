@@ -1,0 +1,262 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.8.5">
+  <compound refid="class_active" kind="class"><name>Active</name>
+    <member refid="class_active_1ab15a6be68f991b8eb03dd1cae2ff6fe1" kind="variable"><name>nrg</name></member>
+    <member refid="class_active_1a33e5f852c3c33cc8a1f681873592cffe" kind="variable"><name>lbl</name></member>
+    <member refid="class_active_1a4d3a99bd085ffea71f0b65719ad83b8c" kind="variable"><name>px</name></member>
+    <member refid="class_active_1aa276bfdc4f8f0ec3fd8a8a3a2cedab1e" kind="function"><name>Active</name></member>
+    <member refid="class_active_1a1ddd274e6e9b3a44e4ce6bbd91b2e88b" kind="function"><name>Active</name></member>
+    <member refid="class_active_1a6244df0e860a17ff536fea2e269267ba" kind="function"><name>operator&lt;</name></member>
+  </compound>
+  <compound refid="class_bdry__element" kind="class"><name>Bdry_element</name>
+    <member refid="class_bdry__element_1ac820109bd1bc8eaf1f12eb093cee3081" kind="variable"><name>coord</name></member>
+    <member refid="class_bdry__element_1add846f51d6741ac88c48cccfa9cc5525" kind="variable"><name>cc_neigh</name></member>
+    <member refid="class_bdry__element_1a568bd861459028f0d8e1fa1031818ae9" kind="function"><name>Bdry_element</name></member>
+    <member refid="class_bdry__element_1a612b41aebf6a50a9507bef5ebe002604" kind="function"><name>Bdry_element</name></member>
+    <member refid="class_bdry__element_1a5ba07ee54a593e73755e5fbd2bb50c38" kind="function"><name>Bdry_element</name></member>
+    <member refid="class_bdry__element_1a51f64b8f038de0e822b9bd7ddd53e557" kind="function"><name>~Bdry_element</name></member>
+    <member refid="class_bdry__element_1af771f88598557e4f22d1ee96267587e4" kind="function"><name>operator==</name></member>
+    <member refid="class_bdry__element_1a036edf96df84a91e07cc13fd78f715b5" kind="function"><name>operator&lt;</name></member>
+  </compound>
+  <compound refid="class_d_f_tconvolver" kind="class"><name>DFTconvolver</name>
+    <member refid="class_d_f_tconvolver_1a9b8e2969a6c75795a9593e4d79293068" kind="variable"><name>num_bins_</name></member>
+    <member refid="class_d_f_tconvolver_1ae9e4ed71e75df130805cb39f6c85d8fa" kind="variable"><name>width_</name></member>
+    <member refid="class_d_f_tconvolver_1a8e0c3d12b2b0354f86b4f7d74c8f2c5b" kind="variable"><name>filter_dft_</name></member>
+    <member refid="class_d_f_tconvolver_1ade762c2f6b43947989a7bd5dd848d9b5" kind="function"><name>DFTconvolver</name></member>
+    <member refid="class_d_f_tconvolver_1a5506408610ddd0b0d47056404c88018a" kind="function"><name>DFTconvolver</name></member>
+    <member refid="class_d_f_tconvolver_1adc03cd5d046d6599cfec85df627ef352" kind="function"><name>conv</name></member>
+  </compound>
+  <compound refid="class_hist_computer" kind="class"><name>HistComputer</name>
+    <member refid="class_hist_computer_1a66e8c4f1cab66728978dce7935cf82b9" kind="function"><name>compute</name></member>
+  </compound>
+  <compound refid="class_hist_computer_3_01n_00_011_01_4" kind="class"><name>HistComputer&lt; n, 1 &gt;</name>
+    <member refid="class_hist_computer_3_01n_00_011_01_4_1a7640671799dd78428353948fe50beb60" kind="function"><name>compute</name></member>
+  </compound>
+  <compound refid="class_neighbor___region" kind="class"><name>Neighbor_Region</name>
+    <member refid="class_neighbor___region_1aab19490469739da79d98b7cae51055f1" kind="variable"><name>energy</name></member>
+    <member refid="class_neighbor___region_1a480ba1ce31757f37d670f5b76716c4bd" kind="variable"><name>total_pb</name></member>
+    <member refid="class_neighbor___region_1a368586957c3d1cdea7a23222614bcc8b" kind="variable"><name>bdry_length</name></member>
+    <member refid="class_neighbor___region_1aa5d9a5ea38ed400834f935577e7961c8" kind="function"><name>Neighbor_Region</name></member>
+    <member refid="class_neighbor___region_1aece3de2323df70036dfeff71aea536eb" kind="function"><name>Neighbor_Region</name></member>
+    <member refid="class_neighbor___region_1a30a4f977e4353bcd5c18bc8c3958d4a3" kind="function"><name>Neighbor_Region</name></member>
+    <member refid="class_neighbor___region_1a6f114084416f05570632bbb3b973aa6f" kind="function"><name>~Neighbor_Region</name></member>
+  </compound>
+  <compound refid="class_order__node" kind="class"><name>Order_node</name>
+    <member refid="class_order__node_1a016fea4d6ada7d1e1a24eee281504429" kind="variable"><name>energy</name></member>
+    <member refid="class_order__node_1a8db01e0369ae72e902b32f549088e6ab" kind="variable"><name>region1</name></member>
+    <member refid="class_order__node_1a421bec7db1e1305778636dbe0262e9bd" kind="variable"><name>region2</name></member>
+    <member refid="class_order__node_1a76a220fd511fc0bc355f8757b8f0274f" kind="function"><name>Order_node</name></member>
+    <member refid="class_order__node_1a70fb9ce7d7d9de77fe26779a4d6f72de" kind="function"><name>Order_node</name></member>
+    <member refid="class_order__node_1a3273f34d435f2dea8da614dd791df41d" kind="function"><name>~Order_node</name></member>
+    <member refid="class_order__node_1aaad15c1d97118392489b078c9af95819" kind="function"><name>operator&lt;</name></member>
+  </compound>
+  <compound refid="classcv_1_1_parallel_invoker_unit" kind="class"><name>cv::ParallelInvokerUnit</name>
+    <member refid="classcv_1_1_parallel_invoker_unit_1aac3c74add8fb971bd2f69f805dd48f84" kind="variable"><name>oris_</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1aacf5507c1c6441790e51034ab0b63a71" kind="variable"><name>num_bins_</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1a6567d3850eeb8ab43f4d7e05573d2e20" kind="variable"><name>weights_</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1a9ebc4cbf64a1d38fffa25c8e61e7e266" kind="variable"><name>label_exp_</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1a7e19e79fb837e1f363afd4f2c702064a" kind="variable"><name>slice_map_</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1a5688f4780eeb1a426e4df47c4612479a" kind="variable"><name>gaussian_kernel_</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1ac0f76d4a8fc8332ad978b7cf773be9ff" kind="variable"><name>label_size_</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1ade21b3e673b56c12365d770644e5929a" kind="variable"><name>r_</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1ad79908823d73a42e594bd69e85a08d9f" kind="function"><name>ParallelInvokerUnit</name></member>
+    <member refid="classcv_1_1_parallel_invoker_unit_1a2b814687a03adf476d2864dde5a68602" kind="function"><name>operator()</name></member>
+  </compound>
+  <compound refid="class_region" kind="class"><name>Region</name>
+    <member refid="class_region_1ad99b29221d93ce976921830a9f072e04" kind="variable"><name>elements</name></member>
+    <member refid="class_region_1a5a1d4d94e64f0ac7ebdd731070510818" kind="variable"><name>neighbors</name></member>
+    <member refid="class_region_1a3ed6b3ca4f425d611b354d29583c4d23" kind="variable"><name>boundary</name></member>
+    <member refid="class_region_1aa8796c9b4ac95da7f7ca4f374673800c" kind="function"><name>Region</name></member>
+    <member refid="class_region_1a962a7ed95755781840b7a729b923a02a" kind="function"><name>Region</name></member>
+    <member refid="class_region_1a3c3670fff78f7511d156e3b2f0bc6266" kind="function"><name>~Region</name></member>
+    <member refid="class_region_1aea78b90c11970388e45110b65e6eb32e" kind="function"><name>merge</name></member>
+  </compound>
+  <compound refid="namespace@1" kind="namespace"><name>@1</name>
+  </compound>
+  <compound refid="namespace@10" kind="namespace"><name>@10</name>
+  </compound>
+  <compound refid="namespacecv" kind="namespace"><name>cv</name>
+    <member refid="namespacecv_1aeef64e097efaf6db648ca961bd0fa38c" kind="function"><name>hilbertTransform1D</name></member>
+    <member refid="namespacecv_1a7b83f622a3efd67abe7463b16cb409e3" kind="function"><name>standard_filter_orientations</name></member>
+    <member refid="namespacecv_1aef1fa5dce60b9b41233d4b65b47ef716" kind="function"><name>normalizeDistr</name></member>
+    <member refid="namespacecv_1a548e5ed23bd856e316441387b29fc12a" kind="function"><name>supportRotated</name></member>
+    <member refid="namespacecv_1a8afdf68049153feb308a9b9b35a6d5b2" kind="function"><name>rotate_2D_crop</name></member>
+    <member refid="namespacecv_1a17a0eb6347bdc08adfcb5fdd370831fc" kind="function"><name>rotate_2D</name></member>
+    <member refid="namespacecv_1af0f6383d823812c79cec847285fdb464" kind="function"><name>gaussianFilter1D</name></member>
+    <member refid="namespacecv_1a36c07accdfe5095f0329bdfb5504d64b" kind="function"><name>gaussianFilter1D</name></member>
+    <member refid="namespacecv_1a507ae3a62c233649f746fe6fb2186ff1" kind="function"><name>gaussianFilter2D</name></member>
+    <member refid="namespacecv_1ac952ba3bf54d53c216fda1231842bee9" kind="function"><name>gaussianFilter2D</name></member>
+    <member refid="namespacecv_1a19a5f0f03388a00a28201fbbb94ff115" kind="function"><name>gaussianFilter2D_cs</name></member>
+    <member refid="namespacecv_1a41b2e41e5f61cf01307ef44590a87e76" kind="function"><name>gaussianFilter2D_cs</name></member>
+    <member refid="namespacecv_1a2d34a54085940ad2e923d27c9cd20ba8" kind="function"><name>gaussianFilters</name></member>
+    <member refid="namespacecv_1aa2ef06ed767400d2dfc27323bf5abc60" kind="function"><name>oeFilters</name></member>
+    <member refid="namespacecv_1a22d299f13485a8894abd0cc809b63c3e" kind="function"><name>textonFilters</name></member>
+    <member refid="namespacecv_1a3d07346db48a77ec5d1133e5350716e1" kind="function"><name>textonRun</name></member>
+    <member refid="namespacecv_1ae0978876fa43533f6d307dc276b49908" kind="function"><name>textonRun</name></member>
+    <member refid="namespacecv_1aacfdccdb6f9fc93938046cac98efefa3" kind="function"><name>weight_matrix_disc</name></member>
+    <member refid="namespacecv_1ae78f986adb74b5fb051549424d1582af" kind="function"><name>orientation_slice_map</name></member>
+    <member refid="namespacecv_1a3ef2661d6c0a80ddbc656cda9e1b77d8" kind="function"><name>gradient_hist_2D</name></member>
+    <member refid="namespacecv_1aa0e4a3655494f0cc59f28ad899869e7f" kind="function"><name>pb_parts_final_selected</name></member>
+    <member refid="namespacecv_1a801d79f7c35eb663fddc41b07f58bc79" kind="function"><name>nonmax_oriented_2D</name></member>
+    <member refid="namespacecv_1a6d1637becf9182c643d497d6e3e268a0" kind="function"><name>MakeFilter</name></member>
+    <member refid="namespacecv_1a2b049252400d8b6970c24cf9c21f33fe" kind="function"><name>multiscalePb</name></member>
+    <member refid="namespacecv_1aa69ddcfe46da7bf64bb845fae06e0b34" kind="function"><name>gPb_gen</name></member>
+    <member refid="namespacecv_1a8682dd8c650868c5b3fc7720dee46140" kind="function"><name>sPb_gen</name></member>
+    <member refid="namespacecv_1aa341cb0eda36f9b7bc2614724a0ac82c" kind="function"><name>globalPb</name></member>
+    <member refid="namespacecv_1af538dbbd5bf26c2371e55ef3f6580b49" kind="function"><name>pb_normalize</name></member>
+    <member refid="namespacecv_1a77697bdd7fc4e7a88ee4e2415f760f5a" kind="function"><name>neighbor_exists_2D</name></member>
+    <member refid="namespacecv_1abaa6b181660ece2f7e4f7127ddcda915" kind="function"><name>neighbor_compare_2D</name></member>
+    <member refid="namespacecv_1aa11b0b16812691631f8a8b1bbfb4c0ef" kind="function"><name>is_vertex_2D</name></member>
+    <member refid="namespacecv_1a99484c2730211a2b441d9f4515da292f" kind="function"><name>super_contour</name></member>
+    <member refid="namespacecv_1aa90a48ea9c9b8519a1fc344448f50aab" kind="function"><name>clean_watersheds</name></member>
+    <member refid="namespacecv_1a17486495ab9236ae0000d6be228a69ec" kind="function"><name>rot90</name></member>
+    <member refid="namespacecv_1abeaef1ffc3a5909b9e41589423cc1a6b" kind="function"><name>to_8</name></member>
+    <member refid="namespacecv_1a8a6b1090b96cbc02c0c684db3f57b875" kind="function"><name>connected_component</name></member>
+    <member refid="namespacecv_1a65337aa2b8562a1bb3053e2b036f8041" kind="function"><name>contour_side</name></member>
+    <member refid="namespacecv_1a43f150f1dc0516a9ab94d5a1004ea054" kind="function"><name>fit_contour</name></member>
+    <member refid="namespacecv_1ad09616f2b6c371a617000037ffd379b1" kind="function"><name>creat_finest_partition</name></member>
+    <member refid="namespacecv_1ae09cf14763ffa4103b2665098c6950e3" kind="function"><name>contour2ucm</name></member>
+    <member refid="namespacecv_1a845f92f4fa72c157b8b2860233f5d837" kind="function"><name>complete_contour_map</name></member>
+    <member refid="namespacecv_1a766cea259f809466bc46046419408c5c" kind="function"><name>compute_ucm</name></member>
+    <member refid="namespacecv_1a82b2b44479cd406c9324bcf967b190a2" kind="function"><name>ucm_mean_pb</name></member>
+    <member refid="namespacecv_1aafcce8e577f8e3eefaf64c4af30891d0" kind="function"><name>UVT</name></member>
+    <member refid="namespacecv_1a8643acb111bff1b38051d91b044e4033" kind="function"><name>uvt</name></member>
+    <member refid="namespacecv_1a1855d79418858ed18298573b6d02bd9b" kind="function"><name>ucm2seg</name></member>
+    <member refid="namespacecv_1ad8c989479acc8ac3c425e92c232ba3b1" kind="function"><name>viswatershed</name></member>
+    <member refid="namespacecv_1afcd7c36733bfd752489105ba45134aa8" kind="function"><name>watershedFull</name></member>
+    <member refid="namespacecv_1ab1a89ed9a9478400509acfd95999bf51" kind="function"><name>buildW</name></member>
+    <member refid="namespacecv_1a0017e2c18f0f1ea3f442b5b0528b2f36" kind="function"><name>normalise_cut</name></member>
+  </compound>
+  <compound refid="namespace_group" kind="namespace"><name>Group</name>
+    <member refid="namespace_group_1a4f8d1ebe23c5faefc9d629cfbb32a9ae" kind="function"><name>C_IC_SS</name></member>
+    <member refid="namespace_group_1a6d32dc741371d75c2ce6bf8b1ab85dcd" kind="function"><name>computeAffinities2</name></member>
+    <member refid="namespace_group_1aa803cb8cad2af6745901867ed6538441" kind="function"><name>computeSupport</name></member>
+    <member refid="namespace_group_1aa399c49fd6f03bf27d1ae41d8e273f7f" kind="function"><name>ic_walk</name></member>
+    <member refid="namespace_group_1a160103f180f5398aa5d4790f132bba7c" kind="function"><name>interveningContour</name></member>
+  </compound>
+  <compound refid="namespacestd" kind="namespace"><name>std</name>
+  </compound>
+  <compound refid="filters_8cpp" kind="file"><name>filters.cpp</name>
+    <member refid="filters_8cpp_1a26b2cee9ba768d12c9452f43669c03e9" kind="function"><name>histRow</name></member>
+    <member refid="filters_8cpp_1ae33750ddf437e48c7bb777b302a255b5" kind="function"><name>histRow&lt; 1 &gt;</name></member>
+  </compound>
+  <compound refid="global_pb_8cpp" kind="file"><name>globalPb.cpp</name>
+  </compound>
+  <compound refid="dynsections_8js" kind="file"><name>dynsections.js</name>
+    <member refid="dynsections_8js_1a1922c462474df7dfd18741c961d59a25" kind="function"><name>toggleVisibility</name></member>
+    <member refid="dynsections_8js_1a8f7493ad859d4fbf2523917511ee7177" kind="function"><name>updateStripes</name></member>
+    <member refid="dynsections_8js_1a19f577cc1ba571396a85bb1f48bf4df2" kind="function"><name>toggleLevel</name></member>
+    <member refid="dynsections_8js_1af244da4527af2d845dca04f5656376cd" kind="function"><name>toggleFolder</name></member>
+    <member refid="dynsections_8js_1ac057b640b17ff32af11ced151c9305b4" kind="function"><name>toggleInherit</name></member>
+  </compound>
+  <compound refid="jquery_8js" kind="file"><name>jquery.js</name>
+    <member refid="jquery_8js_1a1d6558865876e1c8cca029fce41a4bdb" kind="variable"><name>bb</name></member>
+    <member refid="jquery_8js_1a38ee4c0b5f4fe2a18d0c783af540d253" kind="variable"><name>L</name></member>
+    <member refid="jquery_8js_1aa4026ad5544b958e54ce5e106fa1c805" kind="variable"><name>b</name></member>
+    <member refid="jquery_8js_1a4fd8ddfab07c8d7c7cae0ab0e052cad3" kind="variable"><name>au</name></member>
+    <member refid="jquery_8js_1a89ad527fcd82c01ebb587332f5b4fcd4" kind="variable"><name>css</name></member>
+    <member refid="jquery_8js_1a88b21f8ba3af86d6981b1da520ece33b" kind="variable"><name>curCSS</name></member>
+    <member refid="jquery_8js_1adc18d83abfd9f87d396e8fd6b6ac0fe1" kind="variable"><name>Z</name></member>
+    <member refid="jquery_8js_1ab26645c014aa005ecedef329ecf58c99" kind="variable"><name>k</name></member>
+    <member refid="jquery_8js_1a6ddf393cc7f9a8828e197bb0d9916c44" kind="variable"><name>ap</name></member>
+    <member refid="jquery_8js_1ae77642f8ef73fb9c20c2a737d956acda" kind="variable"><name>bs</name></member>
+    <member refid="jquery_8js_1af6ee77c71b2c89bdb365145ac5ad1219" kind="variable"><name>bq</name></member>
+    <member refid="jquery_8js_1ad223f5fba68c41c1236671ac5c5b0fcb" kind="variable"><name>aD</name></member>
+    <member refid="jquery_8js_1ac87125cdee1a5e57da4ef619af49bc7d" kind="variable"><name>aZ</name></member>
+    <member refid="jquery_8js_1a8cc6111a5def3ea889157d13fb9a9672" kind="variable"><name>aM</name></member>
+    <member refid="jquery_8js_1a79eb58dc6cdf0aef563d5dc1ded27df5" kind="variable"><name>aQ</name></member>
+    <member refid="jquery_8js_1abce695e0af988ece0826d9ad59b8160d" kind="variable"><name>c</name></member>
+    <member refid="jquery_8js_1aa3ec85d56639a2571aeff4d7e06f1190" kind="variable"><name>prototype</name></member>
+    <member refid="jquery_8js_1a8b88915d3d3a06e98248a89807b077fa" kind="variable"><name>V</name></member>
+    <member refid="jquery_8js_1a96709ee617c39629621377849b5e0a7f" kind="variable"><name>ad</name></member>
+    <member refid="jquery_8js_1a0544c3fe466e421738dae463968b70ba" kind="variable"><name>else</name></member>
+    <member refid="jquery_8js_1aa676d9980e4aff2d9210b4c8e0e1dad9" kind="variable"><name>jQuery</name></member>
+    <member refid="jquery_8js_1a04a8a2bbfa9c15500892b8e5033d625b" kind="variable"><name>window</name></member>
+    <member refid="jquery_8js_1ad0188a1a0e382f892522cfb7dafcc937" kind="function"><name>extend</name></member>
+    <member refid="jquery_8js_1a871ff39db627c54c710a3e9909b8234c" kind="function"><name>each</name></member>
+    <member refid="jquery_8js_1a9db6d45a025ad692282fe23e69eeba43" kind="function"><name>if</name></member>
+    <member refid="jquery_8js_1a2fa551895933fae935a0a6b87282241d" kind="function"><name>b</name></member>
+    <member refid="jquery_8js_1a30d3d2cd5b567c9f31b2aa30b9cb3bb8" kind="function"><name>if</name></member>
+    <member refid="jquery_8js_1a2c54bd8ed7482e89d19331ba61fe221c" kind="function"><name>if</name></member>
+    <member refid="jquery_8js_1a2335e57f79b6acfb6de59c235dc8a83e" kind="function"><name>p</name></member>
+    <member refid="jquery_8js_1a42cbfadee2b4749e8f699ea8d745a0e4" kind="function"><name>if</name></member>
+    <member refid="jquery_8js_1a6fc9115e5c9c910cae480abf0a8c7ae3" kind="function"><name>bh</name></member>
+    <member refid="jquery_8js_1a31b1c836ab707421c59d8f31b49a8f68" kind="function"><name>at</name></member>
+    <member refid="jquery_8js_1ab5b2b69c05d6a629ddd1deebef38735e" kind="function"><name>a0</name></member>
+    <member refid="jquery_8js_1a32214c73aa06d5951f5321466df68ad0" kind="function"><name>each</name></member>
+    <member refid="jquery_8js_1aa6142183da6ef351faf36761e8a8835b" kind="function"><name>extend</name></member>
+    <member refid="jquery_8js_1a4c3eadaa5164016d2c340d495fc6e55e" kind="function"><name>x</name></member>
+    <member refid="jquery_8js_1ad9fda9e3432e66926c2578b06f13525f" kind="function"><name>if</name></member>
+    <member refid="jquery_8js_1a7d370833f2145fc5f6c371e98d754eb4" kind="function"><name>aK</name></member>
+    <member refid="jquery_8js_1ab5582cce20b35070b73869356a852365" kind="function"><name>if</name></member>
+  </compound>
+  <compound refid="search_8js" kind="file"><name>search.js</name>
+    <member refid="search_8js_1a6250af3c9b54dee6efc5f55f40c78126" kind="variable"><name>indexSectionsWithContent</name></member>
+    <member refid="search_8js_1a77149ceed055c6c6ce40973b5bdc19ad" kind="variable"><name>indexSectionNames</name></member>
+    <member refid="search_8js_1a196a29bd5a5ee7cd5b485e0753a49e57" kind="function"><name>convertToId</name></member>
+    <member refid="search_8js_1a76d24aea0009f892f8ccc31d941c0a2b" kind="function"><name>getXPos</name></member>
+    <member refid="search_8js_1a8d7b405228661d7b6216b6925d2b8a69" kind="function"><name>getYPos</name></member>
+    <member refid="search_8js_1a52066106482f8136aa9e0ec859e8188f" kind="function"><name>SearchBox</name></member>
+    <member refid="search_8js_1a9189b9f7a32b6bc78240f40348f7fe03" kind="function"><name>SearchResults</name></member>
+    <member refid="search_8js_1a98192fa2929bb8e4b0a890a4909ab9b2" kind="function"><name>setKeyActions</name></member>
+    <member refid="search_8js_1a499422fc054a5278ae32801ec0082c56" kind="function"><name>setClassAttr</name></member>
+    <member refid="search_8js_1a6b2c651120de3ed1dcf0d85341d51895" kind="function"><name>createResults</name></member>
+  </compound>
+  <compound refid="main_8cpp" kind="file"><name>main.cpp</name>
+    <member refid="main_8cpp_1a05b547416b5858fa1010f335f4f664df" kind="variable"><name>markers</name></member>
+    <member refid="main_8cpp_1a90a6a30955402c6530fff09ef72bc07e" kind="variable"><name>ucm2</name></member>
+    <member refid="main_8cpp_1aaa050a25c0ca87cfbed1e8f477f15413" kind="variable"><name>bd</name></member>
+    <member refid="main_8cpp_1aec2a192ef6baed12b58ff00df5a74404" kind="variable"><name>ll</name></member>
+    <member refid="main_8cpp_1a7fb6298338d6337fbc0889a2eea1dffd" kind="variable"><name>thres</name></member>
+    <member refid="main_8cpp_1a2c09e929a6ea340fc9653cca414b11d3" kind="variable"><name>c</name></member>
+    <member refid="main_8cpp_1a9138416d9fb3f1a7751658219a20730f" kind="function"><name>prev_pt</name></member>
+    <member refid="main_8cpp_1a74122e84697f4d1e64e17c6d670c10c1" kind="function"><name>on_mouse</name></member>
+    <member refid="main_8cpp_1acd0f39dcf5b0ffd24eb1e258857fb739" kind="function"><name>on_trackbar</name></member>
+    <member refid="main_8cpp_1a3c04138a5bfe5d72780bb7e82a18e627" kind="function"><name>main</name></member>
+  </compound>
+  <compound refid="contour2ucm_8cpp" kind="file"><name>contour2ucm.cpp</name>
+    <member refid="contour2ucm_8cpp_1a0592dba56693fad79136250c11e5a7fe" kind="define"><name>MAX_SIZE</name></member>
+    <member refid="contour2ucm_8cpp_1a20fbe16d6207ef79123cdfa7ed36cf82" kind="function"><name>create_contour_vertex</name></member>
+    <member refid="contour2ucm_8cpp_1add1d1dae42397f624a3ee7939dd29912" kind="function"><name>create_contour_edge</name></member>
+  </compound>
+  <compound refid="ucm__mean__pb_8cpp" kind="file"><name>ucm_mean_pb.cpp</name>
+    <member refid="ucm__mean__pb_8cpp_1ac6d87147c5ddc58d27e3cc48f37d3a37" kind="define"><name>Order_node_h</name></member>
+    <member refid="ucm__mean__pb_8cpp_1a1d684937e6989a5a68690fb15e75fa74" kind="define"><name>Neighbor_Region_h</name></member>
+    <member refid="ucm__mean__pb_8cpp_1abe72655528071579f8fd24268d309d19" kind="define"><name>Bdry_element_h</name></member>
+    <member refid="ucm__mean__pb_8cpp_1a701d3c981fbc4af101c0e5b35fbd5a95" kind="define"><name>Region_h</name></member>
+  </compound>
+  <compound refid="uvt_8cpp" kind="file"><name>uvt.cpp</name>
+    <member refid="uvt_8cpp_1a50378e42b2f7af2ff4f6e62f17a15526" kind="define"><name>Active_h</name></member>
+  </compound>
+  <compound refid="_vis_watershed_8cpp" kind="file"><name>VisWatershed.cpp</name>
+    <member refid="_vis_watershed_8cpp_1a6e311f45583d6c9405d9cad89a7fdea1" kind="define"><name>ws_max</name></member>
+    <member refid="_vis_watershed_8cpp_1a4ac5492bd82f56d48cbebf0e64c58af8" kind="define"><name>ws_min</name></member>
+    <member refid="_vis_watershed_8cpp_1a373493dd00fa3ba606071742a14c7809" kind="define"><name>ws_push</name></member>
+    <member refid="_vis_watershed_8cpp_1ac1a6698319d8b06d1bff845a9a78bb17" kind="define"><name>ws_pop</name></member>
+    <member refid="_vis_watershed_8cpp_1a1593b65179fccb42ac2d3f973334cc68" kind="define"><name>c_diff</name></member>
+    <member refid="_vis_watershed_8cpp_1a9ae597b8a30e139ea55a7143ffb815e6" kind="function"><name>icvAllocWSNodes</name></member>
+    <member refid="_vis_watershed_8cpp_1adc43aec8d286f315d156d6f80b8c1d8b" kind="function"><name>VisWatershed</name></member>
+  </compound>
+  <compound refid="watershed_8cpp" kind="file"><name>watershed.cpp</name>
+  </compound>
+  <compound refid="affinity_8cpp" kind="file"><name>affinity.cpp</name>
+  </compound>
+  <compound refid="build_w_8cpp" kind="file"><name>buildW.cpp</name>
+  </compound>
+  <compound refid="ic_8cpp" kind="file"><name>ic.cpp</name>
+  </compound>
+  <compound refid="norm_cut_8cpp" kind="file"><name>normCut.cpp</name>
+  </compound>
+  <compound refid="smatrix_8cpp" kind="file"><name>smatrix.cpp</name>
+  </compound>
+  <compound refid="dir_a27263171cbcaaa42e80e83d75fc7f3b" kind="dir"><name>gPb</name>
+  </compound>
+  <compound refid="dir_2dae0a562653f78d59931f0e4b070746" kind="dir"><name>html</name>
+  </compound>
+  <compound refid="dir_ddeed1b19b98904c6aa1b48c4ffa871b" kind="dir"><name>html/search</name>
+  </compound>
+  <compound refid="dir_8ee72cf9686030b4ce6461a715d9a7d1" kind="dir"><name>seg</name>
+  </compound>
+  <compound refid="dir_0bfd064db6aae7ca79164b510a35caf1" kind="dir"><name>sPb</name>
+  </compound>
+</doxygenindex>

@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.5">
+  <compounddef id="class_region" kind="class" prot="public">
+    <compoundname>Region</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="class_region_1ad99b29221d93ce976921830a9f072e04" prot="public" static="no" mutable="no">
+        <type>list&lt; int &gt;</type>
+        <definition>list&lt;int&gt; Region::elements</definition>
+        <argsstring></argsstring>
+        <name>elements</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="139" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_region_1a5a1d4d94e64f0ac7ebdd731070510818" prot="public" static="no" mutable="no">
+        <type>map&lt; int, <ref refid="class_neighbor___region" kindref="compound">Neighbor_Region</ref>, less&lt; int &gt; &gt;</type>
+        <definition>map&lt;int, Neighbor_Region, less&lt;int&gt; &gt; Region::neighbors</definition>
+        <argsstring></argsstring>
+        <name>neighbors</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="140" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_region_1a3ed6b3ca4f425d611b354d29583c4d23" prot="public" static="no" mutable="no">
+        <type>list&lt; <ref refid="class_bdry__element" kindref="compound">Bdry_element</ref> &gt;</type>
+        <definition>list&lt;Bdry_element&gt; Region::boundary</definition>
+        <argsstring></argsstring>
+        <name>boundary</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="141" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_region_1aa8796c9b4ac95da7f7ca4f374673800c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Region::Region</definition>
+        <argsstring>()</argsstring>
+        <name>Region</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="143" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="143" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="class_region_1a962a7ed95755781840b7a729b923a02a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Region::Region</definition>
+        <argsstring>(const int &amp;l)</argsstring>
+        <name>Region</name>
+        <param>
+          <type>const int &amp;</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="145" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="145" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="class_region_1a3c3670fff78f7511d156e3b2f0bc6266" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Region::~Region</definition>
+        <argsstring>()</argsstring>
+        <name>~Region</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="149" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="149" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="class_region_1aea78b90c11970388e45110b65e6eb32e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Region::merge</definition>
+        <argsstring>(Region &amp;r, int *labels, const int &amp;label, double *ucm, const double &amp;saliency, const int &amp;son, const int &amp;tx)</argsstring>
+        <name>merge</name>
+        <param>
+          <type><ref refid="class_region" kindref="compound">Region</ref> &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int *</type>
+          <declname>labels</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>label</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>ucm</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>saliency</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>son</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>tx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="151" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="155" bodyend="218"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="137" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="136" bodyend="153"/>
+    <listofallmembers>
+      <member refid="class_region_1a3ed6b3ca4f425d611b354d29583c4d23" prot="public" virt="non-virtual"><scope>Region</scope><name>boundary</name></member>
+      <member refid="class_region_1ad99b29221d93ce976921830a9f072e04" prot="public" virt="non-virtual"><scope>Region</scope><name>elements</name></member>
+      <member refid="class_region_1aea78b90c11970388e45110b65e6eb32e" prot="public" virt="non-virtual"><scope>Region</scope><name>merge</name></member>
+      <member refid="class_region_1a5a1d4d94e64f0ac7ebdd731070510818" prot="public" virt="non-virtual"><scope>Region</scope><name>neighbors</name></member>
+      <member refid="class_region_1aa8796c9b4ac95da7f7ca4f374673800c" prot="public" virt="non-virtual"><scope>Region</scope><name>Region</name></member>
+      <member refid="class_region_1a962a7ed95755781840b7a729b923a02a" prot="public" virt="non-virtual"><scope>Region</scope><name>Region</name></member>
+      <member refid="class_region_1a3c3670fff78f7511d156e3b2f0bc6266" prot="public" virt="non-virtual"><scope>Region</scope><name>~Region</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

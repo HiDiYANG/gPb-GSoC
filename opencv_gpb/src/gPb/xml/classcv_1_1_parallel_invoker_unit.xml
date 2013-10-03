@@ -1,0 +1,181 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.5">
+  <compounddef id="classcv_1_1_parallel_invoker_unit" kind="class" prot="public">
+    <compoundname>cv::ParallelInvokerUnit</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classcv_1_1_parallel_invoker_unit_1aac3c74add8fb971bd2f69f805dd48f84" prot="private" static="no" mutable="no">
+        <type>double *</type>
+        <definition>double* cv::ParallelInvokerUnit::oris_</definition>
+        <argsstring></argsstring>
+        <name>oris_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="529" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="529" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcv_1_1_parallel_invoker_unit_1aacf5507c1c6441790e51034ab0b63a71" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int cv::ParallelInvokerUnit::num_bins_</definition>
+        <argsstring></argsstring>
+        <name>num_bins_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="530" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="530" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcv_1_1_parallel_invoker_unit_1a6567d3850eeb8ab43f4d7e05573d2e20" prot="private" static="no" mutable="no">
+        <type>cv::Mat_&lt; int &gt;</type>
+        <definition>cv::Mat_&lt;int&gt; cv::ParallelInvokerUnit::weights_</definition>
+        <argsstring></argsstring>
+        <name>weights_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="531" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="531" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcv_1_1_parallel_invoker_unit_1a9ebc4cbf64a1d38fffa25c8e61e7e266" prot="private" static="no" mutable="no">
+        <type>cv::Mat_&lt; int &gt;</type>
+        <definition>cv::Mat_&lt;int&gt; cv::ParallelInvokerUnit::label_exp_</definition>
+        <argsstring></argsstring>
+        <name>label_exp_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="532" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="532" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcv_1_1_parallel_invoker_unit_1a7e19e79fb837e1f363afd4f2c702064a" prot="private" static="no" mutable="no">
+        <type>cv::Mat</type>
+        <definition>cv::Mat cv::ParallelInvokerUnit::slice_map_</definition>
+        <argsstring></argsstring>
+        <name>slice_map_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="533" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="533" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcv_1_1_parallel_invoker_unit_1a5688f4780eeb1a426e4df47c4612479a" prot="private" static="no" mutable="no">
+        <type>cv::Mat</type>
+        <definition>cv::Mat cv::ParallelInvokerUnit::gaussian_kernel_</definition>
+        <argsstring></argsstring>
+        <name>gaussian_kernel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="534" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="534" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcv_1_1_parallel_invoker_unit_1ac0f76d4a8fc8332ad978b7cf773be9ff" prot="private" static="no" mutable="no">
+        <type>cv::Size</type>
+        <definition>cv::Size cv::ParallelInvokerUnit::label_size_</definition>
+        <argsstring></argsstring>
+        <name>label_size_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="535" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="535" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcv_1_1_parallel_invoker_unit_1ade21b3e673b56c12365d770644e5929a" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int cv::ParallelInvokerUnit::r_</definition>
+        <argsstring></argsstring>
+        <name>r_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="536" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="536" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classcv_1_1_parallel_invoker_unit_1ad79908823d73a42e594bd69e85a08d9f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>cv::ParallelInvokerUnit::ParallelInvokerUnit</definition>
+        <argsstring>(int num_bins, size_t n_ori, int r, const cv::Mat &amp;label, const cv::Mat &amp;gaussian_kernel)</argsstring>
+        <name>ParallelInvokerUnit</name>
+        <param>
+          <type>int</type>
+          <declname>num_bins</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_ori</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>label</declname>
+        </param>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>gaussian_kernel</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="538" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="538" bodyend="554"/>
+      </memberdef>
+      <memberdef kind="function" id="classcv_1_1_parallel_invoker_unit_1a2b814687a03adf476d2864dde5a68602" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>cv::Mat_&lt; float &gt;</type>
+        <definition>cv::Mat_&lt;float&gt; cv::ParallelInvokerUnit::operator()</definition>
+        <argsstring>(const size_t &amp;idx)</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const size_t &amp;</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="556" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="556" bodyend="650"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="527" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="527" bodyend="651"/>
+    <listofallmembers>
+      <member refid="classcv_1_1_parallel_invoker_unit_1a5688f4780eeb1a426e4df47c4612479a" prot="private" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>gaussian_kernel_</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1a9ebc4cbf64a1d38fffa25c8e61e7e266" prot="private" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>label_exp_</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1ac0f76d4a8fc8332ad978b7cf773be9ff" prot="private" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>label_size_</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1aacf5507c1c6441790e51034ab0b63a71" prot="private" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>num_bins_</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1a2b814687a03adf476d2864dde5a68602" prot="public" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>operator()</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1aac3c74add8fb971bd2f69f805dd48f84" prot="private" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>oris_</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1ad79908823d73a42e594bd69e85a08d9f" prot="public" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>ParallelInvokerUnit</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1ade21b3e673b56c12365d770644e5929a" prot="private" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>r_</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1a7e19e79fb837e1f363afd4f2c702064a" prot="private" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>slice_map_</name></member>
+      <member refid="classcv_1_1_parallel_invoker_unit_1a6567d3850eeb8ab43f4d7e05573d2e20" prot="private" virt="non-virtual"><scope>cv::ParallelInvokerUnit</scope><name>weights_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

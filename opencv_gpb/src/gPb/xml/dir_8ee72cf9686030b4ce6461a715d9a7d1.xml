@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.5">
+  <compounddef id="dir_8ee72cf9686030b4ce6461a715d9a7d1" kind="dir">
+    <compoundname>seg</compoundname>
+    <innerfile refid="contour2ucm_8cpp">contour2ucm.cpp</innerfile>
+    <innerfile refid="ucm__mean__pb_8cpp">ucm_mean_pb.cpp</innerfile>
+    <innerfile refid="uvt_8cpp">uvt.cpp</innerfile>
+    <innerfile refid="_vis_watershed_8cpp">VisWatershed.cpp</innerfile>
+    <innerfile refid="watershed_8cpp">watershed.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1480 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.5">
+  <compounddef id="namespacecv" kind="namespace">
+    <compoundname>cv</compoundname>
+    <innerclass refid="classcv_1_1_parallel_invoker_unit" prot="public">cv::ParallelInvokerUnit</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespacecv_1aeef64e097efaf6db648ca961bd0fa38c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::hilbertTransform1D</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output, bool label)</argsstring>
+        <name>hilbertTransform1D</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="94" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="94" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a7b83f622a3efd67abe7463b16cb409e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double *</type>
+        <definition>double* cv::standard_filter_orientations</definition>
+        <argsstring>(int n_ori, bool label)</argsstring>
+        <name>standard_filter_orientations</name>
+        <param>
+          <type>int</type>
+          <declname>n_ori</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="131" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="131" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aef1fa5dce60b9b41233d4b65b47ef716" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::normalizeDistr</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output, bool label)</argsstring>
+        <name>normalizeDistr</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="154" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="154" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a548e5ed23bd856e316441387b29fc12a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int cv::supportRotated</definition>
+        <argsstring>(int x, int y, double ori, bool label)</argsstring>
+        <name>supportRotated</name>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ori</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="172" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="172" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a8afdf68049153feb308a9b9b35a6d5b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::rotate_2D_crop</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output, double ori, int len_cols, int len_rows, bool label)</argsstring>
+        <name>rotate_2D_crop</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ori</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>len_cols</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>len_rows</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="193" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="193" bodyend="221"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a17a0eb6347bdc08adfcb5fdd370831fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::rotate_2D</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output, double ori, bool label)</argsstring>
+        <name>rotate_2D</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ori</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="223" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="223" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1af0f6383d823812c79cec847285fdb464" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gaussianFilter1D</definition>
+        <argsstring>(int half_len, double sigma, int deriv, bool label, cv::Mat &amp;output)</argsstring>
+        <name>gaussianFilter1D</name>
+        <param>
+          <type>int</type>
+          <declname>half_len</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>deriv</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="237" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="237" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a36c07accdfe5095f0329bdfb5504d64b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gaussianFilter1D</definition>
+        <argsstring>(double sigma, int deriv, bool hlbrt, cv::Mat &amp;output)</argsstring>
+        <name>gaussianFilter1D</name>
+        <param>
+          <type>double</type>
+          <declname>sigma</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>deriv</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>hlbrt</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="268" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="268" bodyend="275"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a507ae3a62c233649f746fe6fb2186ff1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gaussianFilter2D</definition>
+        <argsstring>(int half_len, double ori, double sigma_x, double sigma_y, int deriv, bool hlbrt, cv::Mat &amp;output)</argsstring>
+        <name>gaussianFilter2D</name>
+        <param>
+          <type>int</type>
+          <declname>half_len</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ori</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>deriv</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>hlbrt</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="279" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="279" bodyend="305"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1ac952ba3bf54d53c216fda1231842bee9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gaussianFilter2D</definition>
+        <argsstring>(double ori, double sigma_x, double sigma_y, int deriv, bool hlbrt, cv::Mat &amp;output)</argsstring>
+        <name>gaussianFilter2D</name>
+        <param>
+          <type>double</type>
+          <declname>ori</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_y</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>deriv</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>hlbrt</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="309" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="309" bodyend="321"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a19a5f0f03388a00a28201fbbb94ff115" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gaussianFilter2D_cs</definition>
+        <argsstring>(int half_len, double sigma_x, double sigma_y, double scale_factor, cv::Mat &amp;output)</argsstring>
+        <name>gaussianFilter2D_cs</name>
+        <param>
+          <type>int</type>
+          <declname>half_len</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_y</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>scale_factor</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="325" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="325" bodyend="338"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a41b2e41e5f61cf01307ef44590a87e76" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gaussianFilter2D_cs</definition>
+        <argsstring>(double sigma_x, double sigma_y, double scale_factor, cv::Mat &amp;output)</argsstring>
+        <name>gaussianFilter2D_cs</name>
+        <param>
+          <type>double</type>
+          <declname>sigma_x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_y</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>scale_factor</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="341" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="341" bodyend="350"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a2d34a54085940ad2e923d27c9cd20ba8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gaussianFilters</definition>
+        <argsstring>(int n_ori, double sigma, int deriv, bool hlbrt, double enlongation, vector&lt; cv::Mat &gt; &amp;filters)</argsstring>
+        <name>gaussianFilters</name>
+        <param>
+          <type>int</type>
+          <declname>n_ori</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>deriv</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>hlbrt</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>enlongation</declname>
+        </param>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>filters</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="354" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="354" bodyend="368"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aa2ef06ed767400d2dfc27323bf5abc60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::oeFilters</definition>
+        <argsstring>(int n_ori, double sigma, vector&lt; cv::Mat &gt; &amp;filters, bool label)</argsstring>
+        <name>oeFilters</name>
+        <param>
+          <type>int</type>
+          <declname>n_ori</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma</declname>
+        </param>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>filters</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="372" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="372" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a22d299f13485a8894abd0cc809b63c3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::textonFilters</definition>
+        <argsstring>(int n_ori, double sigma, vector&lt; cv::Mat &gt; &amp;filters)</argsstring>
+        <name>textonFilters</name>
+        <param>
+          <type>int</type>
+          <declname>n_ori</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma</declname>
+        </param>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>filters</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="386" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="386" bodyend="406"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a3d07346db48a77ec5d1133e5350716e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::textonRun</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output, int n_ori, int Kmean_num, double sigma_sm, double sigma_lg)</argsstring>
+        <name>textonRun</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n_ori</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>Kmean_num</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_sm</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_lg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="413" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="413" bodyend="421"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1ae0978876fa43533f6d307dc276b49908" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::textonRun</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output, int n_ori, int Kmean_num, double sigma_sm, double sigma_lg, bool label)</argsstring>
+        <name>textonRun</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n_ori</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>Kmean_num</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_sm</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sigma_lg</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="424" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="424" bodyend="489"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aacfdccdb6f9fc93938046cac98efefa3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>cv::Mat_&lt; int &gt;</type>
+        <definition>cv::Mat_&lt;int&gt; cv::weight_matrix_disc</definition>
+        <argsstring>(int r)</argsstring>
+        <name>weight_matrix_disc</name>
+        <param>
+          <type>int</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="492" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="492" bodyend="506"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1ae78f986adb74b5fb051549424d1582af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>cv::Mat</type>
+        <definition>cv::Mat cv::orientation_slice_map</definition>
+        <argsstring>(int r, int n_ori)</argsstring>
+        <name>orientation_slice_map</name>
+        <param>
+          <type>int</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n_ori</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="511" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="511" bodyend="523"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a3ef2661d6c0a80ddbc656cda9e1b77d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gradient_hist_2D</definition>
+        <argsstring>(const cv::Mat &amp;label, int r, int n_ori, int num_bins, cv::Mat &amp;gaussian_kernel, vector&lt; cv::Mat &gt; &amp;gradients)</argsstring>
+        <name>gradient_hist_2D</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>label</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n_ori</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num_bins</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>gaussian_kernel</declname>
+        </param>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>gradients</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="654" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" bodystart="654" bodyend="665"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aa0e4a3655494f0cc59f28ad899869e7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::pb_parts_final_selected</definition>
+        <argsstring>(vector&lt; cv::Mat &gt; &amp;layers, vector&lt; vector&lt; cv::Mat &gt; &gt; &amp;gradients)</argsstring>
+        <name>pb_parts_final_selected</name>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>layers</declname>
+        </param>
+        <param>
+          <type>vector&lt; vector&lt; cv::Mat &gt; &gt; &amp;</type>
+          <declname>gradients</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" line="92" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" bodystart="92" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a801d79f7c35eb663fddc41b07f58bc79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::nonmax_oriented_2D</definition>
+        <argsstring>(const cv::Mat &amp;mPb_max, const cv::Mat &amp;index, cv::Mat &amp;output, double o_tol)</argsstring>
+        <name>nonmax_oriented_2D</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>mPb_max</declname>
+        </param>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>o_tol</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" line="167" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" bodystart="167" bodyend="353"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a6d1637becf9182c643d497d6e3e268a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::MakeFilter</definition>
+        <argsstring>(const int radii, const double theta, cv::Mat &amp;kernel)</argsstring>
+        <name>MakeFilter</name>
+        <param>
+          <type>const int</type>
+          <declname>radii</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>theta</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>kernel</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" line="356" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" bodystart="356" bodyend="398"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a2b049252400d8b6970c24cf9c21f33fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::multiscalePb</definition>
+        <argsstring>(const cv::Mat &amp;image, cv::Mat &amp;mPb_max, vector&lt; vector&lt; cv::Mat &gt; &gt; &amp;gradients)</argsstring>
+        <name>multiscalePb</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>image</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>mPb_max</declname>
+        </param>
+        <param>
+          <type>vector&lt; vector&lt; cv::Mat &gt; &gt; &amp;</type>
+          <declname>gradients</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" line="401" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" bodystart="401" bodyend="453"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aa69ddcfe46da7bf64bb845fae06e0b34" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::gPb_gen</definition>
+        <argsstring>(const cv::Mat &amp;mPb_max, const double *weights, const vector&lt; cv::Mat &gt; &amp;sPb, vector&lt; vector&lt; cv::Mat &gt; &gt; &amp;gradients, vector&lt; cv::Mat &gt; &amp;gPb_ori, cv::Mat &amp;gPb_thin, cv::Mat &amp;gPb)</argsstring>
+        <name>gPb_gen</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>mPb_max</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>weights</declname>
+        </param>
+        <param>
+          <type>const vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>sPb</declname>
+        </param>
+        <param>
+          <type>vector&lt; vector&lt; cv::Mat &gt; &gt; &amp;</type>
+          <declname>gradients</declname>
+        </param>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>gPb_ori</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>gPb_thin</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>gPb</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" line="455" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" bodystart="455" bodyend="507"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a8682dd8c650868c5b3fc7720dee46140" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::sPb_gen</definition>
+        <argsstring>(cv::Mat &amp;mPb_max, vector&lt; cv::Mat &gt; &amp;sPb)</argsstring>
+        <name>sPb_gen</name>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>mPb_max</declname>
+        </param>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>sPb</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" line="509" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" bodystart="509" bodyend="539"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aa341cb0eda36f9b7bc2614724a0ac82c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::globalPb</definition>
+        <argsstring>(const cv::Mat &amp;image, cv::Mat &amp;gPb, cv::Mat &amp;gPb_thin, vector&lt; cv::Mat &gt; &amp;gPb_ori)</argsstring>
+        <name>globalPb</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>image</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>gPb</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>gPb_thin</declname>
+        </param>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>gPb_ori</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" line="542" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/globalPb.cpp" bodystart="542" bodyend="567"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1af538dbbd5bf26c2371e55ef3f6580b49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::pb_normalize</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output)</argsstring>
+        <name>pb_normalize</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="63" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="63" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a77697bdd7fc4e7a88ee4e2415f760f5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::neighbor_exists_2D</definition>
+        <argsstring>(const int *pos, const int size_x, const int size_y, cv::Mat &amp;mask)</argsstring>
+        <name>neighbor_exists_2D</name>
+        <param>
+          <type>const int *</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>size_x</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>size_y</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>mask</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="81" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="81" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1abaa6b181660ece2f7e4f7127ddcda915" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::neighbor_compare_2D</definition>
+        <argsstring>(const int *pos, const cv::Mat &amp;labels, const cv::Mat &amp;mask, cv::Mat &amp;mask_cmp)</argsstring>
+        <name>neighbor_compare_2D</name>
+        <param>
+          <type>const int *</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>labels</declname>
+        </param>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>mask</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>mask_cmp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="113" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="113" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aa11b0b16812691631f8a8b1bbfb4c0ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool cv::is_vertex_2D</definition>
+        <argsstring>(const cv::Mat &amp;mask_cmp)</argsstring>
+        <name>is_vertex_2D</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>mask_cmp</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="128" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="128" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a99484c2730211a2b441d9f4515da292f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::super_contour</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output)</argsstring>
+        <name>super_contour</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="184" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="184" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aa90a48ea9c9b8519a1fc344448f50aab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::clean_watersheds</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output, cv::Mat &amp;labels)</argsstring>
+        <name>clean_watersheds</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>labels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="212" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="212" bodyend="368"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a17486495ab9236ae0000d6be228a69ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::rot90</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output, int flag)</argsstring>
+        <name>rot90</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flag</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="370" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="370" bodyend="384"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1abeaef1ffc3a5909b9e41589423cc1a6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::to_8</definition>
+        <argsstring>(const cv::Mat &amp;input, cv::Mat &amp;output)</argsstring>
+        <name>to_8</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="386" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="386" bodyend="397"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a8a6b1090b96cbc02c0c684db3f57b875" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int cv::connected_component</definition>
+        <argsstring>(const cv::Mat &amp;ws_bw, cv::Mat &amp;labels)</argsstring>
+        <name>connected_component</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>ws_bw</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>labels</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="400" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="400" bodyend="448"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a65337aa2b8562a1bb3053e2b036f8041" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::contour_side</definition>
+        <argsstring>(const cv::Mat &amp;ws_bw, cv::Mat &amp;labels, cv::Mat &amp;_is_edge, cv::Mat &amp;_is_vertex, cv::Mat &amp;_assignment, vector&lt; contour_vertex &gt; &amp;_vertices, vector&lt; contour_edge &gt; &amp;_edges)</argsstring>
+        <name>contour_side</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>ws_bw</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>labels</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>_is_edge</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>_is_vertex</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>_assignment</declname>
+        </param>
+        <param>
+          <type>vector&lt; contour_vertex &gt; &amp;</type>
+          <declname>_vertices</declname>
+        </param>
+        <param>
+          <type>vector&lt; contour_edge &gt; &amp;</type>
+          <declname>_edges</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="450" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="450" bodyend="700"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a43f150f1dc0516a9ab94d5a1004ea054" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::fit_contour</definition>
+        <argsstring>(const cv::Mat &amp;ws_bw, cv::Mat &amp;labels, cv::Mat &amp;_is_edge, cv::Mat &amp;_is_vertex, cv::Mat &amp;edges_endpoints, vector&lt; contour_vertex &gt; &amp;_vertices, vector&lt; contour_edge &gt; &amp;_edges)</argsstring>
+        <name>fit_contour</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>ws_bw</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>labels</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>_is_edge</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>_is_vertex</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>edges_endpoints</declname>
+        </param>
+        <param>
+          <type>vector&lt; contour_vertex &gt; &amp;</type>
+          <declname>_vertices</declname>
+        </param>
+        <param>
+          <type>vector&lt; contour_edge &gt; &amp;</type>
+          <declname>_edges</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="702" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="702" bodyend="720"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1ad09616f2b6c371a617000037ffd379b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::creat_finest_partition</definition>
+        <argsstring>(const cv::Mat &amp;gPb, const vector&lt; cv::Mat &gt; &amp;gPb_ori, cv::Mat &amp;ws_wt)</argsstring>
+        <name>creat_finest_partition</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>gPb</declname>
+        </param>
+        <param>
+          <type>const vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>gPb_ori</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>ws_wt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="722" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="722" bodyend="793"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1ae09cf14763ffa4103b2665098c6950e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::contour2ucm</definition>
+        <argsstring>(const cv::Mat &amp;gPb, const vector&lt; cv::Mat &gt; &amp;gPb_ori, cv::Mat &amp;ucm, bool label)</argsstring>
+        <name>contour2ucm</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>gPb</declname>
+        </param>
+        <param>
+          <type>const vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>gPb_ori</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>ucm</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" line="795" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/contour2ucm.cpp" bodystart="795" bodyend="814"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a845f92f4fa72c157b8b2860233f5d837" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::complete_contour_map</definition>
+        <argsstring>(double *ucm, const int &amp;txc, const int &amp;tyc)</argsstring>
+        <name>complete_contour_map</name>
+        <param>
+          <type>double *</type>
+          <declname>ucm</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>txc</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>tyc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="225" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="225" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a766cea259f809466bc46046419408c5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::compute_ucm</definition>
+        <argsstring>(double *local_boundaries, int *initial_partition, const int &amp;totcc, double *ucm, const int &amp;tx, const int &amp;ty)</argsstring>
+        <name>compute_ucm</name>
+        <param>
+          <type>double *</type>
+          <declname>local_boundaries</declname>
+        </param>
+        <param>
+          <type>int *</type>
+          <declname>initial_partition</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>totcc</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>ucm</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>ty</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="250" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="251" bodyend="397"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a82b2b44479cd406c9324bcf967b190a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::ucm_mean_pb</definition>
+        <argsstring>(const cv::Mat &amp;input1, const cv::Mat &amp;input2, cv::Mat &amp;output, bool label)</argsstring>
+        <name>ucm_mean_pb</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input1</declname>
+        </param>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input2</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>label</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" line="401" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/ucm_mean_pb.cpp" bodystart="401" bodyend="444"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1aafcce8e577f8e3eefaf64c4af30891d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::UVT</definition>
+        <argsstring>(double *ucm, double *markers, const int &amp;tx, const int &amp;ty, double *labels, double *boundaries)</argsstring>
+        <name>UVT</name>
+        <param>
+          <type>double *</type>
+          <declname>ucm</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>markers</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>ty</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>labels</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>boundaries</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="48" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="48" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a8643acb111bff1b38051d91b044e4033" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::uvt</definition>
+        <argsstring>(const cv::Mat &amp;ucm_mtr, const cv::Mat &amp;seeds, cv::Mat &amp;boundary, cv::Mat &amp;labels, bool sz)</argsstring>
+        <name>uvt</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>ucm_mtr</declname>
+        </param>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>seeds</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>boundary</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>labels</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>sz</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="114" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="114" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a1855d79418858ed18298573b6d02bd9b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::ucm2seg</definition>
+        <argsstring>(const cv::Mat &amp;ucm_mtr, cv::Mat &amp;boundary, cv::Mat &amp;labels, double thres, bool sz)</argsstring>
+        <name>ucm2seg</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>ucm_mtr</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>boundary</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>labels</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>thres</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>sz</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="163" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="163" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1ad8c989479acc8ac3c425e92c232ba3b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::viswatershed</definition>
+        <argsstring>(InputArray _src, InputOutputArray markers, int sz, double c)</argsstring>
+        <name>viswatershed</name>
+        <param>
+          <type>InputArray</type>
+          <declname>_src</declname>
+        </param>
+        <param>
+          <type>InputOutputArray</type>
+          <declname>markers</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/VisWatershed.cpp" line="322" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/VisWatershed.cpp" bodystart="322" bodyend="327"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1afcd7c36733bfd752489105ba45134aa8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::watershedFull</definition>
+        <argsstring>(const cv::Mat &amp;image, int window_size, cv::Mat &amp;regions)</argsstring>
+        <name>watershedFull</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>image</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>window_size</declname>
+        </param>
+        <param>
+          <type>cv::Mat &amp;</type>
+          <declname>regions</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/watershed.cpp" line="108" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/watershed.cpp" bodystart="108" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1ab1a89ed9a9478400509acfd95999bf51" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::buildW</definition>
+        <argsstring>(const cv::Mat &amp;input, double **&amp;T, int &amp;wz, double *&amp;D)</argsstring>
+        <name>buildW</name>
+        <param>
+          <type>const cv::Mat &amp;</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type>double **&amp;</type>
+          <declname>T</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>wz</declname>
+        </param>
+        <param>
+          <type>double *&amp;</type>
+          <declname>D</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/sPb/buildW.cpp" line="7" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/sPb/buildW.cpp" bodystart="7" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecv_1a0017e2c18f0f1ea3f442b5b0528b2f36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cv::normalise_cut</definition>
+        <argsstring>(double **T, int tlen, int rows, int cols, double *D, int nev, vector&lt; cv::Mat &gt; &amp;sPb_raw)</argsstring>
+        <name>normalise_cut</name>
+        <param>
+          <type>double **</type>
+          <declname>T</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>tlen</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>rows</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cols</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>D</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nev</declname>
+        </param>
+        <param>
+          <type>vector&lt; cv::Mat &gt; &amp;</type>
+          <declname>sPb_raw</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/sPb/normCut.cpp" line="16" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/sPb/normCut.cpp" bodystart="16" bodyend="66"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/gPb/filters.cpp" line="88" column="1"/>
+  </compounddef>
+</doxygen>

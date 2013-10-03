@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.5">
+  <compounddef id="class_active" kind="class" prot="public">
+    <compoundname>Active</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="class_active_1ab15a6be68f991b8eb03dd1cae2ff6fe1" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Active::nrg</definition>
+        <argsstring></argsstring>
+        <name>nrg</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="25" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_active_1a33e5f852c3c33cc8a1f681873592cffe" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Active::lbl</definition>
+        <argsstring></argsstring>
+        <name>lbl</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="26" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_active_1a4d3a99bd085ffea71f0b65719ad83b8c" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Active::px</definition>
+        <argsstring></argsstring>
+        <name>px</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="27" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_active_1aa276bfdc4f8f0ec3fd8a8a3a2cedab1e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Active::Active</definition>
+        <argsstring>()</argsstring>
+        <name>Active</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="29" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="29" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="function" id="class_active_1a1ddd274e6e9b3a44e4ce6bbd91b2e88b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Active::Active</definition>
+        <argsstring>(const double &amp;e, const double &amp;l, const int &amp;p)</argsstring>
+        <name>Active</name>
+        <param>
+          <type>const double &amp;</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>const double &amp;</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const int &amp;</type>
+          <declname>p</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="34" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="34" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="class_active_1a6244df0e860a17ff536fea2e269267ba" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Active::operator&lt;</definition>
+        <argsstring>(const Active &amp;x) const </argsstring>
+        <name>operator&lt;</name>
+        <param>
+          <type>const <ref refid="class_active" kindref="compound">Active</ref> &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="39" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="39" bodyend="41"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" line="23" column="1" bodyfile="/Users/diyang/Documents/gPb-master/opencv_gpb/src/seg/uvt.cpp" bodystart="23" bodyend="42"/>
+    <listofallmembers>
+      <member refid="class_active_1aa276bfdc4f8f0ec3fd8a8a3a2cedab1e" prot="public" virt="non-virtual"><scope>Active</scope><name>Active</name></member>
+      <member refid="class_active_1a1ddd274e6e9b3a44e4ce6bbd91b2e88b" prot="public" virt="non-virtual"><scope>Active</scope><name>Active</name></member>
+      <member refid="class_active_1a33e5f852c3c33cc8a1f681873592cffe" prot="public" virt="non-virtual"><scope>Active</scope><name>lbl</name></member>
+      <member refid="class_active_1ab15a6be68f991b8eb03dd1cae2ff6fe1" prot="public" virt="non-virtual"><scope>Active</scope><name>nrg</name></member>
+      <member refid="class_active_1a6244df0e860a17ff536fea2e269267ba" prot="public" virt="non-virtual"><scope>Active</scope><name>operator&lt;</name></member>
+      <member refid="class_active_1a4d3a99bd085ffea71f0b65719ad83b8c" prot="public" virt="non-virtual"><scope>Active</scope><name>px</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

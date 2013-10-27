@@ -5,7 +5,7 @@ LIBS = `pkg-config --libs opencv` -L/opt/local/lib -larpack -lparpack -L/opt/loc
 
 SRC = 	src/main.cpp 		   \
 	src/gPb/globalPb.cpp       \
-	src/gPb/filters.cpp        \
+	src/gPb/Filters.cpp        \
 	src/sPb/buildW.cpp         \
 	src/sPb/ic.cpp             \
 	src/sPb/affinity.cpp       \

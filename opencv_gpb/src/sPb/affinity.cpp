@@ -44,7 +44,7 @@ float C_IC_SS(float ic)
     val += (ic / 0.3130)*-1.3113;
 
     const float post = 1.0 / (1.0 + exp(-val));
-    if (!finite(post)) {
+    if (!isfinite(post)) {
         return 0;
     }
     if (post < 0) {

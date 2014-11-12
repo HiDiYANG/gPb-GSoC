@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = `pkg-config --cflags opencv` -I./include/gPb -I./include/sPb -I./include/seg
 
-LIBS = `pkg-config --libs opencv` -L/opt/local/lib -larpack -lparpack -L/opt/local/lib/gcc47 -lgfortran
+LIBS = `pkg-config --libs opencv` -L/opt/local/lib -larpack -lparpack
 
 SRC = 	src/main.cpp 		   \
 	src/gPb/globalPb.cpp       \

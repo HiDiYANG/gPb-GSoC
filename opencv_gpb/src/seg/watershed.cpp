@@ -141,8 +141,8 @@ watershedFull(const cv::Mat & image,
     //viscous forced watershed:
     //cv::viswatershed(image3, regions, 3, 0.015);
 
-    // OpenCV convention: -1 for boundaries, zone index start a 0
-    // Matlab convention: 0 for boundaries, zone index start a 1
+    // OpenCV convention: -1 for boundaries, zone index start at 0
+    // Matlab convention: 0 for boundaries, zone index start at 1
     regions = regions + 1;
 }
 }

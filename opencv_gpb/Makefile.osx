@@ -1,7 +1,10 @@
+#Makefile for OS X, compiles and runs OK using g++ == clang++ on 10.9, with homebrew versions of opencv and arpack
+
 CC = g++
+
 CFLAGS = `pkg-config --cflags opencv` -I./include/gPb -I./include/sPb -I./include/seg
 
-LIBS = `pkg-config --libs opencv` -L/opt/local/lib -larpack -lparpack
+LIBS = `pkg-config --libs opencv` -L/usr/local/lib -larpack
 
 SRC = 	src/main.cpp 		   \
 	src/gPb/globalPb.cpp       \

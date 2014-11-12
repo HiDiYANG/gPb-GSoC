@@ -51,6 +51,10 @@ void on_trackbar(int, void* )
 int main(int argc, char** argv) {
 
     //info block
+    if (argc < 2) {
+        cout<<"Give the name of an image file to analyse using gPb"<<endl;
+        return 0;
+    }
     system("clear");
     cout<<"(before running it, roughly mark the areas on the ucm window)"<<endl;
     cout<<"Press 'r' - resort the original ucm, and remark"<<endl;

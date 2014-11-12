@@ -99,19 +99,19 @@ assert( 0 <= diff && diff <= 255 ); \
 
     if( CV_MAT_TYPE(src->type) != CV_8UC3 ) {
         printf("Only 8-bit, 3-channel input images are supported");
-        exit;
+        exit(EXIT_FAILURE);
     }
     //CV_ERROR( CV_StsUnsupportedFormat, "Only 8-bit, 3-channel input images are supported" );
 
     if( CV_MAT_TYPE(dst->type) != CV_32SC1 ) {
         printf("Only 32-bit, 1-channel output images are supported");
-        exit;
+        exit(EXIT_FAILURE);
     }
     //CV_ERROR( CV_StsUnsupportedFormat, "Only 32-bit, 1-channel output images are supported" );
 
     if( !CV_ARE_SIZES_EQ( src, dst )) {
         printf("The input and output images must have the same size");
-        exit;
+        exit(EXIT_FAILURE);
     }
     //CV_ERROR( CV_StsUnmatchedSizes, "The input and output images must have the same size" );
 
@@ -188,7 +188,7 @@ assert( 0 <= diff && diff <= 255 ); \
 
     // if there is no markers, exit immediately
     if( i == NQ )
-        exit;
+        exit(EXIT_FAILURE);
 
     active_queue = i;
     img = src->data.ptr;
@@ -224,17 +224,20 @@ assert( 0 <= diff && diff <= 255 ); \
         t = m[-1];
         if( t > 0 ) lab = t;
         t = m[1];
-        if( t > 0 )
+        if( t > 0 ) {
             if( lab == 0 ) lab = t;
             else if( t != lab ) lab = WSHED;
+        }
         t = m[-mstep];
-        if( t > 0 )
+        if( t > 0 ) {
             if( lab == 0 ) lab = t;
             else if( t != lab ) lab = WSHED;
+        }
         t = m[mstep];
-        if( t > 0 )
+        if( t > 0 ) {
             if( lab == 0 ) lab = t;
             else if( t != lab ) lab = WSHED;
+        }
 
         assert( lab != 0 );
         m[0] = lab;

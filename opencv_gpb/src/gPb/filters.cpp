@@ -488,12 +488,12 @@ textonRun(const cv::Mat & input,
             output.at<float>(i,j)=temp.at<float>(i,j);
 }
 
-cv::Mat_<int>
+cv::Mat_<float>
 weight_matrix_disc(int r)
 {
     int size = 2*r + 1;
     int r_sq = r*r;
-    cv::Mat_<int> weights = cv::Mat_<int>::zeros(size, size);
+    cv::Mat_<float> weights = cv::Mat_<float>::zeros(size, size);
     for (int i = 0; i< weights.rows; i++)
         for (int j = 0; j< weights.cols; j++) {
             int x_sq = (i-r)*(i-r);
@@ -528,7 +528,7 @@ class ParallelInvokerUnit {
 private:
     double *oris_;
     int num_bins_;
-    cv::Mat_<int> weights_;
+    cv::Mat_<float> weights_;
     cv::Mat_<int> label_exp_;
     cv::Mat slice_map_;
     cv::Mat gaussian_kernel_;
